@@ -33,4 +33,8 @@ public class CityData  {
     private String state;
     private String timezone;
 
+    public WeatherId getWeatherId(){
+        return new WeatherId(lat,lon);
+    }
+
 }

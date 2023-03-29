@@ -10,22 +10,22 @@ import lombok.*;
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Entity
-@IdClass(WeatherId.class)
-@Table(name="weather_data")
+//@Entity
+//@IdClass(WeatherId.class)
+//@Table(name="weather_data")
 
 public class WeatherData {
-    @Id
+   // @Id
     private double lat;
-    @Id
+    //@Id
     private double lon;
     private String timezone;
-    @Embedded
+    //@Embedded
     private Current current;
-    @Embedded
-    @ElementCollection
-    @JoinTable(name="daily")
-    @OrderColumn(name="daily_index")
+    //@Embedded
+    //@ElementCollection
+    //@JoinTable(name="daily")
+    //@OrderColumn(name="daily_index")
     private Daily[] daily;
     public void setLatLon(double lat, double lon){
         this.lat=lat;

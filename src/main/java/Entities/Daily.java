@@ -2,8 +2,7 @@ package Entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.Embedded;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
@@ -17,7 +16,7 @@ import java.time.format.DateTimeFormatter;
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Embeddable
+//@Embeddable
 public class Daily implements Serializable {
     private long dt;
     private long sunrise;
@@ -26,10 +25,10 @@ public class Daily implements Serializable {
     private long moonset;
     @JsonProperty("moon_phase")
     private float moonPhase;
-    @Embedded
+    //@Embedded
     private Temp temp;
     @JsonProperty("feels_like")
-    @Embedded
+    //@Embedded
     private FeelsLike feelsLike;
     private int pressure;
     private int humidity;
@@ -41,7 +40,8 @@ public class Daily implements Serializable {
     private int windDegree;
     @JsonProperty("wind_gust")
     private float windGust;
-    private Weather[] weather;
+
+    //private Weather[] weather;
     private int clouds;
     private float pop;
     private float rain;

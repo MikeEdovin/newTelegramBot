@@ -1,7 +1,7 @@
 package Config;
 
+import GeoWeatherPackage.IGeoWeatherProvider;
 import GeoWeatherPackage.GeoWeatherProvider;
-import GeoWeatherPackage.GeoWeatherProviderImpl;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 
@@ -11,7 +11,7 @@ public class GeoWeatherConfig {
         return new RestTemplateBuilder();
     }
     @Bean
-    public GeoWeatherProvider geoWeatherProvider(RestTemplateBuilder restTemplateBuilder){
-        return new GeoWeatherProviderImpl(restTemplateBuilder);
+    public IGeoWeatherProvider geoWeatherProvider(RestTemplateBuilder restTemplateBuilder){
+        return new GeoWeatherProvider(restTemplateBuilder);
     }
 }

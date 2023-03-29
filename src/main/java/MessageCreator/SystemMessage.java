@@ -10,16 +10,13 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
-
-import java.sql.SQLException;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
+
 public class SystemMessage {
     private static final String END_LINE = "\n";
-    SendMessage sendMessage;
+    private SendMessage sendMessage;
 
     private SystemMessage(MessageBuilder builder) {
         super();

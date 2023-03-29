@@ -14,13 +14,13 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public abstract class Bot extends TelegramLongPollingBot {
     public Queue<Object> sendQueue=new ConcurrentLinkedQueue<>();
-    Queue<Object> receiveQueue = new ConcurrentLinkedQueue<>();
+    public Queue<Object> receiveQueue = new ConcurrentLinkedQueue<>();
     abstract boolean isStarted();
     abstract void setStartedStatus(boolean status);
     abstract public String getBotToken();
     abstract public void onUpdateReceived(Update update);
     abstract public void onUpdatesReceived(List<Update> updates);
     abstract InlineKeyboardMarkup updateInlineKeyBoard(CallbackQuery query);
-    abstract void botConnect() throws TelegramApiException;
+    abstract public void botConnect() throws TelegramApiException;
     abstract void executeSend(BotApiMethod<Message> message);
 }

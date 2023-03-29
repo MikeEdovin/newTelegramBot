@@ -15,7 +15,7 @@ import java.time.format.DateTimeFormatter;
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Embeddable
+//@Embeddable
 public class Current {
 
     @JsonProperty("dt")

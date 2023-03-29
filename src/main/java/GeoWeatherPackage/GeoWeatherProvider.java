@@ -7,13 +7,13 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cache.CacheManager;
 import org.springframework.web.client.RestTemplate;
 
-public class GeoWeatherProviderImpl implements GeoWeatherProvider {
-    @Autowired
-    private CacheManager cacheManager;
+public class GeoWeatherProvider implements IGeoWeatherProvider {
+   // @Autowired
+  //  private CacheManager cacheManager;
     private final RestTemplate restTemplate;
     private final String APP_ID;
 
-    public GeoWeatherProviderImpl(RestTemplateBuilder restTemplateBuilder) {
+    public GeoWeatherProvider(RestTemplateBuilder restTemplateBuilder) {
         this.restTemplate = restTemplateBuilder.build();
         this.APP_ID=System.getenv("WEATHER_MAP_APP_ID");
     }

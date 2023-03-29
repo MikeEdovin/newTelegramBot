@@ -14,8 +14,8 @@ import java.io.Serializable;
 @JsonIgnoreProperties(ignoreUnknown = true)
 
 public class Weather implements Serializable {
-    @JsonProperty("id")
-    private String weatherId;
+
+    private String id;
     private String main;
     private String description;
     private String icon;

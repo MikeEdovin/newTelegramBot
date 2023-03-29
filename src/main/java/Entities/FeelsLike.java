@@ -12,7 +12,7 @@ import lombok.*;
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Embeddable
+//@Embeddable
 public class FeelsLike  {
     private long id;
     @JsonProperty("day")

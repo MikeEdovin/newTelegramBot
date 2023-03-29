@@ -2,11 +2,11 @@ package BotPackage;
 
 import Service.ICityService;
 import Service.IUserService;
-import Service.IWeatherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -16,8 +16,6 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,10 +30,8 @@ public class WeatherBot extends Bot {
     ICityService cityService;
     @Autowired
     IUserService userService;
-    @Autowired
-    IWeatherService weatherService;
-    @Autowired
-    Logger logger;
+   // @Autowired
+    Logger logger=Logger.getLogger("BotLogger");
 
     public WeatherBot(String botName,String botToken){
         this.botName=botName;
@@ -120,6 +116,7 @@ public class WeatherBot extends Bot {
             TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
             botsApi.registerBot(this);
             setStartedStatus(true);
+
     }
 
     @Override

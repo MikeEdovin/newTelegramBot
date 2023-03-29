@@ -1,8 +1,5 @@
 package Entities;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,25 +13,34 @@ import java.util.Stack;
 @Setter
 @Entity
 @Table(name="users")
+
 public class User {
     @Id
     @Column(name="user_id")
     private long userId;
-    @Column(name="current_city")
-    private String currentCity;
-    @Column(name="last_three_cities")
-    private String[] lastThreeCities;
+    @OneToOne
+    @JoinColumns({ @JoinColumn(name = "current_city_lat", referencedColumnName = "lat"),
+            @JoinColumn(name = "current_city_lon", referencedColumnName = "lon") })
+    private CityData currentCity;
+
+    @Embedded
+    @ElementCollection
+    @JoinTable(name="lastThreeCities")
+    @OrderColumn(name="lastThreeCities_index")
+    private CityData[] lastThreeCities;
     @Column(name="notification_time")
     private LocalTime notificationTime;
-    @Column(name="notification_city")
-    private String notificationCity;
+    @OneToOne
+    @JoinColumns({ @JoinColumn(name = "notification_city_lat", referencedColumnName = "lat"),
+            @JoinColumn(name = "notification_city_lon", referencedColumnName = "lon") })
+    private CityData notificationCity;
     @Column(name="notification_days")
     private int[]notificationDays;
 
     public User(){}
     public User(long userId){
         this.userId = userId;
-        this.lastThreeCities=new String[3];
+        this.lastThreeCities=new CityData[3];
         this.notificationDays=new int[7];
     }
     public void addNotificationDay(int day){notificationDays[day]=day;}
@@ -53,19 +59,19 @@ public class User {
     }
 
 
-    public void addCityToLastCitiesList(String city){
+    public void addCityToLastCitiesList(CityData city){
         boolean alreadyInList=false;
-        for(String item:lastThreeCities){
-            if (item != null && item.equalsIgnoreCase(city)) {
+        for(CityData item:lastThreeCities){
+            if (item != null && item.getLat()== city.getLat()&&item.getLon()==city.getLon()) {
                 alreadyInList = true;
                 break;
             }
         }
         if(!alreadyInList) {
-            Stack<String> stack = new Stack<>();
-            for (String lastThreeCity : lastThreeCities) {
-                if (lastThreeCity != null) {
-                    stack.add(lastThreeCity);
+            Stack<CityData> stack = new Stack<>();
+            for (CityData item : lastThreeCities) {
+                if (item != null) {
+                    stack.add(item);
                 }
             }
             stack.add(city);
