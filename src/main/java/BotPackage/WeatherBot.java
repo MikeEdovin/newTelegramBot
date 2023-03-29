@@ -1,4 +1,4 @@
-package Bot;
+package BotPackage;
 
 import Service.ICityService;
 import Service.IUserService;
@@ -25,8 +25,7 @@ import java.util.logging.Logger;
 
 public class WeatherBot extends Bot {
     private boolean started;
-    private Queue<Object> sendQueue;
-    private Queue<Object> receiveQueue;
+
     private final String botName;
     private final String botToken;
     @Autowired
@@ -41,8 +40,8 @@ public class WeatherBot extends Bot {
     public WeatherBot(String botName,String botToken){
         this.botName=botName;
         this.botToken=botToken;
-        this.receiveQueue=new ConcurrentLinkedQueue<>();
-        this.sendQueue=new ConcurrentLinkedQueue<>();
+
+
         ConsoleHandler handler=new ConsoleHandler();
         handler.setLevel(Level.INFO);
         logger.addHandler(handler);

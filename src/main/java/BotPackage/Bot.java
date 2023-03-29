@@ -1,4 +1,4 @@
-package Bot;
+package BotPackage;
 
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
@@ -13,8 +13,8 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public abstract class Bot extends TelegramLongPollingBot {
-    //Queue<Object> sendQueue=new ConcurrentLinkedQueue<>();
-    //Queue<Object> receiveQueue = new ConcurrentLinkedQueue<>();
+    public Queue<Object> sendQueue=new ConcurrentLinkedQueue<>();
+    Queue<Object> receiveQueue = new ConcurrentLinkedQueue<>();
     abstract boolean isStarted();
     abstract void setStartedStatus(boolean status);
     abstract public String getBotToken();
