@@ -2,21 +2,19 @@ package Entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Entity
 @IdClass(WeatherId.class)
 @Table(name="weather_data")
 
 public class WeatherData {
-
-
     @Id
     private double lat;
     @Id
