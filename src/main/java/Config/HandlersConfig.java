@@ -1,13 +1,12 @@
 package Config;
 
-import Handlers.DefaultHandler;
-import Handlers.IHandler;
-import Handlers.SystemHandler;
-import Handlers.WeatherHandler;
+import Handlers.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 @Configuration
+@EnableAsync
 public class HandlersConfig {
     @Bean(name="defaultHandler")
     public IHandler getDefaultHandler(){
@@ -21,4 +20,9 @@ public class HandlersConfig {
     public IHandler getWeatherHandler(){
         return new WeatherHandler();
     }
+    @Bean
+    public IHandlerFactory getHandlerFactory(){
+        return new HandlerFactory();
+    }
+
 }

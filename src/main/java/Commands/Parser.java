@@ -9,6 +9,7 @@ public class Parser {
         }
         ParsedCommand result = new ParsedCommand(Command.NONE, trimText);
         for (Command c : Command.values()) {
+            System.out.println("c "+c+" trim "+trimText);
             if (trimText.equalsIgnoreCase(c.description.trim())) {
                 result.setCommand(c);
                 break;

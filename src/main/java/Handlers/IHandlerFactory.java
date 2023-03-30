@@ -1,7 +1,9 @@
 package Handlers;
 
-import Commands.Command;
+import org.telegram.telegrambots.meta.api.objects.Update;
+
+import java.util.concurrent.Future;
 
 public interface IHandlerFactory {
-    IHandler GetHandlerForCommand(Command command);
+    Future<IHandler> getHandlerForCommand(Update update);
 }

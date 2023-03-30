@@ -1,10 +1,7 @@
 package com.newbot.launch;
 
 import BotPackage.Bot;
-import Config.BotConfig;
-import Config.DBConfig;
-import Config.GeoWeatherConfig;
-import Config.ServiceConfig;
+import Config.*;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
@@ -12,7 +9,7 @@ import org.springframework.context.annotation.Import;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @SpringBootApplication
-@Import({GeoWeatherConfig.class, DBConfig.class, BotConfig.class, ServiceConfig.class})
+@Import({GeoWeatherConfig.class, DBConfig.class, BotConfig.class, ServiceConfig.class, HandlersConfig.class})
 public class NewApplication {
 
 	public static void main(String[] args) {
