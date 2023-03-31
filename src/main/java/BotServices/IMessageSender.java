@@ -1,8 +1,6 @@
 package BotServices;
 
-public interface IMessageReceiver extends Runnable {
+public interface IMessageSender extends Runnable{
     void run();
     void stop();
-
-
 }

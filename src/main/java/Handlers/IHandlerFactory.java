@@ -1,9 +1,11 @@
 package Handlers;
 
+import Commands.ParsedCommand;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.concurrent.Future;
 
 public interface IHandlerFactory {
-    Future<IHandler> getHandlerForCommand(Update update);
+    IHandler getHandlerForCommand(ParsedCommand parsedCommand);
 }

@@ -1,15 +1,18 @@
 package Commands;
 
+import com.vdurmont.emoji.Emoji;
+import com.vdurmont.emoji.EmojiParser;
+
 public class Parser {
     public static ParsedCommand GetParsedCommand(String text){
-
         String trimText="";
         if(text!=null){
-            trimText=text.trim();
+            trimText= filterEmojies(text).trim();
+
         }
         ParsedCommand result = new ParsedCommand(Command.NONE, trimText);
         for (Command c : Command.values()) {
-            System.out.println("c "+c+" trim "+trimText);
+            System.out.println("c "+c.description+" "+c.description.length()+" trim "+trimText+" "+trimText.length());
             if (trimText.equalsIgnoreCase(c.description.trim())) {
                 result.setCommand(c);
                 break;
@@ -33,6 +36,12 @@ public class Parser {
             }
         }
         return result;
+    }
+
+    private static String filterEmojies(String input){
+        int[]filtered=input.codePoints().filter((c)->Character.isLetter(c)
+                ||Character.isDigit(c)||Character.isWhitespace(c)).toArray();
+        return new String(filtered, 0, filtered.length);
     }
 
 }

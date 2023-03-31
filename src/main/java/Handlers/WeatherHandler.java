@@ -20,10 +20,12 @@ public class WeatherHandler implements IHandler {
     IUserService userService;
     @Autowired
     ICityService cityService;
+    @Autowired
+    Bot bot;
 
 
     @Override
-    public SendMessage operate(ParsedCommand parsedCommand, Update update) {
+    public void operate(ParsedCommand parsedCommand, Update update) {
         Command command = parsedCommand.getCommand();
         long userID = update.getMessage().getFrom().getId();
         User user = userService.saveIfNotExist(new User(userID));
@@ -43,14 +45,14 @@ public class WeatherHandler implements IHandler {
                 if (currentCity != null) {
                     weatherData=geoWeatherProvider
                             .getWeatherData(currentCity.getLat(), currentCity.getLon());
-                    return new WeatherMessage.MessageBuilder(userID)
+                    bot.sendQueue.add(new WeatherMessage.MessageBuilder(userID)
                             .setForecastText(weatherData,currentCity,nrOfDays)
-                            .build().getSendMessage();
+                            .build().getSendMessage());
                 }
             }
 
 
         }
-        return null;//delete
+
     }
 }
