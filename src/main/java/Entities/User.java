@@ -1,4 +1,5 @@
 package Entities;
+import States.StateEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,13 +12,21 @@ import java.util.Stack;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name="users")
 
 public class User {
+
+
     @Id
     @Column(name="user_id")
     private long userId;
+
+    private StateEnum currentState;
+    private StateEnum previousState;
+
     @OneToOne
     @JoinColumns({ @JoinColumn(name = "current_city_lat", referencedColumnName = "lat"),
             @JoinColumn(name = "current_city_lon", referencedColumnName = "lon") })
@@ -27,7 +36,7 @@ public class User {
     @ElementCollection
     @JoinTable(name="lastThreeCities")
     @OrderColumn(name="lastThreeCities_index")
-    private CityData[] lastThreeCities;
+    private CityData[] lastThreeCities=new CityData[3];
     @Column(name="notification_time")
     private LocalTime notificationTime;
     @OneToOne
@@ -35,14 +44,13 @@ public class User {
             @JoinColumn(name = "notification_city_lon", referencedColumnName = "lon") })
     private CityData notificationCity;
     @Column(name="notification_days")
-    private int[]notificationDays;
+    private int[]notificationDays=new int[7];
 
-    public User(){}
+
     public User(long userId){
-        this.userId = userId;
-        this.lastThreeCities=new CityData[3];
-        this.notificationDays=new int[7];
+        this.userId=userId;
     }
+
     public void addNotificationDay(int day){notificationDays[day]=day;}
     public void deleteNotificationDay(int day){notificationDays[day]=0;}
     public boolean isNotificationDay(int day) {

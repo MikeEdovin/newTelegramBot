@@ -4,18 +4,17 @@ import BotPackage.Bot;
 import Commands.Command;
 import Commands.ParsedCommand;
 import Entities.*;
-import GeoWeatherPackage.IGeoWeatherProvider;
+import GeoWeatherPackage.GeoWeatherProvider;
 import MessageCreator.WeatherMessage;
 import Service.ICityService;
 import Service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class WeatherHandler implements IHandler {
 
     @Autowired
-    IGeoWeatherProvider geoWeatherProvider;
+    GeoWeatherProvider geoWeatherProvider;
     @Autowired
     IUserService userService;
     @Autowired
@@ -25,10 +24,9 @@ public class WeatherHandler implements IHandler {
 
 
     @Override
-    public void operate(ParsedCommand parsedCommand, Update update) {
+    public void operate(ParsedCommand parsedCommand, long userId) {
         Command command = parsedCommand.getCommand();
-        long userID = update.getMessage().getFrom().getId();
-        User user = userService.saveIfNotExist(new User(userID));
+        User user = userService.saveIfNotExist(new User(userId));
         CityData currentCity = user.getCurrentCity();
         WeatherData weatherData;
         int nrOfDays;
@@ -45,7 +43,7 @@ public class WeatherHandler implements IHandler {
                 if (currentCity != null) {
                     weatherData=geoWeatherProvider
                             .getWeatherData(currentCity.getLat(), currentCity.getLon());
-                    bot.sendQueue.add(new WeatherMessage.MessageBuilder(userID)
+                    bot.sendQueue.add(new WeatherMessage.MessageBuilder(userId)
                             .setForecastText(weatherData,currentCity,nrOfDays)
                             .build().getSendMessage());
                 }

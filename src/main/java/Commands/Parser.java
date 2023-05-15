@@ -4,6 +4,19 @@ import com.vdurmont.emoji.Emoji;
 import com.vdurmont.emoji.EmojiParser;
 
 public class Parser {
+
+    public static Command getCommand(String text) {
+        String trimText = "";
+        if (text != null) {
+            trimText = filterEmojies(text).trim();
+            for (Command c : Command.values()) {
+                if (trimText.equalsIgnoreCase(c.description.trim())) {
+                    return c;
+                }
+            }
+        }
+        return Command.NONE;
+    }
     public static ParsedCommand GetParsedCommand(String text){
         String trimText="";
         if(text!=null){

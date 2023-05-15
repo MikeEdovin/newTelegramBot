@@ -4,8 +4,8 @@ import BotServices.Emojies;
 import Commands.Command;
 import NotificationsPackage.Days;
 import Service.IUserService;
-import ch.qos.logback.core.model.conditional.ElseModel;
-import lombok.Getter;
+import States.State;
+import States.StateEnum;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -13,15 +13,15 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
+
 import java.util.ArrayList;
 import java.util.List;
 
-
-public class SystemMessage {
+public class StateMessageBuilder {
     private static final String END_LINE = "\n";
     private SendMessage sendMessage;
 
-    private SystemMessage(MessageBuilder builder) {
+    private StateMessageBuilder(MessageBuilder builder) {
         super();
         this.sendMessage = builder.sendMessage;
 
@@ -66,13 +66,13 @@ public class SystemMessage {
             return this;
 
         }
-        public MessageBuilder setKeyBoard(Command command) {
-            sendMessage.setText(command.description);
+        public MessageBuilder setKeyBoard(StateEnum state) {
+            sendMessage.setText(state.description);
             ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
             List<KeyboardRow> keyboard = new ArrayList<>();
             KeyboardRow row = new KeyboardRow();
-            switch (command) {
-                case START -> {
+            switch (state) {
+                case MAIN -> {
                     row.add("Current weather "+ Emojies.CURRENT.getEmoji());
                     row.add("Forecast for "+Emojies.FOR_2_DAYS.getEmoji()+" days ");
                     keyboard.add(row);
@@ -102,7 +102,7 @@ public class SystemMessage {
                     row.add("Back "+Emojies.BACK.getEmoji());
                     keyboard.add(row);
                 }
-                case NOTIFICATION -> {
+                case NOTIF -> {
                     row.add("Set notification ");
                     keyboard.add(row);
                     row = new KeyboardRow();
@@ -129,8 +129,8 @@ public class SystemMessage {
             Days[] days = Days.values();
             for (int i = 0; i < 4; i++) {
                 InlineKeyboardButton button = new InlineKeyboardButton();
-               // if (!daoInterface.isNotificationDay(i + 1, Long.parseLong(this.sendMessage.getChatId()))) {
-                    button.setText(days[i].name());
+                // if (!daoInterface.isNotificationDay(i + 1, Long.parseLong(this.sendMessage.getChatId()))) {
+                button.setText(days[i].name());
                     /*
                 } else {
                     button.setText(days[i].name() + " " + Emojies.DONE.getEmoji());
@@ -143,8 +143,8 @@ public class SystemMessage {
             }
             for (int i = 4; i < 7; i++) {
                 InlineKeyboardButton button = new InlineKeyboardButton();
-               // if (!daoInterface.isNotificationDay(i + 1, Long.parseLong(this.sendMessage.getChatId()))) {
-                    button.setText(days[i].name());
+                // if (!daoInterface.isNotificationDay(i + 1, Long.parseLong(this.sendMessage.getChatId()))) {
+                button.setText(days[i].name());
                     /*
                 } else {
                     button.setText(days[i].name() + " " + Emojies.DONE.getEmoji());
@@ -163,8 +163,8 @@ public class SystemMessage {
         }
 
 
-        public SystemMessage build() {
-            return new SystemMessage(this);
+        public StateMessageBuilder build() {
+            return new StateMessageBuilder(this);
         }
 
     }
