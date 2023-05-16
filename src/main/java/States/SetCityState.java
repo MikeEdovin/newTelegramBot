@@ -2,8 +2,12 @@ package States;
 
 import BotPackage.Bot;
 import Commands.Command;
+import Commands.ParsedCommand;
+import Entities.CityData;
 import Entities.User;
+import GeoWeatherPackage.GeoWeatherProvider;
 import MessageCreator.StateMessageBuilder;
+import MessageCreator.WeatherMessage;
 import Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -12,6 +16,8 @@ public class SetCityState implements State{
     Bot bot;
     @Autowired
     UserService userService;
+    @Autowired
+    GeoWeatherProvider geoWeatherProvider;
 
     private final String TITLE="setCity";
 
@@ -21,10 +27,14 @@ public class SetCityState implements State{
     }
 
     @Override
-    public void gotInput(User user, Command command) {
+    public void gotInput(User user, ParsedCommand parsedCommand) {
+        Command command=parsedCommand.getCommand();
         switch (command){
             case SET_CITY -> {
-
+                user.setPreviousState(user.getCurrentState());
+                user.setCurrentState(StateEnum.NEWINPUT);
+                user=userService.update(user);
+                sendStateMessage(user,user.getCurrentState());
             }
             case BACK -> {
                 user.setCurrentState(user.getPreviousState());
@@ -39,8 +49,9 @@ public class SetCityState implements State{
     @Override
     public void sendStateMessage(User user,StateEnum state) {
         bot.sendQueue.add(new StateMessageBuilder.MessageBuilder(user.getUserId()).
-                setKeyBoard(state).build().getSendMessage());
-        System.out.println("set state");
+                setText(state)
+                .setKeyBoard(state).build().getSendMessage());
+
 
     }
 

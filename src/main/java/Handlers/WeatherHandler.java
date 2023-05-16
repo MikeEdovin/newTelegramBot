@@ -9,7 +9,6 @@ import MessageCreator.WeatherMessage;
 import Service.ICityService;
 import Service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class WeatherHandler implements IHandler {
 
@@ -32,8 +31,8 @@ public class WeatherHandler implements IHandler {
         int nrOfDays;
 
         switch (command) {
-            case WEATHER_NOW, FOR_48_HOURS, FOR_7_DAYS -> {
-                if (command == Command.WEATHER_NOW) {
+            case CURRENT_WEATHER, FOR_48_HOURS, FOR_7_DAYS -> {
+                if (command == Command.CURRENT_WEATHER) {
                     nrOfDays = 1;
                 } else if (command == Command.FOR_48_HOURS) {
                     nrOfDays = 2;

@@ -1,10 +1,10 @@
 package Commands;
 
 public enum Command {
-    NONE(""),
+    NONE("None"),
     START("Start"),
     HELP("Need help"),
-    WEATHER_NOW("Current weather"),
+    CURRENT_WEATHER("Current weather"),
     FOR_48_HOURS("Forecast for 2 days"),
     FOR_7_DAYS("Forecast for 7 days"),
     NOTIFICATION("Notifications"),

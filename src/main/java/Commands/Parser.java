@@ -25,7 +25,7 @@ public class Parser {
         }
         ParsedCommand result = new ParsedCommand(Command.NONE, trimText);
         for (Command c : Command.values()) {
-            System.out.println("c "+c.description+" "+c.description.length()+" trim "+trimText+" "+trimText.length());
+            //System.out.println("c "+c.description+" "+c.description.length()+" trim "+trimText+" "+trimText.length());
             if (trimText.equalsIgnoreCase(c.description.trim())) {
                 result.setCommand(c);
                 break;
@@ -44,10 +44,11 @@ public class Parser {
                 builder.append(":").append(parts[1]);
                 result.setText(builder.toString());
             } else {
-                result.setCommand(Command.GET_CITY_FROM_INPUT);
+                //result.setCommand(Command.NONE);
                 result.setText(trimText);
             }
         }
+        System.out.println("Command "+result.getCommand()+" text "+result.getText());
         return result;
     }
 

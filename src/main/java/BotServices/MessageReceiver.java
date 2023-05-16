@@ -52,15 +52,16 @@ public class MessageReceiver implements IMessageReceiver {
                     handler.operate(parsedCommand, userId);
 
                      */
-                    Command command=Parser.getCommand(update.getMessage().getText());
+                    ParsedCommand parsedCommand=Parser.GetParsedCommand(update.getMessage().getText());
+                    //Command command=Parser.getCommand(update.getMessage().getText());
                     long userId=update.getMessage().getFrom().getId();
                     user=userService.saveIfNotExist(new User(userId));
                     System.out.println("State "+user.getCurrentState());
                     state= stateFactory.getState(user.getCurrentState());
 
 
-                    state.gotInput(user,command);
-                    System.out.println(command.description+" new "+" state "+user.getCurrentState().description);
+                    state.gotInput(user,parsedCommand);
+                    System.out.println(parsedCommand.getCommand().description+" new "+" state "+user.getCurrentState().description);
 
 
                 }

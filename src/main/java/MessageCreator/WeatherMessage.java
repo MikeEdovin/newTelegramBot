@@ -1,7 +1,13 @@
 package MessageCreator;
 
+import BotServices.Emojies;
 import Entities.*;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class WeatherMessage {
     private static final String END_LINE = "\n";
@@ -23,6 +29,30 @@ public class WeatherMessage {
             sendMessage = new SendMessage();
             sendMessage.setChatId(userId);
         }
+
+        public MessageBuilder setCityChoosingKeyBoard(CityData[] cities){
+            sendMessage.setText("Choose right city");
+            ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+            List<KeyboardRow> keyboard = new ArrayList<>();
+            KeyboardRow row = new KeyboardRow();
+            for (CityData item : cities) {
+                if (item != null) {
+                    row = new KeyboardRow();
+                    row.add(item.getName()+" ,"+item.getCountry());
+                    keyboard.add(row);
+                }
+            }
+            row = new KeyboardRow();
+            row.add("Back" + Emojies.BACK.getEmoji());
+            keyboard.add(row);
+            keyboardMarkup.setKeyboard(keyboard);
+            keyboardMarkup.setResizeKeyboard(true);
+            sendMessage.setReplyMarkup(keyboardMarkup);
+            return this;
+        }
+
+
+
 
         public MessageBuilder setForecastText(WeatherData weatherData, CityData city, int nrOfDays) {
             StringBuilder text = new StringBuilder();

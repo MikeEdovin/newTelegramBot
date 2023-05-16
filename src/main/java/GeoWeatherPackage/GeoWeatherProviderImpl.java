@@ -9,11 +9,11 @@ public class GeoWeatherProviderImpl implements GeoWeatherProvider {
    // @Autowired
   //  private CacheManager cacheManager;
     private final RestTemplate restTemplate;
-    private final String APP_ID;
+    private final String APP_ID="5a1a2ebae8f3c31263be33c36cdc727c";//ENV
 
     public GeoWeatherProviderImpl(RestTemplateBuilder restTemplateBuilder) {
         this.restTemplate = restTemplateBuilder.build();
-        this.APP_ID=System.getenv("WEATHER_MAP_APP_ID");
+        //this.APP_ID=System.getenv("WEATHER_MAP_APP_ID");
     }
     @Override
     public WeatherData getWeatherData(Double latitude, Double longitude) {

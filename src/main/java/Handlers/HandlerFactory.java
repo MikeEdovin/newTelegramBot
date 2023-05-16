@@ -3,16 +3,10 @@ package Handlers;
 import Commands.Command;
 import Commands.ParsedCommand;
 import Commands.Parser;
-import Entities.User;
 import Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
-
-import java.util.concurrent.Future;
 
 public class HandlerFactory implements IHandlerFactory {
     @Autowired
@@ -38,7 +32,7 @@ public class HandlerFactory implements IHandlerFactory {
                     this.notifyHandler;
 
              */
-            case WEATHER_NOW, GET_CITY_FROM_INPUT, ADD_CITY_TO_USER, CHOOSE_FROM_LAST_THREE , SET_CITY, FOR_48_HOURS, FOR_7_DAYS ->
+            case CURRENT_WEATHER, GET_CITY_FROM_INPUT, ADD_CITY_TO_USER, CHOOSE_FROM_LAST_THREE , SET_CITY, FOR_48_HOURS, FOR_7_DAYS ->
                     weatherHandler;
             default -> defaultHandler;
         };

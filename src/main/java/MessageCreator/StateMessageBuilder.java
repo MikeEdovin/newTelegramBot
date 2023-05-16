@@ -41,33 +41,20 @@ public class StateMessageBuilder {
         }
 
 
-        public MessageBuilder setText(Command command) {
-            switch (command) {
+        public MessageBuilder setText(StateEnum state) {
+            switch (state) {
+                case MAIN -> sendMessage.setText("Main menu");
+                case SETTINGS -> sendMessage.setText("Settings");
+                case NEWINPUT -> sendMessage.setText("Please, enter city name");
+                case NOTIF -> sendMessage.setText("Notifications settings");
 
-                case HELP -> {
-                    String messageText = "This is help message" + END_LINE + END_LINE +
-                            "Start - show main menu" + END_LINE +
-                            "Current weather "+ Emojies.CURRENT.getEmoji()
-                            + " - show current weather " + END_LINE +
-                            "Forecast for "+Emojies.FOR_2_DAYS.getEmoji()+" days "
-                            + " - show weather forecast for 2 days " + END_LINE +
-                            "Forecast for "+Emojies.FOR_7_DAYS.getEmoji()+" days "
-                            + " days - show weather forecast for 7 days " + END_LINE +
-                            "Notifications "+Emojies.NOTIFICATIONS.getEmoji()
-                            + " - set weather notifications " + END_LINE +
-                            "Settings "+ Emojies.SETTINGS.getEmoji()
-                            + " - show settings " + END_LINE;
-                    sendMessage.setText(messageText);
-                }
-                case WRONG_CITY_INPUT -> sendMessage.setText("Please, type the city name ");
-                case WRONG_TIME_INPUT -> sendMessage.setText("Wrong input, please try again");
-                case TIME_SETTINGS_ERROR -> sendMessage.setText("At first you need to choose city");
+
+
             }
             return this;
 
         }
         public MessageBuilder setKeyBoard(StateEnum state) {
-            sendMessage.setText(state.description);
             ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
             List<KeyboardRow> keyboard = new ArrayList<>();
             KeyboardRow row = new KeyboardRow();
