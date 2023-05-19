@@ -12,6 +12,7 @@ import MessageCreator.SystemMessage;
 import MessageCreator.WeatherMessage;
 import Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class MainState implements State {
     @Autowired
@@ -21,15 +22,11 @@ public class MainState implements State {
     @Autowired
     GeoWeatherProvider geoWeatherProvider;
 
-    private final String TITLE="Main menu";
+
+
 
     @Override
-    public String getTitle() {
-        return TITLE;
-    }
-
-    @Override
-    public void gotInput(User user, ParsedCommand parsedCommand) {
+    public void gotInput(User user, ParsedCommand parsedCommand, Update update) {
         Command command=parsedCommand.getCommand();
 
         switch (command){
@@ -64,7 +61,8 @@ public class MainState implements State {
                 if(currentCity!=null) {
                     WeatherData weatherData = geoWeatherProvider
                             .getWeatherData(currentCity.getLat(), currentCity.getLon());
-                    bot.sendQueue.add(new WeatherMessage.MessageBuilder(user.getUserId()).setForecastText(weatherData,currentCity,nrOfDays));
+                    System.out.println("weather"+weatherData.getCurrent().getDate());
+                    bot.sendQueue.add(new WeatherMessage.MessageBuilder(user.getUserId()).setForecastText(weatherData,currentCity,nrOfDays).build().getSendMessage());
                 }
             }
             case NOTIFICATION -> {
@@ -86,7 +84,9 @@ public class MainState implements State {
     }
 
     @Override
-    public void execute() {
+    public void gotCallBack(User user, Update update) {
 
     }
+
+
 }

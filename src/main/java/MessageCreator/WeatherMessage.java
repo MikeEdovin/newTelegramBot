@@ -2,8 +2,12 @@ package MessageCreator;
 
 import BotServices.Emojies;
 import Entities.*;
+import NotificationsPackage.Days;
+import Service.IUserService;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 
 import java.util.ArrayList;
@@ -47,6 +51,26 @@ public class WeatherMessage {
             keyboard.add(row);
             keyboardMarkup.setKeyboard(keyboard);
             keyboardMarkup.setResizeKeyboard(true);
+            sendMessage.setReplyMarkup(keyboardMarkup);
+            return this;
+        }
+
+        public MessageBuilder sendInlineCityChoosingKeyboard (CityData[] cities)  {
+            sendMessage.setText("Choose right city ");
+            InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+            List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+            List<InlineKeyboardButton> row;
+            for (int i=0;i<cities.length;i++) {
+                if (cities[i] != null) {
+                    row=new ArrayList<>();
+                    InlineKeyboardButton button = new InlineKeyboardButton();
+                    button.setText(cities[i].getName()+", "+cities[i].getCountry());
+                    button.setCallbackData(String.valueOf(i));
+                    row.add(button);
+                    keyboard.add(row);
+                }
+            }
+            keyboardMarkup.setKeyboard(keyboard);
             sendMessage.setReplyMarkup(keyboardMarkup);
             return this;
         }

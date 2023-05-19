@@ -8,8 +8,10 @@ import Entities.User;
 import GeoWeatherPackage.GeoWeatherProvider;
 import MessageCreator.StateMessageBuilder;
 import MessageCreator.WeatherMessage;
+import Service.CityService;
 import Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class NewInputState implements State {
     @Autowired
@@ -18,24 +20,22 @@ public class NewInputState implements State {
     GeoWeatherProvider geoWeatherProvider;
     @Autowired
     UserService userService;
+    @Autowired
+    CityService cityService;
 
-    private final String TITLE = "setCity";
-
-    @Override
-    public String getTitle() {
-        return TITLE;
-    }
+    private CityData[] cities;
 
     @Override
-    public void gotInput(User user, ParsedCommand parsedCommand) {
+    public void gotInput(User user, ParsedCommand parsedCommand, Update update) {
         Command command = parsedCommand.getCommand();
         switch (command) {
             case NONE -> {
-                CityData[] cities = geoWeatherProvider.getCityData(parsedCommand.getText());
+                cities = geoWeatherProvider.getCityData(parsedCommand.getText());
                 bot.sendQueue.add(new WeatherMessage
                         .MessageBuilder(user.getUserId())
-                        .setCityChoosingKeyBoard(cities).build().getSendMessage());
+                        .sendInlineCityChoosingKeyboard(cities).build().getSendMessage());
             }
+
             case BACK -> {
                 user.setCurrentState(user.getPreviousState());
                 user = userService.update(user);
@@ -53,9 +53,20 @@ public class NewInputState implements State {
 
         }
 
-        @Override
-        public void execute () {
+    @Override
+    public void gotCallBack(User user, Update update) {
+        int cityNumber= Integer.parseInt(update.getCallbackQuery().getData());
+        System.out.println("Citydata position "+cityNumber);
+        user.setCurrentCity(cities[cityNumber]);
+        System.out.println("current city "+user.getCurrentCity().getName());
+        cityService.save(user.getCurrentCity());
+        user.setCurrentState(StateEnum.MAIN);
+        userService.update(user);
 
-        }
+        sendStateMessage(user, user.getCurrentState());
+
     }
+
+
+}
 

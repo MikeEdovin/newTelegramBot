@@ -17,17 +17,15 @@ public class UserService implements IUserService {
     }
 
     @Override
+    @Transactional
     public Optional<User> getUserById(long userId) {
-        if(repository.existsById(userId)){
             return repository.findById(userId);
-        }
-        return Optional.empty();
     }
 
     @Override
     @Transactional
     public User update(User user) {
-        repository.findById(user.getUserId());
+        repository.deleteById(user.getUserId());
        return repository.save(user);
 
 

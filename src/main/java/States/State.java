@@ -1,15 +1,16 @@
 package States;
 
-import Commands.Command;
 import Commands.ParsedCommand;
 import Entities.User;
+import org.telegram.telegrambots.meta.api.objects.Update;
 
 public interface State {
 
-    String getTitle();
-    void gotInput(User user, ParsedCommand parsedCommand);
+    void gotInput(User user, ParsedCommand parsedCommand, Update update);
     void sendStateMessage(User user, StateEnum state);
-    void execute();
+
+    void gotCallBack(User user, Update update);
+
 
 
 }
