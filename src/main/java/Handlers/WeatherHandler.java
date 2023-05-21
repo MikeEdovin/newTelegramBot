@@ -6,8 +6,8 @@ import Commands.ParsedCommand;
 import Entities.*;
 import GeoWeatherPackage.GeoWeatherProvider;
 import MessageCreator.WeatherMessage;
-import Service.ICityService;
-import Service.IUserService;
+import Service.CityService;
+import Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class WeatherHandler implements IHandler {
@@ -15,9 +15,9 @@ public class WeatherHandler implements IHandler {
     @Autowired
     GeoWeatherProvider geoWeatherProvider;
     @Autowired
-    IUserService userService;
+    UserService userService;
     @Autowired
-    ICityService cityService;
+    CityService cityService;
     @Autowired
     Bot bot;
 

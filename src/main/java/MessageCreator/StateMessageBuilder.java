@@ -1,10 +1,8 @@
 package MessageCreator;
 
 import BotServices.Emojies;
-import Commands.Command;
 import NotificationsPackage.Days;
-import Service.IUserService;
-import States.State;
+import Service.UserService;
 import States.StateEnum;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -107,7 +105,7 @@ public class StateMessageBuilder {
             return this;
         }
 
-        public MessageBuilder sendInlineKeyboard (IUserService userService)  {
+        public MessageBuilder sendInlineKeyboard (UserService userService)  {
             sendMessage.setText("Choose days and enter notifications time in hh : mm");
             InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
             List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();

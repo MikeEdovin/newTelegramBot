@@ -4,16 +4,13 @@ import BotPackage.Bot;
 import Commands.Command;
 import Commands.ParsedCommand;
 import GeoWeatherPackage.GeoWeatherProvider;
-import Service.IUserService;
-import States.MainState;
+import Service.UserService;
 
-import States.State;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class SystemHandler implements IHandler{
     @Autowired
-    IUserService userService;
+    UserService userService;
     @Autowired
     Bot bot;
     @Autowired

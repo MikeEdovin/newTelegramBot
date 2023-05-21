@@ -1,13 +1,11 @@
 package BotPackage;
 
-import Handlers.IHandlerFactory;
-import Service.ICityService;
-import Service.IUserService;
+import Service.CityService;
+import Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -17,8 +15,6 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,9 +26,9 @@ public class WeatherBot extends Bot {
     private final String botName;
     private final String botToken;
     @Autowired
-    ICityService cityService;
+    CityService cityService;
     @Autowired
-    IUserService userService;
+    UserService userService;
 
     Logger logger=Logger.getLogger("BotLogger");
 

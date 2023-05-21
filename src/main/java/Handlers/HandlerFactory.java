@@ -3,7 +3,7 @@ package Handlers;
 import Commands.Command;
 import Commands.ParsedCommand;
 import Commands.Parser;
-import Service.UserService;
+import Service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -16,7 +16,7 @@ public class HandlerFactory implements IHandlerFactory {
     @Autowired
     IHandler defaultHandler;
     @Autowired
-    UserService userService;
+    UserServiceImpl userService;
     @Override
 
     public IHandler getHandlerForCommand(ParsedCommand parsedCommand) {

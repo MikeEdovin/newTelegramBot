@@ -7,8 +7,9 @@ import Entities.CityData;
 import Entities.User;
 import GeoWeatherPackage.GeoWeatherProvider;
 import MessageCreator.StateMessageBuilder;
-import Service.CityService;
-import Service.UserService;
+import MessageCreator.WeatherMessage;
+import Service.CityServiceImpl;
+import Service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
@@ -16,17 +17,19 @@ public class SetCityState implements State{
     @Autowired
     Bot bot;
     @Autowired
-    UserService userService;
+    UserServiceImpl userService;
     @Autowired
-    CityService cityService;
+    CityServiceImpl cityService;
     @Autowired
     GeoWeatherProvider geoWeatherProvider;
 
+    private CityData[]cities;
 
 
     @Override
     public void gotInput(User user, ParsedCommand parsedCommand, Update update) {
         Command command=parsedCommand.getCommand();
+
         switch (command){
             case SET_CITY -> {
                 user.setPreviousState(user.getCurrentState());
@@ -39,11 +42,19 @@ public class SetCityState implements State{
                 double longitude=update.getMessage().getLocation().getLongitude();
                 CityData cityData=geoWeatherProvider.getCityData(latitude,longitude);
                 user.setCurrentCity(cityData);
+                user.addCityToLastCitiesList(cityData);
                 System.out.println("current city "+user.getCurrentCity().getName());
                 cityService.save(user.getCurrentCity());
                 user.setCurrentState(StateEnum.MAIN);
                 userService.update(user);
                 sendStateMessage(user, user.getCurrentState());
+            }
+            case CHOOSE_FROM_LAST_THREE -> {
+                System.out.println("last3 caught");
+                cities= user.getLastThreeCities();
+                bot.sendQueue.add(new WeatherMessage
+                        .MessageBuilder(user.getUserId())
+                        .sendInlineCityChoosingKeyboard(cities).build().getSendMessage());
             }
             case BACK -> {
                 user.setCurrentState(user.getPreviousState());
@@ -66,6 +77,16 @@ public class SetCityState implements State{
 
     @Override
     public void gotCallBack(User user, Update update) {
+        int cityNumber= Integer.parseInt(update.getCallbackQuery().getData());
+        System.out.println("Citydata position "+cityNumber);
+        user.setCurrentCity(cities[cityNumber]);
+        user.addCityToLastCitiesList(cities[cityNumber]);
+        System.out.println("current city "+user.getCurrentCity().getName());
+        cityService.save(user.getCurrentCity());
+        user.setCurrentState(StateEnum.MAIN);
+        userService.update(user);
+
+        sendStateMessage(user, user.getCurrentState());
 
 
     }

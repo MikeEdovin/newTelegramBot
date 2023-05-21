@@ -10,7 +10,7 @@ import GeoWeatherPackage.GeoWeatherProvider;
 import MessageCreator.StateMessageBuilder;
 import MessageCreator.SystemMessage;
 import MessageCreator.WeatherMessage;
-import Service.UserService;
+import Service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
@@ -18,7 +18,7 @@ public class MainState implements State {
     @Autowired
     Bot bot;
     @Autowired
-    UserService userService;
+    UserServiceImpl userService;
     @Autowired
     GeoWeatherProvider geoWeatherProvider;
 

@@ -6,7 +6,7 @@ import Commands.ParsedCommand;
 import Commands.Parser;
 import Entities.User;
 import Handlers.IHandlerFactory;
-import Service.UserService;
+import Service.UserServiceImpl;
 import States.State;
 import States.StateFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ public class MessageReceiver implements IMessageReceiver {
     @Autowired
     IHandlerFactory handlerFactory;
     @Autowired
-    UserService userService;
+    UserServiceImpl userService;
     @Autowired
     StateFactory stateFactory;
 

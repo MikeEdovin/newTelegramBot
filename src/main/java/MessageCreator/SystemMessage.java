@@ -3,9 +3,7 @@ package MessageCreator;
 import BotServices.Emojies;
 import Commands.Command;
 import NotificationsPackage.Days;
-import Service.IUserService;
-import ch.qos.logback.core.model.conditional.ElseModel;
-import lombok.Getter;
+import Service.UserService;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -121,7 +119,7 @@ public class SystemMessage {
             return this;
         }
 
-        public MessageBuilder sendInlineKeyboard (IUserService userService)  {
+        public MessageBuilder sendInlineKeyboard (UserService userService)  {
             sendMessage.setText("Choose days and enter notifications time in hh : mm");
             InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
             List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();

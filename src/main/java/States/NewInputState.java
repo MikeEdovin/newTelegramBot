@@ -8,8 +8,8 @@ import Entities.User;
 import GeoWeatherPackage.GeoWeatherProvider;
 import MessageCreator.StateMessageBuilder;
 import MessageCreator.WeatherMessage;
-import Service.CityService;
-import Service.UserService;
+import Service.CityServiceImpl;
+import Service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
@@ -19,9 +19,9 @@ public class NewInputState implements State {
     @Autowired
     GeoWeatherProvider geoWeatherProvider;
     @Autowired
-    UserService userService;
+    UserServiceImpl userService;
     @Autowired
-    CityService cityService;
+    CityServiceImpl cityService;
 
     private CityData[] cities;
 
@@ -58,6 +58,7 @@ public class NewInputState implements State {
         int cityNumber= Integer.parseInt(update.getCallbackQuery().getData());
         System.out.println("Citydata position "+cityNumber);
         user.setCurrentCity(cities[cityNumber]);
+        user.addCityToLastCitiesList(cities[cityNumber]);
         System.out.println("current city "+user.getCurrentCity().getName());
         cityService.save(user.getCurrentCity());
         user.setCurrentState(StateEnum.MAIN);
