@@ -32,37 +32,18 @@ public class WeatherMessage {
             sendMessage.setChatId(userId);
         }
 
-        public MessageBuilder setCityChoosingKeyBoard(CityData[] cities){
-            sendMessage.setText("Choose right city");
-            ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
-            List<KeyboardRow> keyboard = new ArrayList<>();
-            KeyboardRow row = new KeyboardRow();
-            for (CityData item : cities) {
-                if (item != null) {
-                    row = new KeyboardRow();
-                    row.add(item.getName()+" ,"+item.getCountry());
-                    keyboard.add(row);
-                }
-            }
-            row = new KeyboardRow();
-            row.add("Back" + Emojies.BACK.getEmoji());
-            keyboard.add(row);
-            keyboardMarkup.setKeyboard(keyboard);
-            keyboardMarkup.setResizeKeyboard(true);
-            sendMessage.setReplyMarkup(keyboardMarkup);
-            return this;
-        }
 
-        public MessageBuilder sendInlineCityChoosingKeyboard (CityData[] cities)  {
+
+        public MessageBuilder sendInlineCityChoosingKeyboard (List<CityData>cities)  {
             sendMessage.setText("Choose right city ");
             InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
             List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
             List<InlineKeyboardButton> row;
-            for (int i=0;i<cities.length;i++) {
-                if (cities[i] != null) {
+            for (int i=0;i<cities.size();i++) {
+                if (cities.get(i) != null) {
                     row=new ArrayList<>();
                     InlineKeyboardButton button = new InlineKeyboardButton();
-                    button.setText(cities[i].getName()+", "+cities[i].getCountry());
+                    button.setText(cities.get(i).getName()+", "+cities.get(i).getCountry());
                     button.setCallbackData(String.valueOf(i));
                     row.add(button);
                     keyboard.add(row);

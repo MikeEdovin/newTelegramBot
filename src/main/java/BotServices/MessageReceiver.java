@@ -10,7 +10,12 @@ import Service.UserServiceImpl;
 import States.State;
 import States.StateFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 public class MessageReceiver implements IMessageReceiver {
     @Autowired
@@ -57,6 +62,9 @@ public class MessageReceiver implements IMessageReceiver {
                         user=userService.getUserById(userId).get();
                         state = stateFactory.getState(user.getCurrentState());
                         state.gotCallBack(user,update);
+                        //AnswerCallbackQuery answerCallbackQuery=new AnswerCallbackQuery();
+                        //answerCallbackQuery.setCallbackQueryId(update.getCallbackQuery().getId());
+
 
                     }
 

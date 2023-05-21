@@ -25,7 +25,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public User update(User user) {
-        repository.deleteById(user.getUserId());
+        //repository.deleteById(user.getUserId());
        return repository.save(user);
 
 

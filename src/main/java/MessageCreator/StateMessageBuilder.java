@@ -86,6 +86,7 @@ public class StateMessageBuilder {
                     row = new KeyboardRow();
                     row.add("Back "+Emojies.BACK.getEmoji());
                     keyboard.add(row);
+                    keyboardMarkup.setOneTimeKeyboard(true);
                 }
                 case NOTIF -> {
                     row.add("Set notification ");

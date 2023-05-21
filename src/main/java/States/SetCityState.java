@@ -11,7 +11,15 @@ import MessageCreator.WeatherMessage;
 import Service.CityServiceImpl;
 import Service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
+import java.util.List;
 
 public class SetCityState implements State{
     @Autowired
@@ -23,7 +31,7 @@ public class SetCityState implements State{
     @Autowired
     GeoWeatherProvider geoWeatherProvider;
 
-    private CityData[]cities;
+    private List<CityData> cities;
 
 
     @Override
@@ -43,15 +51,14 @@ public class SetCityState implements State{
                 CityData cityData=geoWeatherProvider.getCityData(latitude,longitude);
                 user.setCurrentCity(cityData);
                 user.addCityToLastCitiesList(cityData);
-                System.out.println("current city "+user.getCurrentCity().getName());
-                cityService.save(user.getCurrentCity());
                 user.setCurrentState(StateEnum.MAIN);
-                userService.update(user);
+                user=userService.update(user);
+                System.out.println("current city "+user.getCurrentCity().getName());
+
                 sendStateMessage(user, user.getCurrentState());
             }
             case CHOOSE_FROM_LAST_THREE -> {
-                System.out.println("last3 caught");
-                cities= user.getLastThreeCities();
+                cities=user.getLastThreeCities();
                 bot.sendQueue.add(new WeatherMessage
                         .MessageBuilder(user.getUserId())
                         .sendInlineCityChoosingKeyboard(cities).build().getSendMessage());
@@ -76,18 +83,28 @@ public class SetCityState implements State{
     }
 
     @Override
-    public void gotCallBack(User user, Update update) {
-        int cityNumber= Integer.parseInt(update.getCallbackQuery().getData());
-        System.out.println("Citydata position "+cityNumber);
-        user.setCurrentCity(cities[cityNumber]);
-        user.addCityToLastCitiesList(cities[cityNumber]);
+    public void gotCallBack(User user, Update update)  {
+        int citiIndex= Integer.parseInt(update.getCallbackQuery().getData());
+        user.setCurrentCity(cities.get(citiIndex));
+        user.addCityToLastCitiesList(cities.get(citiIndex));
         System.out.println("current city "+user.getCurrentCity().getName());
-        cityService.save(user.getCurrentCity());
         user.setCurrentState(StateEnum.MAIN);
         userService.update(user);
+        Message message=update.getCallbackQuery().getMessage();
+        EditMessageReplyMarkup editMessageReplyMarkup=new EditMessageReplyMarkup();
+        editMessageReplyMarkup.setReplyMarkup(null);
+        editMessageReplyMarkup.setMessageId(message.getMessageId());
+        editMessageReplyMarkup.setChatId(message.getChatId());
+        EditMessageText editMessageText = new EditMessageText();
+        editMessageText.setChatId(message.getChatId());
+        editMessageText.setMessageId(message.getMessageId());
+        editMessageText.setText("Current city was set to "+cities.get(citiIndex).getName()+", "+cities.get(citiIndex).getCountry());
+        try {
+            bot.execute(editMessageText);
+            bot.execute(editMessageReplyMarkup);
+        } catch (TelegramApiException e) {
 
-        sendStateMessage(user, user.getCurrentState());
-
+        }
 
     }
 
