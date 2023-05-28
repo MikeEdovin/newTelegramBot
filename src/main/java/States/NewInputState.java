@@ -62,13 +62,6 @@ public class NewInputState implements State {
     @Override
     public void gotCallBack(User user, Update update) {
         int citiIndex= Integer.parseInt(update.getCallbackQuery().getData());
-        System.out.println("Citydata position "+citiIndex);
-        user.setCurrentCity(cities.get(citiIndex));
-        user.addCityToLastCitiesList(cities.get(citiIndex));
-        System.out.println("current city "+user.getCurrentCity().getName());
-        //cityService.save(user.getCurrentCity());
-        user.setCurrentState(StateEnum.MAIN);
-        userService.update(user);
         Message message=update.getCallbackQuery().getMessage();
         EditMessageReplyMarkup editMessageReplyMarkup=new EditMessageReplyMarkup();
         editMessageReplyMarkup.setReplyMarkup(null);
@@ -77,7 +70,26 @@ public class NewInputState implements State {
         EditMessageText editMessageText = new EditMessageText();
         editMessageText.setChatId(message.getChatId());
         editMessageText.setMessageId(message.getMessageId());
-        editMessageText.setText("Current city was set to "+cities.get(citiIndex).getName()+", "+cities.get(citiIndex).getCountry());
+        System.out.println("Citydata position "+citiIndex);
+        if(user.isNotif()){
+            user.setNotificationCity(cities.get(citiIndex));
+            user.setCurrentState(StateEnum.NOTIF);
+            editMessageText.setText("Notifications city was set to "
+                    +cities.get(citiIndex).getName()+", "+cities.get(citiIndex).getCountry());
+        }
+        else{
+            user.setCurrentCity(cities.get(citiIndex));
+            user.setCurrentState(StateEnum.MAIN);
+            editMessageText.setText("Current city was set to "
+                    +cities.get(citiIndex).getName()+", "+cities.get(citiIndex).getCountry());
+        }
+        user.addCityToLastCitiesList(cities.get(citiIndex));
+        //System.out.println("current city "+user.getCurrentCity().getName());
+        //cityService.save(user.getCurrentCity());
+
+        userService.update(user);
+
+
         try {
             bot.execute(editMessageText);
             bot.execute(editMessageReplyMarkup);

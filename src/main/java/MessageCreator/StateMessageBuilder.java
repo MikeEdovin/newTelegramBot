@@ -63,7 +63,7 @@ public class StateMessageBuilder {
                     keyboard.add(row);
                     row = new KeyboardRow();
                     row.add("Forecast for "+Emojies.FOR_7_DAYS.getEmoji()+" days ");
-                    row.add("Notifications "+Emojies.NOTIFICATIONS.getEmoji());
+                    row.add("Notifications "+Emojies.CLOCK.getEmoji());
                     keyboard.add(row);
                     row = new KeyboardRow();
                     row.add("Settings "+ Emojies.SETTINGS.getEmoji());
@@ -71,7 +71,7 @@ public class StateMessageBuilder {
                     keyboard.add(row);
                 }
                 case SETTINGS -> {
-                    row.add("Set city "+Emojies.SET_CITY.getEmoji());
+                    row.add("Set city "+Emojies.PENCIL.getEmoji());
                     keyboard.add(row);
                     row = new KeyboardRow();
                     KeyboardButton getLocButton =
@@ -89,10 +89,13 @@ public class StateMessageBuilder {
                     keyboardMarkup.setOneTimeKeyboard(true);
                 }
                 case NOTIF -> {
-                    row.add("Set notification ");
+                    row.add("Set notifications city "+Emojies.CITY.getEmoji());
                     keyboard.add(row);
                     row = new KeyboardRow();
-                    row.add("Reset notification ");
+                    row.add("Set notifications days & time "+Emojies.CLOCK.getEmoji());
+                    keyboard.add(row);
+                    row = new KeyboardRow();
+                    row.add("Reset notification "+Emojies.ERASER.getEmoji());
                     keyboard.add(row);
                     row = new KeyboardRow();
                     row.add("Back "+Emojies.BACK.getEmoji());

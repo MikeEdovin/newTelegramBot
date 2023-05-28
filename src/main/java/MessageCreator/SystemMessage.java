@@ -51,7 +51,7 @@ public class SystemMessage {
                             + " - show weather forecast for 2 days " + END_LINE +
                             "Forecast for "+Emojies.FOR_7_DAYS.getEmoji()+" days "
                             + " days - show weather forecast for 7 days " + END_LINE +
-                            "Notifications "+Emojies.NOTIFICATIONS.getEmoji()
+                            "Notifications "+Emojies.CLOCK.getEmoji()
                             + " - set weather notifications " + END_LINE +
                             "Settings "+ Emojies.SETTINGS.getEmoji()
                             + " - show settings " + END_LINE;
@@ -77,7 +77,7 @@ public class SystemMessage {
                     keyboard.add(row);
                     row = new KeyboardRow();
                     row.add("Forecast for "+Emojies.FOR_7_DAYS.getEmoji()+" days ");
-                    row.add("Notifications "+Emojies.NOTIFICATIONS.getEmoji());
+                    row.add("Notifications "+Emojies.CLOCK.getEmoji());
                     keyboard.add(row);
                     row = new KeyboardRow();
                     row.add("Settings "+ Emojies.SETTINGS.getEmoji());
@@ -85,7 +85,7 @@ public class SystemMessage {
                     keyboard.add(row);
                 }
                 case SETTINGS -> {
-                    row.add("Set city "+Emojies.SET_CITY.getEmoji());
+                    row.add("Set city "+Emojies.PENCIL.getEmoji());
                     keyboard.add(row);
                     row = new KeyboardRow();
                     KeyboardButton getLocButton =

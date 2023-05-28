@@ -30,36 +30,35 @@ public class User {
     private StateEnum currentState;
     private StateEnum previousState;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumns({ @JoinColumn(name = "current_city_lat", referencedColumnName = "lat"),
             @JoinColumn(name = "current_city_lon", referencedColumnName = "lon") })
     @Cascade(org.hibernate.annotations.CascadeType.MERGE)
     private CityData currentCity;
 
-/*
-    @ElementCollection
-    @Cascade(value = org.hibernate.annotations.CascadeType.ALL)
-    @JoinTable(name="lastThreeCities")
-    @OrderColumn(name="lastThreeCities_index")
+    @ManyToOne
+    /*
+    @JoinColumns({ @JoinColumn(name = "notification_city_lat", referencedColumnName = "lat"),
+            @JoinColumn(name = "notification_city_lon", referencedColumnName = "lon") })
 
- */
-    @ManyToMany(fetch = FetchType.EAGER)
+     */
+    @JoinTable(name="notification_city",joinColumns =@JoinColumn(name="user_id"))
+    @Cascade(org.hibernate.annotations.CascadeType.MERGE)
+    private CityData notificationCity;
+
+    @OneToMany(fetch = FetchType.EAGER)
     @JoinTable(name="last_three_cities",joinColumns =@JoinColumn(name="user_id"))
-//@OrderColumn(name="lastThreeCities_index")
-//@Cascade(org.hibernate.annotations.CascadeType.MERGE)
-
+    @Cascade(org.hibernate.annotations.CascadeType.MERGE)
     private List<CityData> lastThreeCities=new ArrayList<>();
     @Column(name="notification_time")
     private LocalTime notificationTime;
 
-    @OneToOne
-    @JoinColumns({ @JoinColumn(name = "notification_city_lat", referencedColumnName = "lat"),
-            @JoinColumn(name = "notification_city_lon", referencedColumnName = "lon") })
-    @Cascade(org.hibernate.annotations.CascadeType.ALL)
-    private CityData notificationCity;
+
     @Column(name="notification_days")
     private int[]notificationDays=new int[7];
 
+    @Column(name="isNotif")
+    private boolean isNotif;
 
     public User(long userId){
         this.userId=userId;
@@ -85,17 +84,9 @@ public class User {
 
 
     public void addCityToLastCitiesList(CityData city){
-        boolean alreadyInList=false;
-
-        for(CityData item:lastThreeCities){
-            if (item != null && item.getLat()== city.getLat()&&item.getLon()==city.getLon()) {
-                alreadyInList = true;
-                break;
-            }
+       if(lastThreeCities.contains(city)){
+           return;
         }
-        if(!alreadyInList) {
-
-
             Stack<CityData> stack = new Stack<>();
             for (CityData item : lastThreeCities) {
                 if (item != null) {
@@ -109,13 +100,8 @@ public class User {
                     lastThreeCities.add(stack.pop());
                 }
             }
-            for (int i = 0; i < lastThreeCities.size(); i++) {
-                System.out.println(lastThreeCities.get(i));
-            }
-
-
         }
-    }
+
 
 
 

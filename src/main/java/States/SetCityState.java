@@ -48,13 +48,19 @@ public class SetCityState implements State{
             case SEND_LOCATION -> {
                 double latitude=update.getMessage().getLocation().getLatitude();
                 double longitude=update.getMessage().getLocation().getLongitude();
-                CityData cityData=geoWeatherProvider.getCityData(latitude,longitude);
-                user.setCurrentCity(cityData);
-                user.addCityToLastCitiesList(cityData);
-                user.setCurrentState(StateEnum.MAIN);
+                CityData city=geoWeatherProvider.getCityData(latitude,longitude);
+                if(user.isNotif()){
+                    user.setNotificationCity(city);
+                    user.setCurrentState(StateEnum.NOTIF);
+                }
+                else{
+                    user.setCurrentCity(city);
+                    user.setCurrentState(StateEnum.MAIN);
+                }
+                user.addCityToLastCitiesList(city);
                 user=userService.update(user);
-                System.out.println("current city "+user.getCurrentCity().getName());
-
+                //System.out.println("current city "+user.getCurrentCity().getName());
+                bot.sendQueue.add(new WeatherMessage.MessageBuilder(user.getUserId()).setCityWasSetText(city, user.isNotif()).build().getSendMessage() );
                 sendStateMessage(user, user.getCurrentState());
             }
             case CHOOSE_FROM_LAST_THREE -> {
@@ -78,18 +84,11 @@ public class SetCityState implements State{
         bot.sendQueue.add(new StateMessageBuilder.MessageBuilder(user.getUserId()).
                 setText(state)
                 .setKeyBoard(state).build().getSendMessage());
-
-
     }
 
     @Override
     public void gotCallBack(User user, Update update)  {
         int citiIndex= Integer.parseInt(update.getCallbackQuery().getData());
-        user.setCurrentCity(cities.get(citiIndex));
-        user.addCityToLastCitiesList(cities.get(citiIndex));
-        System.out.println("current city "+user.getCurrentCity().getName());
-        user.setCurrentState(StateEnum.MAIN);
-        userService.update(user);
         Message message=update.getCallbackQuery().getMessage();
         EditMessageReplyMarkup editMessageReplyMarkup=new EditMessageReplyMarkup();
         editMessageReplyMarkup.setReplyMarkup(null);
@@ -98,7 +97,23 @@ public class SetCityState implements State{
         EditMessageText editMessageText = new EditMessageText();
         editMessageText.setChatId(message.getChatId());
         editMessageText.setMessageId(message.getMessageId());
-        editMessageText.setText("Current city was set to "+cities.get(citiIndex).getName()+", "+cities.get(citiIndex).getCountry());
+        if(user.isNotif()){
+            user.setNotificationCity(cities.get(citiIndex));
+            user.setCurrentState(StateEnum.NOTIF);
+            editMessageText.setText("Notifications city was set to "
+                    +cities.get(citiIndex).getName()+", "+cities.get(citiIndex).getCountry());
+        }
+        else{
+            user.setCurrentCity(cities.get(citiIndex));
+            user.setCurrentState(StateEnum.MAIN);
+            editMessageText.setText("Current city was set to "
+                    +cities.get(citiIndex).getName()+", "+cities.get(citiIndex).getCountry());
+        }
+        //user.addCityToLastCitiesList(cities.get(citiIndex));
+        //System.out.println("current city "+user.getCurrentCity().getName());
+        userService.update(user);
+        sendStateMessage(user,user.getCurrentState());
+
         try {
             bot.execute(editMessageText);
             bot.execute(editMessageReplyMarkup);

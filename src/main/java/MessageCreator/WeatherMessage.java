@@ -54,6 +54,17 @@ public class WeatherMessage {
             return this;
         }
 
+        public MessageBuilder setCityWasSetText(CityData city, boolean isNotif){
+            if(isNotif){
+                sendMessage.setText("Notifications city was set to "+city.getName()+", "+city.getCountry());
+            }
+            else{
+                sendMessage.setText("Current city was set to "+city.getName()+", "+city.getCountry());
+            }
+
+            return this;
+        }
+
 
 
 

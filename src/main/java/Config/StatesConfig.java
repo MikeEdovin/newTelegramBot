@@ -19,4 +19,6 @@ public class StatesConfig {
     public State getSetCityState(){return new SetCityState();}
     @Bean(name="newInputState")
     public State getNewInputState(){return new NewInputState();}
+    @Bean(name="notificationsState")
+    public State getNotificationsState(){return new NotificationsState();}
 }

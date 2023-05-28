@@ -10,6 +10,8 @@ public class StateFactoryImpl implements StateFactory{
     State setCityState;
     @Autowired
     State newInputState;
+    @Autowired
+    State notificationsState;
     @Override
     public State getState(StateEnum stateEnum) {
 
@@ -17,6 +19,7 @@ public class StateFactoryImpl implements StateFactory{
             case MAIN -> mainState;
             case SETTINGS -> setCityState;
             case NEWINPUT -> newInputState;
+            case NOTIF -> notificationsState;
             default -> mainState;
         };
     }

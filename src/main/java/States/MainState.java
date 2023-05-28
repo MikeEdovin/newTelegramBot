@@ -66,7 +66,11 @@ public class MainState implements State {
                 }
             }
             case NOTIFICATION -> {
-
+                user.setPreviousState(user.getCurrentState());
+                user.setCurrentState(StateEnum.NOTIF);
+                user.setNotif(true);
+                user=userService.update(user);
+                sendStateMessage(user,user.getCurrentState());
             }
 
 

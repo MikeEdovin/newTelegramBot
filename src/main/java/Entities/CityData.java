@@ -5,6 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.Serializable;
+import java.util.Objects;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -12,10 +15,11 @@ import lombok.*;
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Entity
+@EqualsAndHashCode
 @Embeddable
 @IdClass(WeatherId.class)
 @Table(name="city_data")
-public class CityData  {
+public class CityData implements Serializable {
 
     @JsonProperty("name")
     private String name;
@@ -34,5 +38,6 @@ public class CityData  {
     public WeatherId getWeatherId(){
         return new WeatherId(lat,lon);
     }
+
 
 }

@@ -62,8 +62,7 @@ public class MessageReceiver implements IMessageReceiver {
                         user=userService.getUserById(userId).get();
                         state = stateFactory.getState(user.getCurrentState());
                         state.gotCallBack(user,update);
-                        //AnswerCallbackQuery answerCallbackQuery=new AnswerCallbackQuery();
-                        //answerCallbackQuery.setCallbackQueryId(update.getCallbackQuery().getId());
+
 
 
                     }
