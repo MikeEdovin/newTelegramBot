@@ -9,7 +9,7 @@ public enum Command {
     FOR_7_DAYS("Forecast for 7 days"),
     NOTIFICATION("Notifications"),
     SET_NOTIFICATIONS_CITY("Set notifications city"),
-    SET_NOTIFICATIONS_DAY_AND_TIME("Set notifications days & time"),
+    SET_NOTIFICATIONS_DAY_AND_TIME("Set notifications days  time"),
     SETTINGS("Settings"),
     SET_CITY("Set city"),
     SEND_LOCATION("Send location"),

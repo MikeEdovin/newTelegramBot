@@ -42,7 +42,7 @@ public class SetCityState implements State{
             case SET_CITY -> {
                 user.setPreviousState(user.getCurrentState());
                 user.setCurrentState(StateEnum.NEWINPUT);
-                user=userService.update(user);
+                userService.update(user);
                 sendStateMessage(user,user.getCurrentState());
             }
             case SEND_LOCATION -> {
@@ -58,7 +58,7 @@ public class SetCityState implements State{
                     user.setCurrentState(StateEnum.MAIN);
                 }
                 user.addCityToLastCitiesList(city);
-                user=userService.update(user);
+                userService.update(user);
                 //System.out.println("current city "+user.getCurrentCity().getName());
                 bot.sendQueue.add(new WeatherMessage.MessageBuilder(user.getUserId()).setCityWasSetText(city, user.isNotif()).build().getSendMessage() );
                 sendStateMessage(user, user.getCurrentState());
@@ -71,7 +71,7 @@ public class SetCityState implements State{
             }
             case BACK -> {
                 user.setCurrentState(user.getPreviousState());
-                user=userService.update(user);
+                userService.update(user);
                 sendStateMessage(user,user.getCurrentState());
             }
 

@@ -8,7 +8,6 @@ import lombok.*;
 import java.io.Serializable;
 import java.util.Objects;
 
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter

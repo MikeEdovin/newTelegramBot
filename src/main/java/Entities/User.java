@@ -1,11 +1,10 @@
 package Entities;
 import States.StateEnum;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.hibernate.annotations.Cascade;
+import jakarta.persistence.Table;
+import lombok.*;
+import org.hibernate.annotations.*;
+import org.hibernate.annotations.CascadeType;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -18,6 +17,7 @@ import java.util.Stack;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@EqualsAndHashCode
 @Table(name="users")
 
 public class User {
@@ -33,17 +33,13 @@ public class User {
     @ManyToOne
     @JoinColumns({ @JoinColumn(name = "current_city_lat", referencedColumnName = "lat"),
             @JoinColumn(name = "current_city_lon", referencedColumnName = "lon") })
-    @Cascade(org.hibernate.annotations.CascadeType.MERGE)
+    @Cascade({CascadeType.PERSIST,CascadeType.REMOVE})
     private CityData currentCity;
 
     @ManyToOne
-    /*
     @JoinColumns({ @JoinColumn(name = "notification_city_lat", referencedColumnName = "lat"),
             @JoinColumn(name = "notification_city_lon", referencedColumnName = "lon") })
-
-     */
-    @JoinTable(name="notification_city",joinColumns =@JoinColumn(name="user_id"))
-    @Cascade(org.hibernate.annotations.CascadeType.MERGE)
+    @Cascade({CascadeType.PERSIST,CascadeType.REMOVE})
     private CityData notificationCity;
 
     @OneToMany(fetch = FetchType.EAGER)
@@ -69,8 +65,8 @@ public class User {
 
     public void addNotificationDay(int day){notificationDays[day]=day;}
     public void deleteNotificationDay(int day){notificationDays[day]=0;}
-    public boolean isNotificationDay(int day) {
-        return notificationDays[day] == day;
+    public boolean isNotificationDay(int position) {
+        return notificationDays[position] == position+1;
     }
 
     public boolean hasAtLeastOneNotDay(){

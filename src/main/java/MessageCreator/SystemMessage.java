@@ -2,6 +2,7 @@ package MessageCreator;
 
 import BotServices.Emojies;
 import Commands.Command;
+import Entities.User;
 import NotificationsPackage.Days;
 import Service.UserService;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
@@ -119,7 +120,7 @@ public class SystemMessage {
             return this;
         }
 
-        public MessageBuilder sendInlineKeyboard (UserService userService)  {
+        public MessageBuilder sendDayTimeKeyboard (User user)  {
             sendMessage.setText("Choose days and enter notifications time in hh : mm");
             InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
             List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
@@ -128,29 +129,22 @@ public class SystemMessage {
             Days[] days = Days.values();
             for (int i = 0; i < 4; i++) {
                 InlineKeyboardButton button = new InlineKeyboardButton();
-               // if (!daoInterface.isNotificationDay(i + 1, Long.parseLong(this.sendMessage.getChatId()))) {
+                if (!user.isNotificationDay(i)) {
                     button.setText(days[i].name());
-                    /*
                 } else {
                     button.setText(days[i].name() + " " + Emojies.DONE.getEmoji());
-
                 }
-
-                     */
                 button.setCallbackData(String.valueOf(days[i].getDay()));
                 row1.add(button);
             }
             for (int i = 4; i < 7; i++) {
                 InlineKeyboardButton button = new InlineKeyboardButton();
-               // if (!daoInterface.isNotificationDay(i + 1, Long.parseLong(this.sendMessage.getChatId()))) {
+                if (!user.isNotificationDay(i )) {
                     button.setText(days[i].name());
-                    /*
+
                 } else {
                     button.setText(days[i].name() + " " + Emojies.DONE.getEmoji());
                 }
-
-                     */
-
                 button.setCallbackData(String.valueOf(days[i].getDay()));
                 row2.add(button);
             }
