@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Import;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @SpringBootApplication
-@Import({GeoWeatherConfig.class, DBConfig.class, BotConfig.class, ServiceConfig.class, HandlersConfig.class, StatesConfig.class})
+@Import({GeoWeatherConfig.class, DBConfig.class, BotConfig.class, ServiceConfig.class, StatesConfig.class})
 public class NewApplication {
 	private static final int PRIORITY_FOR_SENDER = 1;
 	private static final int PRIORITY_FOR_RECEIVER = 3;

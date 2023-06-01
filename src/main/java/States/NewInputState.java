@@ -38,7 +38,7 @@ public class NewInputState implements State {
             case NONE -> {
                 cities = List.of(geoWeatherProvider.getCityData(parsedCommand.getText()));
                 bot.sendQueue.add(new WeatherMessage
-                        .MessageBuilder(user.getUserId())
+                        .MessageBuilder(user)
                         .sendInlineCityChoosingKeyboard(cities).build().getSendMessage());
             }
 

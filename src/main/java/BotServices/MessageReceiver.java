@@ -5,23 +5,15 @@ import Commands.Command;
 import Commands.ParsedCommand;
 import Commands.Parser;
 import Entities.User;
-import Handlers.IHandlerFactory;
 import Service.UserServiceImpl;
 import States.State;
 import States.StateFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 public class MessageReceiver implements IMessageReceiver {
     @Autowired
     Bot bot;
-    @Autowired
-    IHandlerFactory handlerFactory;
     @Autowired
     UserServiceImpl userService;
     @Autowired

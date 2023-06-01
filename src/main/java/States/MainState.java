@@ -31,22 +31,16 @@ public class MainState implements State {
 
         switch (command){
             case START->sendStateMessage(user,user.getCurrentState());
-            case HELP -> {
-                bot.sendQueue.add(new MessageCreator.SystemMessage.MessageBuilder(user.getUserId()).
+            case HELP, NONE -> {
+                bot.sendQueue.add(new MessageCreator.SystemMessage.MessageBuilder(user).
                         setText(command).build().getSendMessage());
-                System.out.println("help in main state");
             }
             case SETTINGS -> {
                 user.setPreviousState(user.getCurrentState());
                 user.setCurrentState(StateEnum.SETTINGS);
-                user=userService.update(user);
+                userService.update(user);
                 sendStateMessage(user,user.getCurrentState());
                 System.out.println("settings in main state");
-            }
-            case NONE -> {
-                bot.sendQueue.add(new SystemMessage.MessageBuilder(user.getUserId())
-                        .setText(command).build().getSendMessage());
-
             }
             case CURRENT_WEATHER,FOR_48_HOURS,FOR_7_DAYS -> {
                 int nrOfDays;
@@ -61,15 +55,23 @@ public class MainState implements State {
                 if(currentCity!=null) {
                     WeatherData weatherData = geoWeatherProvider
                             .getWeatherData(currentCity.getLat(), currentCity.getLon());
-                    System.out.println("weather"+weatherData.getCurrent().getDate());
-                    bot.sendQueue.add(new WeatherMessage.MessageBuilder(user.getUserId()).setForecastText(weatherData,currentCity,nrOfDays).build().getSendMessage());
+                    bot.sendQueue.add(new WeatherMessage.MessageBuilder(user).setForecastText(weatherData,currentCity,nrOfDays).build().getSendMessage());
+                }
+                else{
+                    bot.sendQueue.add(new WeatherMessage.MessageBuilder(user)
+                            .noCurrentCity().build().getSendMessage());
+                    user.setPreviousState(user.getCurrentState());
+                    user.setCurrentState(StateEnum.SETTINGS);
+                    userService.update(user);
+                    sendStateMessage(user,user.getCurrentState());
+
                 }
             }
             case NOTIFICATION -> {
                 user.setPreviousState(user.getCurrentState());
                 user.setCurrentState(StateEnum.NOTIF);
                 user.setNotif(true);
-                user=userService.update(user);
+                userService.update(user);
                 sendStateMessage(user,user.getCurrentState());
             }
 

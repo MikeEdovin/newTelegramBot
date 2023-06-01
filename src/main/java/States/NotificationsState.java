@@ -19,13 +19,9 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -44,24 +40,31 @@ public class NotificationsState implements State{
             case SET_NOTIFICATIONS_CITY -> {
                 user.setPreviousState(user.getCurrentState());
                 user.setCurrentState(StateEnum.SETTINGS);
-                user = userService.update(user);
+                userService.update(user);
                 sendStateMessage(user, user.getCurrentState());
             }
             case SET_NOTIFICATIONS_DAY_AND_TIME -> {
-                bot.sendQueue.add(new SystemMessage.MessageBuilder(user.getUserId()).sendDayTimeKeyboard(user).build().getSendMessage());
+                bot.sendQueue.add(new SystemMessage.MessageBuilder(user)
+                        .sendDayTimeKeyboard().build().getSendMessage());
             }
             case SET_TIME -> {
                         try {
-                            LocalTime time = LocalTime.parse(parsedCommand.getText(), DateTimeFormatter.ofPattern("H[H]:mm"));
+                            LocalTime time = LocalTime.parse(parsedCommand.getText(),
+                                    DateTimeFormatter.ofPattern("H[H]:mm"));
                             user.setNotificationTime(time);
                             userService.update(user);
-                            System.out.println("Time parsed ok");
+                            bot.sendQueue.add(new SystemMessage.MessageBuilder(user)
+                                    .setText(Command.NOTIF_TIME_WAS_SET).build().getSendMessage());
                         }catch(DateTimeParseException e){
-                            bot.sendQueue.add(new SystemMessage.MessageBuilder(user.getUserId())
+                            bot.sendQueue.add(new SystemMessage.MessageBuilder(user)
                                     .setText(Command.WRONG_TIME_INPUT).build().getSendMessage());
                         }
-
-
+            }
+            case RESET_NOTIFICATIONS -> {
+                user.clearNotifications();
+                userService.update(user);
+                bot.sendQueue.add(new SystemMessage.MessageBuilder(user)
+                        .setText(Command.RESET_NOTIFICATIONS).build().getSendMessage());
 
             }
             case BACK -> {
@@ -96,6 +99,7 @@ public class NotificationsState implements State{
         try{
             bot.execute(answerCallbackQuery);
             bot.execute(editMessageReplyMarkup);
+            userService.update(user);
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }

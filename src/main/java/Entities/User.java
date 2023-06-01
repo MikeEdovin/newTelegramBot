@@ -63,10 +63,16 @@ public class User {
 
 
 
-    public void addNotificationDay(int day){notificationDays[day]=day;}
-    public void deleteNotificationDay(int day){notificationDays[day]=0;}
-    public boolean isNotificationDay(int position) {
-        return notificationDays[position] == position+1;
+    public void addNotificationDay(int day){notificationDays[day-1]=day;}
+    public void deleteNotificationDay(int day){notificationDays[day-1]=0;}
+    public boolean isNotificationDay(int day) {
+        return notificationDays[day-1] == day;
+    }
+    public void clearNotifications(){
+        this.setNotificationCity(null);
+        for(int i=0;i<notificationDays.length;i++){
+            notificationDays[i]=0;
+        }
     }
 
     public boolean hasAtLeastOneNotDay(){

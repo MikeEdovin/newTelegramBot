@@ -7,6 +7,7 @@ import Entities.CityData;
 import Entities.User;
 import GeoWeatherPackage.GeoWeatherProvider;
 import MessageCreator.StateMessageBuilder;
+import MessageCreator.SystemMessage;
 import MessageCreator.WeatherMessage;
 import Service.CityServiceImpl;
 import Service.UserServiceImpl;
@@ -60,15 +61,17 @@ public class SetCityState implements State{
                 user.addCityToLastCitiesList(city);
                 userService.update(user);
                 //System.out.println("current city "+user.getCurrentCity().getName());
-                bot.sendQueue.add(new WeatherMessage.MessageBuilder(user.getUserId()).setCityWasSetText(city, user.isNotif()).build().getSendMessage() );
+                bot.sendQueue.add(new WeatherMessage.MessageBuilder(user).setCityWasSetText(city, user.isNotif()).build().getSendMessage() );
                 sendStateMessage(user, user.getCurrentState());
             }
             case CHOOSE_FROM_LAST_THREE -> {
                 cities=user.getLastThreeCities();
                 bot.sendQueue.add(new WeatherMessage
-                        .MessageBuilder(user.getUserId())
+                        .MessageBuilder(user)
                         .sendInlineCityChoosingKeyboard(cities).build().getSendMessage());
             }
+            case NONE -> bot.sendQueue.add(new SystemMessage.MessageBuilder(user)
+                    .setText(Command.NONE).build().getSendMessage());
             case BACK -> {
                 user.setCurrentState(user.getPreviousState());
                 userService.update(user);

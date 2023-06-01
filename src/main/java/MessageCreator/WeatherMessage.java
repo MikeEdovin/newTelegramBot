@@ -14,10 +14,12 @@ import java.util.List;
 public class WeatherMessage {
     private static final String END_LINE = "\n";
     private SendMessage sendMessage;
+    private User user;
 
     private WeatherMessage(MessageBuilder builder) {
         super();
         this.sendMessage = builder.sendMessage;
+
 
     }
 
@@ -27,15 +29,18 @@ public class WeatherMessage {
 
     public static class MessageBuilder {
         SendMessage sendMessage;
-        public MessageBuilder(long userId) {
+        User user;
+
+        public MessageBuilder(User user) {
             sendMessage = new SendMessage();
-            sendMessage.setChatId(userId);
+            this.user=user;
+            sendMessage.setChatId(user.getUserId());
         }
 
 
 
         public MessageBuilder sendInlineCityChoosingKeyboard (List<CityData>cities)  {
-            sendMessage.setText("Choose right city ");
+            sendMessage.setText("Which one did you mean? ");
             InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
             List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
             List<InlineKeyboardButton> row;
@@ -65,13 +70,17 @@ public class WeatherMessage {
             return this;
         }
 
+        public MessageBuilder noCurrentCity(){
+            sendMessage.setText("Please, set City");
+            return this;
+        }
+
 
 
 
         public MessageBuilder setForecastText(WeatherData weatherData, CityData city, int nrOfDays) {
             StringBuilder text = new StringBuilder();
             switch (nrOfDays) {
-
                 case 1 -> {
                     Current current=weatherData.getCurrent();
                     text.append("Current weather for ").append(city.getName()).append(", ")

@@ -2,9 +2,9 @@ package MessageCreator;
 
 import BotServices.Emojies;
 import Commands.Command;
+import Entities.CityData;
 import Entities.User;
 import NotificationsPackage.Days;
-import Service.UserService;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -31,11 +31,13 @@ public class SystemMessage {
 
     public static class MessageBuilder {
         SendMessage sendMessage;
+        User user;
 
 
-        public MessageBuilder(long userId) {
+        public MessageBuilder(User user) {
             sendMessage = new SendMessage();
-            sendMessage.setChatId(userId);
+            this.user=user;
+            sendMessage.setChatId(user.getUserId());
             sendMessage.setParseMode(ParseMode.MARKDOWN);
         }
 
@@ -59,9 +61,30 @@ public class SystemMessage {
                     sendMessage.setText(messageText);
                 }
                 case NONE -> sendMessage.setText("Please, use menu buttons");
-                case WRONG_CITY_INPUT -> sendMessage.setText("Please, type the city name ");
-                case WRONG_TIME_INPUT -> sendMessage.setText("Wrong input, please try again");
-                case TIME_SETTINGS_ERROR -> sendMessage.setText("At first you need to choose city");
+                //case WRONG_CITY_INPUT -> sendMessage.setText("Please, type the city name ");
+                //case WRONG_TIME_INPUT -> sendMessage.setText("Wrong input, please try again");
+                case NOTIF_TIME_WAS_SET -> {
+                    Days[]days=Days.values();
+                    StringBuilder builder = new StringBuilder();
+                    for(Days day:days){
+                        if (user.isNotificationDay(day.getDay())) {
+                            builder.append(day.name()).append(" ");
+                    }
+                        if(user.getNotificationCity()!=null){
+                            CityData notifCity=user.getNotificationCity();
+                            sendMessage.setText("Notifications time was set for "
+                                    +notifCity.getName()+", "+notifCity.getCountry()
+                                    +" at "+builder+" "+user.getNotificationTime());
+                        }
+                        else{
+                            sendMessage.setText("Notifications time was set for "
+                                    +builder+" at "+user.getNotificationTime()
+                                    +". Don't forget to set notifications City");
+                        }
+                }
+                }
+                case RESET_NOTIFICATIONS -> sendMessage.setText("Notifications parameters were reset");
+
             }
             return this;
 
@@ -120,32 +143,32 @@ public class SystemMessage {
             return this;
         }
 
-        public MessageBuilder sendDayTimeKeyboard (User user)  {
+        public MessageBuilder sendDayTimeKeyboard ()  {
             sendMessage.setText("Choose days and enter notifications time in hh : mm");
             InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
             List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
             List<InlineKeyboardButton> row1 = new ArrayList<>();
             List<InlineKeyboardButton> row2 = new ArrayList<>();
             Days[] days = Days.values();
-            for (int i = 0; i < 4; i++) {
+            for (int i = 1; i <= 4; i++) {
                 InlineKeyboardButton button = new InlineKeyboardButton();
                 if (!user.isNotificationDay(i)) {
-                    button.setText(days[i].name());
+                    button.setText(days[i-1].name());
                 } else {
-                    button.setText(days[i].name() + " " + Emojies.DONE.getEmoji());
+                    button.setText(days[i-1].name() + " " + Emojies.DONE.getEmoji());
                 }
-                button.setCallbackData(String.valueOf(days[i].getDay()));
+                button.setCallbackData(String.valueOf(days[i-1].getDay()));
                 row1.add(button);
             }
-            for (int i = 4; i < 7; i++) {
+            for (int i = 5; i <= 7; i++) {
                 InlineKeyboardButton button = new InlineKeyboardButton();
-                if (!user.isNotificationDay(i )) {
-                    button.setText(days[i].name());
+                if (!user.isNotificationDay(i)) {
+                    button.setText(days[i-1].name());
 
                 } else {
-                    button.setText(days[i].name() + " " + Emojies.DONE.getEmoji());
+                    button.setText(days[i-1].name() + " " + Emojies.DONE.getEmoji());
                 }
-                button.setCallbackData(String.valueOf(days[i].getDay()));
+                button.setCallbackData(String.valueOf(days[i-1].getDay()));
                 row2.add(button);
             }
             keyboard.add(row1);

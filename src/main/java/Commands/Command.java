@@ -22,6 +22,7 @@ public enum Command {
     RESET_NOTIFICATIONS("Reset notification"),
     SEND_NEW_VERSION_MESSAGE("Sending new version message"),
     SET_TIME("Time"),
+    NOTIF_TIME_WAS_SET("Notification time was set"),
     WRONG_TIME_INPUT("Wrong time input"),
     WRONG_CITY_INPUT("Wrong input, please type the city name"),
     TIME_SETTINGS_ERROR("At first you need to choose city");
