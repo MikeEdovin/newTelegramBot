@@ -2,8 +2,7 @@ package MessageCreator;
 
 import BotServices.Emojies;
 import Commands.Command;
-import Entities.CityData;
-import Entities.User;
+import Entities.*;
 import NotificationsPackage.Days;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -44,7 +43,6 @@ public class SystemMessage {
 
         public MessageBuilder setText(Command command) {
             switch (command) {
-
                 case HELP -> {
                     String messageText = "This is help message" + END_LINE + END_LINE +
                             "Start - show main menu" + END_LINE +
@@ -61,8 +59,6 @@ public class SystemMessage {
                     sendMessage.setText(messageText);
                 }
                 case NONE,SET_TIME -> sendMessage.setText("Please, use menu buttons");
-                //case WRONG_CITY_INPUT -> sendMessage.setText("Please, type the city name ");
-                //case WRONG_TIME_INPUT -> sendMessage.setText("Wrong input, please try again");
                 case NOTIF_TIME_WAS_SET -> {
                     Days[]days=Days.values();
                     StringBuilder builder = new StringBuilder();
@@ -83,72 +79,21 @@ public class SystemMessage {
                         }
                 }
                 }
+                case WRONG_TIME_INPUT -> sendMessage.setText("Incorrect time input. Please try again");
+                case TIME_SETTINGS_ERROR -> sendMessage.setText("You didn't choose any day for notifications");
                 case RESET_NOTIFICATIONS -> sendMessage.setText("Notifications parameters were reset");
 
             }
             return this;
 
         }
-        public MessageBuilder setKeyBoard(Command command) {
-            sendMessage.setText(command.description);
-            ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
-            List<KeyboardRow> keyboard = new ArrayList<>();
-            KeyboardRow row = new KeyboardRow();
-            switch (command) {
-                case START -> {
-                    row.add("Current weather "+ Emojies.CURRENT.getEmoji());
-                    row.add("Forecast for "+Emojies.FOR_2_DAYS.getEmoji()+" days ");
-                    keyboard.add(row);
-                    row = new KeyboardRow();
-                    row.add("Forecast for "+Emojies.FOR_7_DAYS.getEmoji()+" days ");
-                    row.add("Notifications "+Emojies.CLOCK.getEmoji());
-                    keyboard.add(row);
-                    row = new KeyboardRow();
-                    row.add("Settings "+ Emojies.SETTINGS.getEmoji());
-                    row.add("Need help "+Emojies.HELP.getEmoji());
-                    keyboard.add(row);
-                }
-                case SETTINGS -> {
-                    row.add("Set city "+Emojies.PENCIL.getEmoji());
-                    keyboard.add(row);
-                    row = new KeyboardRow();
-                    KeyboardButton getLocButton =
-                            new KeyboardButton("Send location "+Emojies.SEND_LOCATION.getEmoji());
-                    getLocButton.setRequestLocation(true);
-                    getLocButton.getRequestLocation();
-                    row.add(getLocButton);
-                    keyboard.add(row);
-                    row = new KeyboardRow();
-                    row.add(" Choose from last 3 "+Emojies.LAST_THREE.getEmoji());
-                    keyboard.add(row);
-                    row = new KeyboardRow();
-                    row.add("Back "+Emojies.BACK.getEmoji());
-                    keyboard.add(row);
-                }
-                case NOTIFICATION -> {
-                    row.add("Set notification ");
-                    keyboard.add(row);
-                    row = new KeyboardRow();
-                    row.add("Reset notification ");
-                    keyboard.add(row);
-                    row = new KeyboardRow();
-                    row.add("Back "+Emojies.BACK.getEmoji());
-                    keyboard.add(row);
-                    keyboardMarkup.setOneTimeKeyboard(true);
-                }
-            }
-            keyboardMarkup.setKeyboard(keyboard);
-            keyboardMarkup.setResizeKeyboard(true);
-            sendMessage.setReplyMarkup(keyboardMarkup);
-            return this;
-        }
-
         public MessageBuilder sendDayTimeKeyboard ()  {
             sendMessage.setText("Choose days and enter notifications time in hh : mm");
             InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
             List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
             List<InlineKeyboardButton> row1 = new ArrayList<>();
             List<InlineKeyboardButton> row2 = new ArrayList<>();
+            List<InlineKeyboardButton> row3 = new ArrayList<>();
             Days[] days = Days.values();
             for (int i = 1; i <= 4; i++) {
                 InlineKeyboardButton button = new InlineKeyboardButton();
@@ -171,13 +116,108 @@ public class SystemMessage {
                 button.setCallbackData(String.valueOf(days[i-1].getDay()));
                 row2.add(button);
             }
+            InlineKeyboardButton button=new InlineKeyboardButton();
+            button.setText("Back "+Emojies.BACK.getEmoji());
+            button.setCallbackData("-1");
+            row3.add(button);
             keyboard.add(row1);
             keyboard.add(row2);
+            keyboard.add(row3);
             keyboardMarkup.setKeyboard(keyboard);
             sendMessage.setReplyMarkup(keyboardMarkup);
             return this;
         }
+        public MessageBuilder sendInlineCityChoosingKeyboard (List<CityData>cities)  {
+            sendMessage.setText("Which one did you mean? ");
+            InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+            List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+            List<InlineKeyboardButton> row;
+            for (int i=0;i<cities.size();i++) {
+                if (cities.get(i) != null) {
+                    row=new ArrayList<>();
+                    InlineKeyboardButton button = new InlineKeyboardButton();
+                    button.setText(cities.get(i).getName()+", "+cities.get(i).getCountry());
+                    button.setCallbackData(String.valueOf(i));
+                    row.add(button);
+                    keyboard.add(row);
+                }
+            }
+            row=new ArrayList<>();
+            InlineKeyboardButton button=new InlineKeyboardButton();
+            button.setText("Back "+Emojies.BACK.getEmoji());
+            button.setCallbackData("-1");
+            row.add(button);
+            keyboard.add(row);
+            keyboardMarkup.setKeyboard(keyboard);
+            sendMessage.setReplyMarkup(keyboardMarkup);
+            return this;
+        }
+        public MessageBuilder setCityWasSetText(CityData city, boolean isNotif){
+            if(isNotif){
+                sendMessage.setText("Notifications city was set to "+city.getName()+", "+city.getCountry());
+            }
+            else{
+                sendMessage.setText("Current city was set to "+city.getName()+", "+city.getCountry());
+            }
 
+            return this;
+        }
+        public MessageBuilder noCurrentCity(){
+            sendMessage.setText("Please, set City");
+            return this;
+        }
+        public MessageBuilder setForecastText(WeatherData weatherData, CityData city, int nrOfDays) {
+            StringBuilder text = new StringBuilder();
+            switch (nrOfDays) {
+                case 1 -> {
+                    Current current=weatherData.getCurrent();
+                    System.out.println(current.toString());
+                    text.append("Current weather in ").append(city.getName()).append(", ")
+                            .append(city.getCountry())
+                            .append(END_LINE).append(END_LINE);
+                    text.append("Temperature ").append(current.getCurrentTemp()).append(" °C").append(END_LINE);
+                    text.append("Feels like temperature ").append(current.getCurrentFeelsLike()).append(" °C").append(END_LINE);
+                    text.append("Pressure ").append(current.getCurrentPressure()).append(" hPa").append(END_LINE);
+                    text.append("Humidity ").append(current.getCurrentHumidity()).append(" %").append(END_LINE);
+                    text.append("Clouds ").append(current.getCurrentClouds()).append(" %").append(END_LINE);
+                    text.append("UVI ").append(current.getCurrentUvi()).append(END_LINE);
+                    text.append("Wind speed ").append(current.getCurrentWindSpeed()).append(END_LINE);
+                    text.append("Wind direction ").append(current.getWindDirection()).append(END_LINE);
+                    sendMessage.setText(text.toString());
+                }
+                case 2, 7 -> {
+                    Daily[] daily= weatherData.getDaily();
+                    text.append("Forecast in ").append(city.getName()).append(", ")
+                            .append(city.getCountry())
+                            .append(END_LINE).append(END_LINE);
+                    for (int i = 0; i < nrOfDays; i++) {
+                        Daily day=daily[i];
+                        Temp temp=day.getTemp();
+                        FeelsLike feelsLike=day.getFeelsLike();
+                        text.append("Date ").append(day.getDate()).append(END_LINE);
+                        text.append("Sunrise ").append(day.getFormattedSunrise()).append(END_LINE);
+                        text.append("Sunset ").append(day.getFormattedSunset()).append(END_LINE);
+                        text.append("Temperature ").append(temp.getDayTemp()).append(" °C").append(END_LINE)
+                                .append("at the morning ").append(temp.getMornTemp()).append(" °C").append(END_LINE)
+                                .append("at the evening ").append(temp.getEveTemp()).append(" °C")
+                                .append(END_LINE);
+                        text.append("Feels like temperature ").append(feelsLike.getDayFeelsLike()).append(END_LINE)
+                                .append("at the morning ").append(feelsLike.getMornFeelsLike()).append(" °C").append(END_LINE)
+                                .append("at the evening ").append(feelsLike.getEveFeelsLike()).append(" °C")
+                                .append(END_LINE);
+                        text.append("Pressure ").append(day.getPressure()).append(" hPa").append(END_LINE);
+                        text.append("Humidity ").append(day.getHumidity()).append(" %").append(END_LINE);
+                        text.append("Clouds").append(day.getClouds()).append(END_LINE);
+                        text.append("Wind speed ").append(day.getWindSpeed()).append(END_LINE);
+                        text.append("Wind gust ").append(day.getWindGust()).append(END_LINE);
+                        text.append("Wind direction ").append(day.getWindDirection())
+                                .append(END_LINE).append(END_LINE);
+                    }
+                    sendMessage.setText(text.toString());
+                }
+            }
+            return this;
+        }
 
         public SystemMessage build() {
             return new SystemMessage(this);

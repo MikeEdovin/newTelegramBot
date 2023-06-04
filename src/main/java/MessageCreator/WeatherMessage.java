@@ -89,22 +89,23 @@ public class WeatherMessage {
             switch (nrOfDays) {
                 case 1 -> {
                     Current current=weatherData.getCurrent();
-                    text.append("Current weather for ").append(city.getName()).append(", ")
+                    System.out.println(current.toString());
+                    text.append("Current weather in ").append(city.getName()).append(", ")
                             .append(city.getCountry())
                             .append(END_LINE).append(END_LINE);
                     text.append("Temperature ").append(current.getCurrentTemp()).append(" °C").append(END_LINE);
                     text.append("Feels like temperature ").append(current.getCurrentFeelsLike()).append(" °C").append(END_LINE);
                     text.append("Pressure ").append(current.getCurrentPressure()).append(" hPa").append(END_LINE);
                     text.append("Humidity ").append(current.getCurrentHumidity()).append(" %").append(END_LINE);
-                    text.append("Clouds ").append(current.getCurrentClouds()/100).append(" %").append(END_LINE);
-                    text.append("Current wind speed ").append(current.getCurrentWindSpeed()).append(END_LINE);
-                    text.append("Wind gust ").append(current.getCurrentWindGust()).append(END_LINE);
-                    text.append("Wind degree ").append(current.getCurrentWindDegree()).append(END_LINE);
+                    text.append("Clouds ").append(current.getCurrentClouds()).append(" %").append(END_LINE);
+                    text.append("UVI ").append(current.getCurrentUvi()).append(END_LINE);
+                    text.append("Wind speed ").append(current.getCurrentWindSpeed()).append(END_LINE);
+                    text.append("Wind direction ").append(current.getWindDirection()).append(END_LINE);
                     sendMessage.setText(text.toString());
                 }
                 case 2, 7 -> {
                     Daily[] daily= weatherData.getDaily();
-                    text.append("Forecast for ").append(city.getName()).append(", ")
+                    text.append("Forecast in ").append(city.getName()).append(", ")
                             .append(city.getCountry())
                             .append(END_LINE).append(END_LINE);
                     for (int i = 0; i < nrOfDays; i++) {
@@ -114,22 +115,21 @@ public class WeatherMessage {
                         text.append("Date ").append(day.getDate()).append(END_LINE);
                         text.append("Sunrise ").append(day.getFormattedSunrise()).append(END_LINE);
                         text.append("Sunset ").append(day.getFormattedSunset()).append(END_LINE);
-                        text.append("Temperature ").append(temp.getDayTemp()).append(" °C")
-                                .append("at morning ").append(temp.getMornTemp()).append(" °C")
-                                .append("at evening ").append(temp.getEveTemp()).append(" °C")
+                        text.append("Temperature ").append(temp.getDayTemp()).append(" °C").append(END_LINE)
+                                .append("at the morning ").append(temp.getMornTemp()).append(" °C").append(END_LINE)
+                                .append("at the evening ").append(temp.getEveTemp()).append(" °C")
                                 .append(END_LINE);
-                        text.append("Feels like temperature ").append(feelsLike.getDayFeelsLike())
-                                .append("at morning ").append(feelsLike.getMornFeelsLike()).append(" °C")
-                                .append("at evening ").append(feelsLike.getEveFeelsLike()).append(" °C")
+                        text.append("Feels like temperature ").append(feelsLike.getDayFeelsLike()).append(END_LINE)
+                                .append("at the morning ").append(feelsLike.getMornFeelsLike()).append(" °C").append(END_LINE)
+                                .append("at the evening ").append(feelsLike.getEveFeelsLike()).append(" °C")
                                 .append(END_LINE);
                         text.append("Pressure ").append(day.getPressure()).append(" hPa").append(END_LINE);
                         text.append("Humidity ").append(day.getHumidity()).append(" %").append(END_LINE);
                         text.append("Clouds").append(day.getClouds()).append(END_LINE);
                         text.append("Wind speed ").append(day.getWindSpeed()).append(END_LINE);
                         text.append("Wind gust ").append(day.getWindGust()).append(END_LINE);
-                        text.append("Wind degree ").append(day.getWindDegree()).append(END_LINE);
-                        text.append("Rain possibility ").append(day.getRain()/100).append(" %").append(END_LINE);
-
+                        text.append("Wind direction ").append(day.getWindDirection())
+                                .append(END_LINE).append(END_LINE);
                         }
                     sendMessage.setText(text.toString());
                 }

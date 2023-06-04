@@ -7,11 +7,13 @@ import Entities.CityData;
 import Entities.User;
 import GeoWeatherPackage.GeoWeatherProvider;
 import MessageCreator.StateMessageBuilder;
+import MessageCreator.SystemMessage;
 import MessageCreator.WeatherMessage;
 import Service.CityServiceImpl;
 import Service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
@@ -40,7 +42,7 @@ public class NewInputState implements State {
         switch (command) {
             case NONE,SET_TIME -> {
                 cities = List.of(geoWeatherProvider.getCityData(parsedCommand.getText()));
-                bot.sendQueue.add(new WeatherMessage
+                bot.sendQueue.add(new SystemMessage
                         .MessageBuilder(user)
                         .sendInlineCityChoosingKeyboard(cities).build().getSendMessage());
             }

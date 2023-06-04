@@ -25,7 +25,7 @@ public enum Command {
     NOTIF_TIME_WAS_SET("Notification time was set"),
     WRONG_TIME_INPUT("Wrong time input"),
     WRONG_CITY_INPUT("Wrong input, please type the city name"),
-    TIME_SETTINGS_ERROR("At first you need to choose city");
+    TIME_SETTINGS_ERROR("You didn't choose any day for notifications");
 
     public final String description;
 

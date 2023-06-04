@@ -9,7 +9,6 @@ import Entities.WeatherData;
 import GeoWeatherPackage.GeoWeatherProvider;
 import MessageCreator.StateMessageBuilder;
 import MessageCreator.SystemMessage;
-import MessageCreator.WeatherMessage;
 import Service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -59,11 +58,11 @@ public class MainState implements State {
                         currentCity.setTimezone(weatherData.getTimezone());
                         userService.update(user);
                     }
-                    bot.sendQueue.add(new WeatherMessage.MessageBuilder(user)
+                    bot.sendQueue.add(new SystemMessage.MessageBuilder(user)
                             .setForecastText(weatherData,currentCity,nrOfDays).build().getSendMessage());
                 }
                 else{
-                    bot.sendQueue.add(new WeatherMessage.MessageBuilder(user)
+                    bot.sendQueue.add(new SystemMessage.MessageBuilder(user)
                             .noCurrentCity().build().getSendMessage());
                     user.setPreviousState(user.getCurrentState());
                     user.setCurrentState(StateEnum.SETTINGS);

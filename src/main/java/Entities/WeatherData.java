@@ -10,10 +10,6 @@ import lombok.*;
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
-//@Entity
-//@IdClass(WeatherId.class)
-//@Table(name="weather_data")
-
 public class WeatherData {
     private double lat;
     private double lon;

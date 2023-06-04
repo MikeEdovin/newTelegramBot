@@ -12,6 +12,7 @@ import com.vdurmont.emoji.EmojiParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -48,18 +49,29 @@ public class NotificationsState implements State{
                         .sendDayTimeKeyboard().build().getSendMessage());
             }
             case SET_TIME -> {
-                        try {
-                            LocalTime time = LocalTime.parse(parsedCommand.getText(),
-                                    DateTimeFormatter.ofPattern("H[H]:mm"));
-                            user.setNotificationTime(time);
-                            userService.update(user);
-                            bot.sendQueue.add(new SystemMessage.MessageBuilder(user)
-                                    .setText(Command.NOTIF_TIME_WAS_SET).build().getSendMessage());
-                        }catch(DateTimeParseException e){
-                            bot.sendQueue.add(new SystemMessage.MessageBuilder(user)
-                                    .setText(Command.WRONG_TIME_INPUT).build().getSendMessage());
-                        }
+                if(user.hasAtLeastOneNotDay()) {
+                    try {
+                        LocalTime time = LocalTime.parse(parsedCommand.getText(),
+                                DateTimeFormatter.ofPattern("H[H]:mm"));
+                        user.setNotificationTime(time);
+                        userService.update(user);
+                        bot.sendQueue.add(new SystemMessage.MessageBuilder(user)
+                                .setText(Command.NOTIF_TIME_WAS_SET).build().getSendMessage());
+                        sendStateMessage(user, user.getCurrentState());
+                    } catch (DateTimeParseException e) {
+                        bot.sendQueue.add(new SystemMessage.MessageBuilder(user)
+                                .setText(Command.WRONG_TIME_INPUT).build().getSendMessage());
+                    }
+                }
+                else{
+                    bot.sendQueue.add(new SystemMessage.MessageBuilder(user)
+                            .setText(Command.TIME_SETTINGS_ERROR).build().getSendMessage());
+                   
+                }
+
             }
+            case NONE -> {bot.sendQueue.add(new SystemMessage.MessageBuilder(user)
+                    .setText(Command.WRONG_TIME_INPUT).build().getSendMessage());}
             case RESET_NOTIFICATIONS -> {
                 user.clearNotifications();
                 userService.update(user);
@@ -86,22 +98,33 @@ public class NotificationsState implements State{
     @Override
     public void gotCallBack(User user, Update update) {
         Message message=update.getCallbackQuery().getMessage();
-        String chatID=String.valueOf(update.getCallbackQuery().getMessage().getChatId());
         AnswerCallbackQuery answerCallbackQuery=new AnswerCallbackQuery();
         answerCallbackQuery.setCallbackQueryId(update.getCallbackQuery().getId());
-        int messageID=message.getMessageId();
         CallbackQuery query=update.getCallbackQuery();
-        EditMessageReplyMarkup editMessageReplyMarkup=new EditMessageReplyMarkup();
-        InlineKeyboardMarkup keyboardMarkup = updateNotifDaysChoosingKeyboard(user,query);
-        editMessageReplyMarkup.setReplyMarkup(keyboardMarkup);
-        editMessageReplyMarkup.setMessageId(messageID);
-        editMessageReplyMarkup.setChatId(chatID);
-        try{
-            bot.execute(answerCallbackQuery);
-            bot.execute(editMessageReplyMarkup);
-            userService.update(user);
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
+        EditMessageReplyMarkup editMessageReplyMarkup = new EditMessageReplyMarkup();
+        EditMessageText editMessageText = new EditMessageText();
+        editMessageText.setChatId(message.getChatId());
+        editMessageText.setMessageId(message.getMessageId());
+        if(Integer.parseInt(query.getData())<0){
+            editMessageText.setText("Back");
+                user.setCurrentState(StateEnum.NOTIF);
+                try{
+                    bot.execute(editMessageText);
+                } catch (TelegramApiException e) {
+                }
+            sendStateMessage(user, user.getCurrentState());
+        }else {
+            InlineKeyboardMarkup keyboardMarkup = updateNotifDaysChoosingKeyboard(user, query);
+            editMessageReplyMarkup.setReplyMarkup(keyboardMarkup);
+            editMessageReplyMarkup.setMessageId(message.getMessageId());
+            editMessageReplyMarkup.setChatId(message.getChatId());
+            try {
+                bot.execute(answerCallbackQuery);
+                bot.execute(editMessageReplyMarkup);
+                userService.update(user);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
         }
 
     }

@@ -1,17 +1,10 @@
 package Commands;
-
-import java.time.LocalTime;
-import java.time.format.DateTimeParseException;
-
 public class Parser {
-
-
     public static ParsedCommand GetParsedCommand(String text){
         String trimText="";
         if(text!=null){
             trimText= filterEmojies(text).trim();
             System.out.println("trim text "+trimText+ " "+text);
-
         }
         ParsedCommand result = new ParsedCommand(Command.NONE, trimText);
         for (Command c : Command.values()) {
@@ -19,12 +12,6 @@ public class Parser {
             if (trimText.equalsIgnoreCase(c.description.trim())) {
                 result.setCommand(c);
                 break;
-                /*
-            } else if (trimText.contains("Location")) {//check do I really need it
-                result.setCommand(Command.ADD_CITY_TO_USER);
-                break;
-
-                 */
             } else if (trimText.matches("\\d{1,2}(:|\\s*|\\.*|,*)\\d{2}")) {
                 result.setCommand(Command.SET_TIME);
                 result.setText(text);

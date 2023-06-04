@@ -14,6 +14,7 @@ import java.time.format.DateTimeFormatter;
 @AllArgsConstructor
 @Getter
 @Setter
+@ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Current {
     @JsonProperty("dt")
@@ -22,6 +23,7 @@ public class Current {
     private long currentSunrise;
     @JsonProperty("sunset")
     private long currentSunset;
+    @JsonProperty("temp")
     private float currentTemp;
     @JsonProperty("feels_like")
     private float currentFeelsLike;
@@ -38,7 +40,7 @@ public class Current {
     private int visibility;
     @JsonProperty("wind_speed")
     private float currentWindSpeed;
-    @JsonProperty("wind_degree")
+    @JsonProperty("wind_deg")
     private int currentWindDegree;
     @JsonProperty("wind_gust")
     private float currentWindGust;
@@ -46,21 +48,75 @@ public class Current {
     private Weather[] currentWeather;
 
 
-
-    public String getDate(){
-        DateTimeFormatter formatter=DateTimeFormatter.ofPattern("dd-MM-yy");
+    public String getDate() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yy");
         String date = Instant.ofEpochSecond(this.currentDt).
                 atZone(ZoneId.systemDefault()).toLocalDate().format(formatter);
-        return date;}
-    public String getFormattedSunrise(){
+        return date;
+    }
+
+    public String getFormattedSunrise() {
         return Instant.ofEpochSecond(this.currentSunrise).
                 atZone(ZoneId.systemDefault()).toLocalDateTime().
                 format(DateTimeFormatter.ofPattern("hh:mm:ss"));
     }
-    public String getFormattedSunset(){
+
+    public String getFormattedSunset() {
         return Instant.ofEpochSecond(this.currentSunset).
                 atZone(ZoneId.systemDefault()).toLocalDateTime().
                 format(DateTimeFormatter.ofPattern("hh:mm:ss"));
     }
 
+    public String getWindDirection() {
+        if (11.25 < currentWindDegree && currentWindDegree < 33.75) {
+            return "NNE";
+        }
+        if (33.75 < currentWindDegree && currentWindDegree < 56.25) {
+            return "NE";
+        }
+        if (56.25 < currentWindDegree && currentWindDegree < 78.75) {
+            return "ENE";
+        }
+        if (78.75 < currentWindDegree && currentWindDegree < 101.25) {
+            return "E";
+        }
+        if (101.25 < currentWindDegree && currentWindDegree < 123.75) {
+            return "ESE";
+        }
+        if (123.75 < currentWindDegree && currentWindDegree < 146.25) {
+            return "SE";
+        }
+        if (146.25 < currentWindDegree && currentWindDegree < 168.75) {
+            return "SSE";
+        }
+        if (168.75 < currentWindDegree && currentWindDegree < 191.25) {
+            return "S";
+        }
+        if (191.25 < currentWindDegree && currentWindDegree < 213.75) {
+            return "SSW";
+        }
+        if (213.75 < currentWindDegree && currentWindDegree < 236.25) {
+            return "SW";
+        }
+        if (236.25 < currentWindDegree && currentWindDegree < 258.75) {
+            return "WSW";
+        }
+        if (258.75 < currentWindDegree && currentWindDegree < 281.25) {
+            return "W";
+        }
+        if (281.25 < currentWindDegree && currentWindDegree < 303.75) {
+            return "WNW";
+        }
+        if (303.75 < currentWindDegree && currentWindDegree < 326.25) {
+            return "NW";
+        }
+        if (326.25 < currentWindDegree && currentWindDegree < 348.75) {
+            return "NNW";
+        }
+        if (currentWindDegree > 348.75 || currentWindDegree < 11.25) {
+            return "N";
+        } else {
+            return null;
+        }
+    }
 }

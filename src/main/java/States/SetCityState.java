@@ -61,12 +61,13 @@ public class SetCityState implements State{
                 user.addCityToLastCitiesList(city);
                 userService.update(user);
                 //System.out.println("current city "+user.getCurrentCity().getName());
-                bot.sendQueue.add(new WeatherMessage.MessageBuilder(user).setCityWasSetText(city, user.isNotif()).build().getSendMessage() );
+                bot.sendQueue.add(new SystemMessage.MessageBuilder(user)
+                        .setCityWasSetText(city, user.isNotif()).build().getSendMessage() );
                 sendStateMessage(user, user.getCurrentState());
             }
             case CHOOSE_FROM_LAST_THREE -> {
                 cities=user.getLastThreeCities();
-                bot.sendQueue.add(new WeatherMessage
+                bot.sendQueue.add(new SystemMessage
                         .MessageBuilder(user)
                         .sendInlineCityChoosingKeyboard(cities).build().getSendMessage());
             }
