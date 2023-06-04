@@ -5,7 +5,7 @@ import BotServices.Emojies;
 import Commands.Command;
 import Commands.ParsedCommand;
 import Entities.User;
-import MessageCreator.StateMessageBuilder;
+import MessageCreator.StateMessage;
 import MessageCreator.SystemMessage;
 import Service.UserService;
 import com.vdurmont.emoji.EmojiParser;
@@ -66,7 +66,7 @@ public class NotificationsState implements State{
                 else{
                     bot.sendQueue.add(new SystemMessage.MessageBuilder(user)
                             .setText(Command.TIME_SETTINGS_ERROR).build().getSendMessage());
-                   
+
                 }
 
             }
@@ -90,7 +90,7 @@ public class NotificationsState implements State{
 
     @Override
     public void sendStateMessage(User user, StateEnum state) {
-        bot.sendQueue.add(new StateMessageBuilder.MessageBuilder(user.getUserId()).
+        bot.sendQueue.add(new StateMessage.MessageBuilder(user.getUserId()).
                 setText(state).
                 setKeyBoard(state).build().getSendMessage());
     }

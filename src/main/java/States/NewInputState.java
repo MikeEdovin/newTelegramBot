@@ -6,20 +6,15 @@ import Commands.ParsedCommand;
 import Entities.CityData;
 import Entities.User;
 import GeoWeatherPackage.GeoWeatherProvider;
-import MessageCreator.StateMessageBuilder;
+import MessageCreator.StateMessage;
 import MessageCreator.SystemMessage;
-import MessageCreator.WeatherMessage;
 import Service.CityServiceImpl;
 import Service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.List;
@@ -57,7 +52,7 @@ public class NewInputState implements State {
 
         @Override
         public void sendStateMessage (User user, StateEnum state){
-            bot.sendQueue.add(new StateMessageBuilder.MessageBuilder(user.getUserId()).
+            bot.sendQueue.add(new StateMessage.MessageBuilder(user.getUserId()).
                     setText(state)
                     .setKeyBoard(state)
                     .build().getSendMessage());

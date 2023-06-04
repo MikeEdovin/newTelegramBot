@@ -10,10 +10,10 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import java.util.ArrayList;
 import java.util.List;
 
-public class StateMessageBuilder {
+public class StateMessage {
     private final SendMessage sendMessage;
 
-    private StateMessageBuilder(MessageBuilder builder) {
+    private StateMessage(MessageBuilder builder) {
         super();
         this.sendMessage = builder.sendMessage;
 
@@ -94,8 +94,8 @@ public class StateMessageBuilder {
             sendMessage.setReplyMarkup(keyboardMarkup);
             return this;
         }
-        public StateMessageBuilder build() {
-            return new StateMessageBuilder(this);
+        public StateMessage build() {
+            return new StateMessage(this);
         }
     }
 }

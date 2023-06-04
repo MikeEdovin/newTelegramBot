@@ -7,7 +7,7 @@ import Entities.CityData;
 import Entities.User;
 import Entities.WeatherData;
 import GeoWeatherPackage.GeoWeatherProvider;
-import MessageCreator.StateMessageBuilder;
+import MessageCreator.StateMessage;
 import MessageCreator.SystemMessage;
 import Service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,7 +87,7 @@ public class MainState implements State {
 
     @Override
     public void sendStateMessage(User user,StateEnum state) {
-        bot.sendQueue.add(new StateMessageBuilder.MessageBuilder(user.getUserId()).
+        bot.sendQueue.add(new StateMessage.MessageBuilder(user.getUserId()).
                 setText(state).
                 setKeyBoard(state).build().getSendMessage());
 
