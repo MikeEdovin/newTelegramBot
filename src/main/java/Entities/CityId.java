@@ -4,22 +4,22 @@ import lombok.Getter;
 
 import java.io.Serializable;
 @Getter
-public class WeatherId implements Serializable {
+public class CityId implements Serializable {
     private double lat,lon;
 
-    public WeatherId(double lat,double lon){
+    public CityId(double lat, double lon){
         this.lat=lat;
         this.lon=lon;
     }
-    public WeatherId(){}
+    public CityId(){}
 
     @Override
     public boolean equals(Object o){
-        if(!(o instanceof WeatherId)){
+        if(!(o instanceof CityId)){
             return false;
         }
         else{
-            WeatherId id=(WeatherId) o;
+            CityId id=(CityId) o;
             return this.lat==id.lat&&this.lon==id.lon;
         }
     }

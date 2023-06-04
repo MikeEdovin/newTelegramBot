@@ -11,10 +11,13 @@ import MessageCreator.WeatherMessage;
 import Service.CityServiceImpl;
 import Service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.List;
@@ -35,7 +38,7 @@ public class NewInputState implements State {
     public void gotInput(User user, ParsedCommand parsedCommand, Update update) {
         Command command = parsedCommand.getCommand();
         switch (command) {
-            case NONE -> {
+            case NONE,SET_TIME -> {
                 cities = List.of(geoWeatherProvider.getCityData(parsedCommand.getText()));
                 bot.sendQueue.add(new WeatherMessage
                         .MessageBuilder(user)
@@ -61,7 +64,7 @@ public class NewInputState implements State {
 
     @Override
     public void gotCallBack(User user, Update update) {
-        int citiIndex= Integer.parseInt(update.getCallbackQuery().getData());
+        int cityIndex= Integer.parseInt(update.getCallbackQuery().getData());
         Message message=update.getCallbackQuery().getMessage();
         EditMessageReplyMarkup editMessageReplyMarkup=new EditMessageReplyMarkup();
         editMessageReplyMarkup.setReplyMarkup(null);
@@ -70,26 +73,30 @@ public class NewInputState implements State {
         EditMessageText editMessageText = new EditMessageText();
         editMessageText.setChatId(message.getChatId());
         editMessageText.setMessageId(message.getMessageId());
-        System.out.println("Citydata position "+citiIndex);
-        if(user.isNotif()){
-            user.setNotificationCity(cities.get(citiIndex));
-            user.setCurrentState(StateEnum.NOTIF);
-            editMessageText.setText("Notifications city was set to "
-                    +cities.get(citiIndex).getName()+", "+cities.get(citiIndex).getCountry());
+        if(cityIndex<0){
+            editMessageText.setText("Back");
+            if(user.isNotif()){
+                user.setCurrentState(StateEnum.NOTIF);
+            }
+            else{
+                user.setCurrentState(StateEnum.SETTINGS);
+            }
         }
-        else{
-            user.setCurrentCity(cities.get(citiIndex));
-            user.setCurrentState(StateEnum.MAIN);
-            editMessageText.setText("Current city was set to "
-                    +cities.get(citiIndex).getName()+", "+cities.get(citiIndex).getCountry());
+        else {
+            if (user.isNotif()) {
+                user.setNotificationCity(cities.get(cityIndex));
+                user.setCurrentState(StateEnum.NOTIF);
+                editMessageText.setText("Notifications city was set to "
+                        + cities.get(cityIndex).getName() + ", " + cities.get(cityIndex).getCountry());
+            } else {
+                user.setCurrentCity(cities.get(cityIndex));
+                user.setCurrentState(StateEnum.MAIN);
+                editMessageText.setText("Current city was set to "
+                        + cities.get(cityIndex).getName() + ", " + cities.get(cityIndex).getCountry());
+            }
+            user.addCityToLastCitiesList(cities.get(cityIndex));
         }
-        user.addCityToLastCitiesList(cities.get(citiIndex));
-        //System.out.println("current city "+user.getCurrentCity().getName());
-        //cityService.save(user.getCurrentCity());
-
         userService.update(user);
-
-
         try {
             bot.execute(editMessageText);
             bot.execute(editMessageReplyMarkup);

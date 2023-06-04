@@ -1,7 +1,7 @@
 package Service;
 
 import Entities.CityData;
-import Entities.WeatherId;
+import Entities.CityId;
 import Repository.CityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -16,7 +16,7 @@ public class CityServiceImpl implements CityService {
     }
 
     @Override
-    public Optional<CityData> getCityById(WeatherId weatherId) {
-        return repository.findById(weatherId);
+    public Optional<CityData> getCityById(CityId cityId) {
+        return repository.findById(cityId);
     }
 }

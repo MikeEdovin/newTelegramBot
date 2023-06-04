@@ -41,7 +41,7 @@ public class SetCityState implements State{
 
         switch (command){
             case SET_CITY -> {
-                user.setPreviousState(user.getCurrentState());
+                user.setPreviousState(StateEnum.MAIN);
                 user.setCurrentState(StateEnum.NEWINPUT);
                 userService.update(user);
                 sendStateMessage(user,user.getCurrentState());
@@ -70,7 +70,7 @@ public class SetCityState implements State{
                         .MessageBuilder(user)
                         .sendInlineCityChoosingKeyboard(cities).build().getSendMessage());
             }
-            case NONE -> bot.sendQueue.add(new SystemMessage.MessageBuilder(user)
+            case NONE,SET_TIME -> bot.sendQueue.add(new SystemMessage.MessageBuilder(user)
                     .setText(Command.NONE).build().getSendMessage());
             case BACK -> {
                 user.setCurrentState(user.getPreviousState());
@@ -91,7 +91,7 @@ public class SetCityState implements State{
 
     @Override
     public void gotCallBack(User user, Update update)  {
-        int citiIndex= Integer.parseInt(update.getCallbackQuery().getData());
+        int cityIndex= Integer.parseInt(update.getCallbackQuery().getData());
         Message message=update.getCallbackQuery().getMessage();
         EditMessageReplyMarkup editMessageReplyMarkup=new EditMessageReplyMarkup();
         editMessageReplyMarkup.setReplyMarkup(null);
@@ -100,23 +100,31 @@ public class SetCityState implements State{
         EditMessageText editMessageText = new EditMessageText();
         editMessageText.setChatId(message.getChatId());
         editMessageText.setMessageId(message.getMessageId());
-        if(user.isNotif()){
-            user.setNotificationCity(cities.get(citiIndex));
-            user.setCurrentState(StateEnum.NOTIF);
-            editMessageText.setText("Notifications city was set to "
-                    +cities.get(citiIndex).getName()+", "+cities.get(citiIndex).getCountry());
+        if(cityIndex<0){
+            editMessageText.setText("Back");
+            if(user.isNotif()){
+                user.setCurrentState(StateEnum.NOTIF);
+            }
+            else{
+                user.setCurrentState(StateEnum.SETTINGS);
+            }
         }
-        else{
-            user.setCurrentCity(cities.get(citiIndex));
-            user.setCurrentState(StateEnum.MAIN);
-            editMessageText.setText("Current city was set to "
-                    +cities.get(citiIndex).getName()+", "+cities.get(citiIndex).getCountry());
+        else {
+            if (user.isNotif()) {
+                user.setNotificationCity(cities.get(cityIndex));
+                user.setCurrentState(StateEnum.NOTIF);
+                editMessageText.setText("Notifications city was set to "
+                        + cities.get(cityIndex).getName() + ", " + cities.get(cityIndex).getCountry());
+            } else {
+                user.setCurrentCity(cities.get(cityIndex));
+                user.setCurrentState(StateEnum.MAIN);
+                editMessageText.setText("Current city was set to "
+                        + cities.get(cityIndex).getName() + ", " + cities.get(cityIndex).getCountry());
+            }
+            user.addCityToLastCitiesList(cities.get(cityIndex));
         }
-        //user.addCityToLastCitiesList(cities.get(citiIndex));
-        //System.out.println("current city "+user.getCurrentCity().getName());
         userService.update(user);
         sendStateMessage(user,user.getCurrentState());
-
         try {
             bot.execute(editMessageText);
             bot.execute(editMessageReplyMarkup);

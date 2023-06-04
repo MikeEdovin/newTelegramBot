@@ -6,7 +6,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
-import java.util.Objects;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,7 +15,7 @@ import java.util.Objects;
 @Entity
 @EqualsAndHashCode
 @Embeddable
-@IdClass(WeatherId.class)
+@IdClass(CityId.class)
 @Table(name="city_data")
 public class CityData implements Serializable {
 
@@ -34,8 +33,8 @@ public class CityData implements Serializable {
     private String state;
     private String timezone;
 
-    public WeatherId getWeatherId(){
-        return new WeatherId(lat,lon);
+    public CityId getWeatherId(){
+        return new CityId(lat,lon);
     }
 
 

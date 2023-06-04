@@ -60,7 +60,7 @@ public class SystemMessage {
                             + " - show settings " + END_LINE;
                     sendMessage.setText(messageText);
                 }
-                case NONE -> sendMessage.setText("Please, use menu buttons");
+                case NONE,SET_TIME -> sendMessage.setText("Please, use menu buttons");
                 //case WRONG_CITY_INPUT -> sendMessage.setText("Please, type the city name ");
                 //case WRONG_TIME_INPUT -> sendMessage.setText("Wrong input, please try again");
                 case NOTIF_TIME_WAS_SET -> {

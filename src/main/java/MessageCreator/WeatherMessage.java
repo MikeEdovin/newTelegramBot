@@ -54,6 +54,12 @@ public class WeatherMessage {
                     keyboard.add(row);
                 }
             }
+            row=new ArrayList<>();
+            InlineKeyboardButton button=new InlineKeyboardButton();
+            button.setText("Back "+Emojies.BACK.getEmoji());
+            button.setCallbackData("-1");
+            row.add(button);
+            keyboard.add(row);
             keyboardMarkup.setKeyboard(keyboard);
             sendMessage.setReplyMarkup(keyboardMarkup);
             return this;

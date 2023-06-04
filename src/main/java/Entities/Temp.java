@@ -13,9 +13,8 @@ import org.springframework.data.annotation.Id;
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
-//@Embeddable
+
 public class Temp  {
-    //@Id
     private long tempId;
     @JsonProperty("day")
     private float dayTemp;

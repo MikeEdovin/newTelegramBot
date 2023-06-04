@@ -16,7 +16,6 @@ import java.time.format.DateTimeFormatter;
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
-//@Embeddable
 public class Daily implements Serializable {
     private long dt;
     private long sunrise;
@@ -25,7 +24,6 @@ public class Daily implements Serializable {
     private long moonset;
     @JsonProperty("moon_phase")
     private float moonPhase;
-    //@Embedded
     private Temp temp;
     @JsonProperty("feels_like")
     //@Embedded

@@ -31,7 +31,7 @@ public class MainState implements State {
 
         switch (command){
             case START->sendStateMessage(user,user.getCurrentState());
-            case HELP, NONE -> {
+            case HELP, NONE,SET_TIME -> {
                 bot.sendQueue.add(new MessageCreator.SystemMessage.MessageBuilder(user).
                         setText(command).build().getSendMessage());
             }
@@ -40,7 +40,6 @@ public class MainState implements State {
                 user.setCurrentState(StateEnum.SETTINGS);
                 userService.update(user);
                 sendStateMessage(user,user.getCurrentState());
-                System.out.println("settings in main state");
             }
             case CURRENT_WEATHER,FOR_48_HOURS,FOR_7_DAYS -> {
                 int nrOfDays;
@@ -53,9 +52,15 @@ public class MainState implements State {
                 }
                 CityData currentCity=user.getCurrentCity();
                 if(currentCity!=null) {
+
                     WeatherData weatherData = geoWeatherProvider
                             .getWeatherData(currentCity.getLat(), currentCity.getLon());
-                    bot.sendQueue.add(new WeatherMessage.MessageBuilder(user).setForecastText(weatherData,currentCity,nrOfDays).build().getSendMessage());
+                    if(currentCity.getTimezone()==null){
+                        currentCity.setTimezone(weatherData.getTimezone());
+                        userService.update(user);
+                    }
+                    bot.sendQueue.add(new WeatherMessage.MessageBuilder(user)
+                            .setForecastText(weatherData,currentCity,nrOfDays).build().getSendMessage());
                 }
                 else{
                     bot.sendQueue.add(new WeatherMessage.MessageBuilder(user)

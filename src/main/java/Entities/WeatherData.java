@@ -15,17 +15,10 @@ import lombok.*;
 //@Table(name="weather_data")
 
 public class WeatherData {
-   // @Id
     private double lat;
-    //@Id
     private double lon;
     private String timezone;
-    //@Embedded
     private Current current;
-    //@Embedded
-    //@ElementCollection
-    //@JoinTable(name="daily")
-    //@OrderColumn(name="daily_index")
     private Daily[] daily;
     public void setLatLon(double lat, double lon){
         this.lat=lat;
