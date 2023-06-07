@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -16,10 +15,6 @@ public class WeatherData {
     private String timezone;
     private Current current;
     private Daily[] daily;
-    public void setLatLon(double lat, double lon){
-        this.lat=lat;
-        this.lon=lon;
-    }
 
 
 }

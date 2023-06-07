@@ -44,10 +44,8 @@ public class NotificationsState implements State{
                 userService.update(user);
                 sendStateMessage(user, user.getCurrentState());
             }
-            case SET_NOTIFICATIONS_DAY_AND_TIME -> {
-                bot.sendQueue.add(new SystemMessage.MessageBuilder(user)
-                        .sendDayTimeKeyboard().build().getSendMessage());
-            }
+            case SET_NOTIFICATIONS_DAY_AND_TIME -> bot.sendQueue.add(new SystemMessage.MessageBuilder(user)
+                    .sendDayTimeKeyboard().build().getSendMessage());
             case SET_TIME -> {
                 if(user.hasAtLeastOneNotDay()) {
                     try {
@@ -70,8 +68,8 @@ public class NotificationsState implements State{
                 }
 
             }
-            case NONE -> {bot.sendQueue.add(new SystemMessage.MessageBuilder(user)
-                    .setText(Command.WRONG_TIME_INPUT).build().getSendMessage());}
+            case NONE -> bot.sendQueue.add(new SystemMessage.MessageBuilder(user)
+                    .setText(Command.WRONG_TIME_INPUT).build().getSendMessage());
             case RESET_NOTIFICATIONS -> {
                 user.clearNotifications();
                 userService.update(user);

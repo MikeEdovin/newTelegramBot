@@ -1,6 +1,5 @@
 package BotPackage;
 
-import Service.CityService;
 import Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.TelegramBotsApi;

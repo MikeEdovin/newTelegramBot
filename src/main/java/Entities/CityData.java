@@ -33,7 +33,7 @@ public class CityData implements Serializable {
     private String state;
     private String timezone;
 
-    public CityId getWeatherId(){
+    public CityId getCityId(){
         return new CityId(lat,lon);
     }
 

@@ -15,16 +15,11 @@ public enum Command {
     SEND_LOCATION("Send location"),
     CHOOSE_FROM_LAST_THREE("Choose from last 3"),
     BACK("Back"),
-    ADD_CITY_TO_USER("Add city to user"),
-    GET_CITY_FROM_INPUT("Get city from input"),
-    SET_NOTIFICATION_TIME("Set notification"),
-    SEND_TIME_SETTING_MESSAGE("Sending time setting message"),
     RESET_NOTIFICATIONS("Reset notification"),
     SEND_NEW_VERSION_MESSAGE("Sending new version message"),
     SET_TIME("Time"),
     NOTIF_TIME_WAS_SET("Notification time was set"),
     WRONG_TIME_INPUT("Wrong time input"),
-    WRONG_CITY_INPUT("Wrong input, please type the city name"),
     TIME_SETTINGS_ERROR("You didn't choose any day for notifications");
 
     public final String description;

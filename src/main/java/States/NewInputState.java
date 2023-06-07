@@ -8,7 +8,6 @@ import Entities.User;
 import GeoWeatherPackage.GeoWeatherProvider;
 import MessageCreator.StateMessage;
 import MessageCreator.SystemMessage;
-import Service.CityServiceImpl;
 import Service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
@@ -26,8 +25,6 @@ public class NewInputState implements State {
     GeoWeatherProvider geoWeatherProvider;
     @Autowired
     UserServiceImpl userService;
-    @Autowired
-    CityServiceImpl cityService;
 
     private List<CityData> cities;
 

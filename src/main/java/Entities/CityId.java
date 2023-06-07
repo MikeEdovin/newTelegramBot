@@ -1,18 +1,16 @@
 package Entities;
 
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.io.Serializable;
 @Getter
+@AllArgsConstructor
+@EqualsAndHashCode
 public class CityId implements Serializable {
     private double lat,lon;
-
-    public CityId(double lat, double lon){
-        this.lat=lat;
-        this.lon=lon;
-    }
-    public CityId(){}
-
+/*
     @Override
     public boolean equals(Object o){
         if(!(o instanceof CityId)){
@@ -30,4 +28,6 @@ public class CityId implements Serializable {
         hash=31*hash+Double.hashCode(lon);
         return hash;
     }
+
+ */
 }

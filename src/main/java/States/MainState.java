@@ -21,19 +21,14 @@ public class MainState implements State {
     @Autowired
     GeoWeatherProvider geoWeatherProvider;
 
-
-
-
     @Override
     public void gotInput(User user, ParsedCommand parsedCommand, Update update) {
         Command command=parsedCommand.getCommand();
 
         switch (command){
             case START->sendStateMessage(user,user.getCurrentState());
-            case HELP, NONE,SET_TIME -> {
-                bot.sendQueue.add(new MessageCreator.SystemMessage.MessageBuilder(user).
-                        setText(command).build().getSendMessage());
-            }
+            case HELP, NONE,SET_TIME -> bot.sendQueue.add(new SystemMessage.MessageBuilder(user).
+                    setText(command).build().getSendMessage());
             case SETTINGS -> {
                 user.setPreviousState(user.getCurrentState());
                 user.setCurrentState(StateEnum.SETTINGS);
@@ -51,7 +46,6 @@ public class MainState implements State {
                 }
                 CityData currentCity=user.getCurrentCity();
                 if(currentCity!=null) {
-
                     WeatherData weatherData = geoWeatherProvider
                             .getWeatherData(currentCity.getLat(), currentCity.getLon());
                     if(currentCity.getTimezone()==null){

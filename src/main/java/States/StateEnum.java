@@ -6,11 +6,8 @@ public enum StateEnum implements Serializable {
     MAIN("main"),
     SETTINGS("settings"),
     NEWINPUT("newInput"),
-    LAST3("last3"),
-    LOCATION("location"),
-    NOTIF("notif"),
-    SETDAYTIME("setDayTime"),
-    RESETNOTIF("resetNotif");
+    NOTIF("notif");
+
 
     public final String description;
 
