@@ -19,7 +19,7 @@ public abstract class Bot extends TelegramLongPollingBot {
     abstract boolean isStarted();
     abstract void setStartedStatus(boolean status);
     abstract public String getBotToken();
-    abstract public void onUpdateReceived(Update update);
+
     abstract public void onUpdatesReceived(List<Update> updates);
 
 

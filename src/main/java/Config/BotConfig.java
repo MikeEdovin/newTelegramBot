@@ -2,13 +2,12 @@ package Config;
 
 import BotPackage.Bot;
 import BotPackage.WeatherBot;
-import BotServices.IMessageReceiver;
-import BotServices.IMessageSender;
 import BotServices.MessageReceiver;
 import BotServices.MessageSender;
+import BotServices.MessageReceiverImpl;
+import BotServices.MessageSenderImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.EnableAsync;
 
 @Configuration
 //@EnableAsync
@@ -21,12 +20,12 @@ public class BotConfig {
         return new WeatherBot(botName,botToken);
     }
     @Bean
-    public IMessageReceiver messageReceiver(){
-        return new MessageReceiver();
+    public MessageReceiver messageReceiver(){
+        return new MessageReceiverImpl();
     }
     @Bean
-    public IMessageSender messageSender(){
-        return new MessageSender();
+    public MessageSender messageSender(){
+        return new MessageSenderImpl();
     }
 
 }

@@ -25,8 +25,6 @@ public class WeatherBot extends Bot {
     private final String botName;
     private final String botToken;
     @Autowired
-    CityService cityService;
-    @Autowired
     UserService userService;
 
     Logger logger=Logger.getLogger("BotLogger");

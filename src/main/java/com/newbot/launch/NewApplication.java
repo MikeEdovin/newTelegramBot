@@ -1,8 +1,8 @@
 package com.newbot.launch;
 
 import BotPackage.Bot;
-import BotServices.IMessageReceiver;
-import BotServices.IMessageSender;
+import BotServices.MessageReceiver;
+import BotServices.MessageSender;
 import Config.*;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -20,8 +20,8 @@ public class NewApplication {
 		ApplicationContext context=
 		SpringApplication.run(NewApplication.class, args);
 		Bot bot=context.getBean(Bot.class);
-		IMessageReceiver messageReceiver=context.getBean(IMessageReceiver.class);
-		IMessageSender messageSender=context.getBean(IMessageSender.class);
+		MessageReceiver messageReceiver=context.getBean(MessageReceiver.class);
+		MessageSender messageSender=context.getBean(MessageSender.class);
 
 		try {
 			bot.botConnect();
