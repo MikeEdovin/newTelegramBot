@@ -68,6 +68,7 @@ public class User {
     }
     public void clearNotifications(){
         this.setNotificationCity(null);
+        this.setNotificationTime(null);
         for(int i=0;i<notificationDays.length;i++){
             notificationDays[i]=0;
         }
@@ -75,7 +76,7 @@ public class User {
 
     public boolean hasAtLeastOneNotDay(){
         for(int i =1;i<notificationDays.length;i++){
-            if(notificationDays[i]==i){
+            if(notificationDays[i-1]==i){
                 return true;
             }
         }

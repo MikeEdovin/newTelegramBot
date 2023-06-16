@@ -2,10 +2,7 @@ package Config;
 
 import BotPackage.Bot;
 import BotPackage.WeatherBot;
-import BotServices.MessageReceiver;
-import BotServices.MessageSender;
-import BotServices.MessageReceiverImpl;
-import BotServices.MessageSenderImpl;
+import BotServices.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -20,12 +17,14 @@ public class BotConfig {
         return new WeatherBot(botName,botToken);
     }
     @Bean
-    public MessageReceiver messageReceiver(){
+    public MessageReceiver getMessageReceiver(){
         return new MessageReceiverImpl();
     }
     @Bean
-    public MessageSender messageSender(){
+    public MessageSender getMessageSender(){
         return new MessageSenderImpl();
     }
+    @Bean
+    public Notifier getNotifier(){return new NotifierImpl();}
 
 }

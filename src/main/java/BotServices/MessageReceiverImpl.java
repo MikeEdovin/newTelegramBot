@@ -30,6 +30,8 @@ public class MessageReceiverImpl implements MessageReceiver {
     }
         @Override
         public void run () {
+
+        /*
             while (true) {
                 for (Object object = bot.receiveQueue.poll(); object != null; object = bot.receiveQueue.poll()) {
                     Update update = (Update) object;
@@ -69,6 +71,8 @@ public class MessageReceiverImpl implements MessageReceiver {
                 }
             }
 
+         */
+
 
         }
 
@@ -76,5 +80,36 @@ public class MessageReceiverImpl implements MessageReceiver {
         public void stop () {
 
         }
+
+    @Override
+    public void gotUpdate(Object object) {
+        if (object instanceof Update) {
+            Update update=(Update)object;
+            System.out.println("got observer " + Thread.currentThread().getName() + Thread.currentThread().isDaemon());
+            State state;
+            User user;
+            if (update.hasMessage()) {
+                ParsedCommand parsedCommand = Parser.GetParsedCommand(update.getMessage().getText());
+                long userId = update.getMessage().getFrom().getId();
+                user = userService.saveIfNotExist(new User(userId));
+                System.out.println("State " + user.getCurrentState());
+                state = stateFactory.getState(user.getCurrentState());
+                if (update.getMessage().hasLocation()) {
+                    parsedCommand.setCommand(Command.SEND_LOCATION);
+
+                }
+                state.gotInput(user, parsedCommand, update);
+                System.out.println(parsedCommand.getCommand().description + " new " + " state " + user.getCurrentState().description);
+            }
+
+            if (update.hasCallbackQuery()) {
+                long userId = update.getCallbackQuery().getFrom().getId();
+                user = userService.getUserById(userId).get();
+                state = stateFactory.getState(user.getCurrentState());
+                state.gotCallBack(user, update);
+            }
+
+        }
     }
+}
 

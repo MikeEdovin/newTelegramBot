@@ -1,6 +1,7 @@
 package States;
 
 import BotPackage.Bot;
+import BotServices.Observer;
 import Commands.Command;
 import Commands.ParsedCommand;
 import Entities.CityData;
@@ -10,12 +11,14 @@ import MessageCreator.StateMessage;
 import MessageCreator.SystemMessage;
 import Service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class NewInputState implements State {
@@ -27,56 +30,47 @@ public class NewInputState implements State {
     UserServiceImpl userService;
 
     private List<CityData> cities;
+    private List<Observer> observers = new ArrayList<>();
 
     @Override
     public void gotInput(User user, ParsedCommand parsedCommand, Update update) {
         Command command = parsedCommand.getCommand();
         switch (command) {
-            case NONE,SET_TIME -> {
+            case NONE, SET_TIME -> {
                 cities = List.of(geoWeatherProvider.getCityData(parsedCommand.getText()));
-                bot.sendQueue.add(new SystemMessage
-                        .MessageBuilder(user)
+                notifyObservers(new SystemMessage.MessageBuilder(user)
                         .sendInlineCityChoosingKeyboard(cities).build().getSendMessage());
             }
 
             case BACK -> {
                 user.setCurrentState(user.getPreviousState());
                 user = userService.update(user);
-                sendStateMessage(user, user.getCurrentState());
+                notifyObservers(getStateMessage(user));
             }
         }
     }
 
-        @Override
-        public void sendStateMessage (User user, StateEnum state){
-            bot.sendQueue.add(new StateMessage.MessageBuilder(user.getUserId()).
-                    setText(state)
-                    .setKeyBoard(state)
-                    .build().getSendMessage());
 
-        }
 
     @Override
     public void gotCallBack(User user, Update update) {
-        int cityIndex= Integer.parseInt(update.getCallbackQuery().getData());
-        Message message=update.getCallbackQuery().getMessage();
-        EditMessageReplyMarkup editMessageReplyMarkup=new EditMessageReplyMarkup();
+        int cityIndex = Integer.parseInt(update.getCallbackQuery().getData());
+        Message message = update.getCallbackQuery().getMessage();
+        EditMessageReplyMarkup editMessageReplyMarkup = new EditMessageReplyMarkup();
         editMessageReplyMarkup.setReplyMarkup(null);
         editMessageReplyMarkup.setMessageId(message.getMessageId());
         editMessageReplyMarkup.setChatId(message.getChatId());
         EditMessageText editMessageText = new EditMessageText();
         editMessageText.setChatId(message.getChatId());
         editMessageText.setMessageId(message.getMessageId());
-        if(cityIndex<0){
+        if (cityIndex < 0) {
             editMessageText.setText("Back");
-            if(user.isNotif()){
+            if (user.isNotif()) {
                 user.setCurrentState(StateEnum.NOTIF);
-            }
-            else{
+            } else {
                 user.setCurrentState(StateEnum.SETTINGS);
             }
-        }
-        else {
+        } else {
             if (user.isNotif()) {
                 user.setNotificationCity(cities.get(cityIndex));
                 user.setCurrentState(StateEnum.NOTIF);
@@ -97,11 +91,22 @@ public class NewInputState implements State {
         } catch (TelegramApiException e) {
 
         }
-
-        sendStateMessage(user, user.getCurrentState());
+        notifyObservers(getStateMessage(user));
 
     }
 
 
+    @Override
+    public void addObserver(Observer observer) {
+        observers.add(observer);
+
+    }
+
+    @Override
+    public void notifyObservers(Object object) {
+        for (Observer observer : observers) {
+            observer.gotUpdate(object);
+        }
+    }
 }
 

@@ -2,6 +2,7 @@ package States;
 
 import BotPackage.Bot;
 import BotServices.Emojies;
+import BotServices.Observer;
 import Commands.Command;
 import Commands.ParsedCommand;
 import Entities.User;
@@ -11,6 +12,7 @@ import Service.UserService;
 import com.vdurmont.emoji.EmojiParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
@@ -23,6 +25,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -33,6 +36,7 @@ public class NotificationsState implements State{
     Bot bot;
     @Autowired
     UserService userService;
+    private List<Observer> observers=new ArrayList<>();
     @Override
     public void gotInput(User user, ParsedCommand parsedCommand, Update update) {
         Command command = parsedCommand.getCommand();
@@ -42,9 +46,10 @@ public class NotificationsState implements State{
                 user.setPreviousState(user.getCurrentState());
                 user.setCurrentState(StateEnum.SETTINGS);
                 userService.update(user);
-                sendStateMessage(user, user.getCurrentState());
+                notifyObservers(getStateMessage(user));
             }
-            case SET_NOTIFICATIONS_DAY_AND_TIME -> bot.sendQueue.add(new SystemMessage.MessageBuilder(user)
+            case SET_NOTIFICATIONS_DAY_AND_TIME ->
+            notifyObservers(new SystemMessage.MessageBuilder(user)
                     .sendDayTimeKeyboard().build().getSendMessage());
             case SET_TIME -> {
                 if(user.hasAtLeastOneNotDay()) {
@@ -53,45 +58,39 @@ public class NotificationsState implements State{
                                 DateTimeFormatter.ofPattern("H[H]:mm"));
                         user.setNotificationTime(time);
                         userService.update(user);
-                        bot.sendQueue.add(new SystemMessage.MessageBuilder(user)
-                                .setText(Command.NOTIF_TIME_WAS_SET).build().getSendMessage());
-                        sendStateMessage(user, user.getCurrentState());
+                        notifyObservers(new SystemMessage.MessageBuilder(user)
+                                 .setText(Command.NOTIF_TIME_WAS_SET).build().getSendMessage());
+                        notifyObservers(getStateMessage(user));
                     } catch (DateTimeParseException e) {
-                        bot.sendQueue.add(new SystemMessage.MessageBuilder(user)
+                        notifyObservers(new SystemMessage.MessageBuilder(user)
                                 .setText(Command.WRONG_TIME_INPUT).build().getSendMessage());
                     }
                 }
                 else{
-                    bot.sendQueue.add(new SystemMessage.MessageBuilder(user)
-                            .setText(Command.TIME_SETTINGS_ERROR).build().getSendMessage());
-
+                    notifyObservers(new SystemMessage.MessageBuilder(user)
+                            .setText(Command.WRONG_TIME_INPUT).build().getSendMessage());
                 }
 
             }
-            case NONE -> bot.sendQueue.add(new SystemMessage.MessageBuilder(user)
-                    .setText(Command.WRONG_TIME_INPUT).build().getSendMessage());
+            case NONE ->
+                    notifyObservers(new SystemMessage.MessageBuilder(user)
+                            .setText(Command.WRONG_TIME_INPUT).build().getSendMessage());
             case RESET_NOTIFICATIONS -> {
                 user.clearNotifications();
                 userService.update(user);
-                bot.sendQueue.add(new SystemMessage.MessageBuilder(user)
+                notifyObservers(new SystemMessage.MessageBuilder(user)
                         .setText(Command.RESET_NOTIFICATIONS).build().getSendMessage());
-
             }
             case BACK -> {
                 user.setCurrentState(StateEnum.MAIN);
                 user.setNotif(false);
                 userService.update(user);
-                sendStateMessage(user, user.getCurrentState());
+                notifyObservers(getStateMessage(user));
             }
         }
     }
 
-    @Override
-    public void sendStateMessage(User user, StateEnum state) {
-        bot.sendQueue.add(new StateMessage.MessageBuilder(user.getUserId()).
-                setText(state).
-                setKeyBoard(state).build().getSendMessage());
-    }
+
 
     @Override
     public void gotCallBack(User user, Update update) {
@@ -110,7 +109,7 @@ public class NotificationsState implements State{
                     bot.execute(editMessageText);
                 } catch (TelegramApiException e) {
                 }
-            sendStateMessage(user, user.getCurrentState());
+            notifyObservers(getStateMessage(user));
         }else {
             InlineKeyboardMarkup keyboardMarkup = updateNotifDaysChoosingKeyboard(user, query);
             editMessageReplyMarkup.setReplyMarkup(keyboardMarkup);
@@ -143,5 +142,18 @@ public class NotificationsState implements State{
             }
         }
         return keyboardMarkup;
+    }
+
+    @Override
+    public void addObserver(Observer observer) {
+        observers.add(observer);
+
+    }
+
+    @Override
+    public void notifyObservers(Object object) {
+        for (Observer observer : observers) {
+            observer.gotUpdate(object);
+        }
     }
 }

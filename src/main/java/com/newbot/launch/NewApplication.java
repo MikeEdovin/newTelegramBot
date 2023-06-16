@@ -3,7 +3,9 @@ package com.newbot.launch;
 import BotPackage.Bot;
 import BotServices.MessageReceiver;
 import BotServices.MessageSender;
+import BotServices.Notifier;
 import Config.*;
+import States.*;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
@@ -22,6 +24,22 @@ public class NewApplication {
 		Bot bot=context.getBean(Bot.class);
 		MessageReceiver messageReceiver=context.getBean(MessageReceiver.class);
 		MessageSender messageSender=context.getBean(MessageSender.class);
+		Notifier notifier=context.getBean(Notifier.class);
+		State mainState=context.getBean("mainState", MainState.class);
+		State setCityState=context.getBean("setCityState", SetCityState.class);
+		State newInputState=context.getBean("newInputState", NewInputState.class);
+		State notificationsState=context.getBean("notificationsState", NotificationsState.class);
+
+		mainState.addObserver(messageSender);
+		setCityState.addObserver(messageSender);
+		newInputState.addObserver(messageSender);
+		notificationsState.addObserver(messageSender);
+		notificationsState.addObserver(notifier);
+
+
+		bot.addObserver(messageReceiver);
+
+
 
 		try {
 			bot.botConnect();
@@ -43,5 +61,6 @@ public class NewApplication {
 
 
 	}
+
 
 }

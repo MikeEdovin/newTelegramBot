@@ -1,6 +1,5 @@
 package States;
 
-import Commands.Command;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class StateFactoryImpl implements StateFactory{
@@ -12,6 +11,7 @@ public class StateFactoryImpl implements StateFactory{
     State newInputState;
     @Autowired
     State notificationsState;
+
     @Override
     public State getState(StateEnum stateEnum) {
 
@@ -20,7 +20,9 @@ public class StateFactoryImpl implements StateFactory{
             case SETTINGS -> setCityState;
             case NEWINPUT -> newInputState;
             case NOTIF -> notificationsState;
-            default -> mainState;
         };
     }
+
+
+
 }
