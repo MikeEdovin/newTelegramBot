@@ -13,9 +13,8 @@ public interface State extends Observable {
 
     void gotCallBack(User user, Update update);
     default SendMessage getStateMessage(User user){
-        return new StateMessage.MessageBuilder(user.getUserId()).
-                setText(user.getCurrentState())
-                .setKeyBoard(user.getCurrentState()).build().getSendMessage();
+        return new StateMessage.MessageBuilder(user).
+                setText().setKeyBoard().build().getSendMessage();
     };
 
 

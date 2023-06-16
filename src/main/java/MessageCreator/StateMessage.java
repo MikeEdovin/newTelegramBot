@@ -1,6 +1,7 @@
 package MessageCreator;
 
 import BotServices.Emojies;
+import Entities.User;
 import States.StateEnum;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -11,12 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StateMessage {
-    private final SendMessage sendMessage;
+    private SendMessage sendMessage;
 
     private StateMessage(MessageBuilder builder) {
         super();
         this.sendMessage = builder.sendMessage;
-
     }
     public SendMessage getSendMessage(){
         return  this.sendMessage;
@@ -24,13 +24,16 @@ public class StateMessage {
 
     public static class MessageBuilder {
         SendMessage sendMessage;
-        public MessageBuilder(long userId) {
+        StateEnum currentState;
+
+        public MessageBuilder(User user) {
             sendMessage = new SendMessage();
-            sendMessage.setChatId(userId);
+            currentState=user.getCurrentState();
+            sendMessage.setChatId(user.getUserId());
             sendMessage.setParseMode(ParseMode.MARKDOWN);
         }
-        public MessageBuilder setText(StateEnum state) {
-            switch (state) {
+        public MessageBuilder setText() {
+            switch (currentState) {
                 case MAIN -> sendMessage.setText("Main menu");
                 case SETTINGS -> sendMessage.setText("Settings");
                 case NEWINPUT -> sendMessage.setText("Please, enter city name");
@@ -38,11 +41,11 @@ public class StateMessage {
             }
             return this;
         }
-        public MessageBuilder setKeyBoard(StateEnum state) {
+        public MessageBuilder setKeyBoard() {
             ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
             List<KeyboardRow> keyboard = new ArrayList<>();
             KeyboardRow row = new KeyboardRow();
-            switch (state) {
+            switch (currentState) {
                 case MAIN -> {
                     row.add("Current weather "+ Emojies.CURRENT.getEmoji());
                     row.add("Forecast for "+Emojies.FOR_2_DAYS.getEmoji()+" days ");
