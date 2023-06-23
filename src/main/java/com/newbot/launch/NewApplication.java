@@ -5,6 +5,7 @@ import BotServices.MessageReceiver;
 import BotServices.MessageSender;
 import BotServices.Notifier;
 import Config.*;
+import Service.UserService;
 import States.*;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -46,6 +47,12 @@ public class NewApplication {
 		}catch (TelegramApiException e){
 			e.printStackTrace();
 		}
+
+		Thread notifierThread=new Thread(notifier);
+		notifierThread.setDaemon(true);
+		notifierThread.setName("NotifierThread");
+		notifierThread.start();
+
 		Thread receiver = new Thread(messageReceiver);
 		receiver.setDaemon(true);
 		receiver.setName("MsgReceiver");

@@ -47,6 +47,7 @@ public class NotificationsState implements State{
                 user.setCurrentState(StateEnum.SETTINGS);
                 userService.update(user);
                 notifyObservers(getStateMessage(user));
+                notifyObservers(user);
             }
             case SET_NOTIFICATIONS_DAY_AND_TIME ->
             notifyObservers(new SystemMessage.MessageBuilder(user)
@@ -61,6 +62,7 @@ public class NotificationsState implements State{
                         notifyObservers(new SystemMessage.MessageBuilder(user)
                                  .setText(Command.NOTIF_TIME_WAS_SET).build().getSendMessage());
                         notifyObservers(getStateMessage(user));
+                        notifyObservers(user);
                     } catch (DateTimeParseException e) {
                         notifyObservers(new SystemMessage.MessageBuilder(user)
                                 .setText(Command.WRONG_TIME_INPUT).build().getSendMessage());
@@ -80,6 +82,7 @@ public class NotificationsState implements State{
                 userService.update(user);
                 notifyObservers(new SystemMessage.MessageBuilder(user)
                         .setText(Command.RESET_NOTIFICATIONS).build().getSendMessage());
+                notifyObservers(user);
             }
             case BACK -> {
                 user.setCurrentState(StateEnum.MAIN);

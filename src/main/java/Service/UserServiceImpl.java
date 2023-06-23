@@ -4,17 +4,17 @@ import Entities.User;
 import Repository.UserRepository;
 import States.StateEnum;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 public class UserServiceImpl implements UserService {
     @Autowired
     UserRepository repository;
-    @Override
-    public User save(User user) {
-        return repository.save(user);
-    }
+
 
     @Override
     @Transactional
@@ -39,5 +39,12 @@ public class UserServiceImpl implements UserService {
         }
 
     }
+
+    @Override
+    public List<User> getAllUsersWithNotifications() {
+        return repository.getAllUsersWithNotifications();
+        //return null;
+    }
+
 
 }
