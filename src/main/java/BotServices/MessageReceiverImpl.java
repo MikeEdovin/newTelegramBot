@@ -8,6 +8,7 @@ import Entities.User;
 import Service.UserServiceImpl;
 import States.State;
 import States.StateFactory;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
@@ -81,6 +82,7 @@ public class MessageReceiverImpl implements MessageReceiver {
 
         }
 
+    @SneakyThrows
     @Override
     public void gotUpdate(Object object) {
         if (object instanceof Update) {
@@ -91,7 +93,7 @@ public class MessageReceiverImpl implements MessageReceiver {
             if (update.hasMessage()) {
                 ParsedCommand parsedCommand = Parser.GetParsedCommand(update.getMessage().getText());
                 long userId = update.getMessage().getFrom().getId();
-                user = userService.saveIfNotExist(new User(userId));
+                user = userService.saveIfNotExist(new User(userId)).get();
                 System.out.println("State " + user.getCurrentState());
                 state = stateFactory.getState(user.getCurrentState());
                 if (update.getMessage().hasLocation()) {

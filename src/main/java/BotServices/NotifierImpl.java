@@ -6,6 +6,7 @@ import Entities.User;
 import Entities.WeatherData;
 import GeoWeatherPackage.GeoWeatherProvider;
 import Service.UserService;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalTime;
@@ -18,12 +19,12 @@ public class NotifierImpl implements Notifier{
     @Autowired
     GeoWeatherProvider geoWeatherProvider;
 
-    List<User> usersWithNotifications;
-    //List<User> usersWithNotifications=new ArrayList<>();
+    private List<User> usersWithNotifications;
+
 
     @Override
     public void run() {
-        //usersWithNotifications=userService.getAllUsersWithNotifications();
+
         while (true) {
             try {
                 Thread.sleep(1000);
@@ -36,7 +37,7 @@ public class NotifierImpl implements Notifier{
                             WeatherData weatherData=geoWeatherProvider.getWeatherData(
                                     notificationsCity.getLat(), notificationsCity.getLon()
                             );
-                            
+
 
                         }
                     }
@@ -53,10 +54,11 @@ public class NotifierImpl implements Notifier{
 
     }
 
+    @SneakyThrows
     @Override
     public void gotUpdate(Object object) {
         System.out.println("notifier was update");
-        usersWithNotifications=userService.getAllUsersWithNotifications();
+        usersWithNotifications=userService.getAllUsersWithNotifications().get();
 
     }
 }

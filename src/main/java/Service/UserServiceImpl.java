@@ -4,12 +4,11 @@ import Entities.User;
 import Repository.UserRepository;
 import States.StateEnum;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 public class UserServiceImpl implements UserService {
     @Autowired
@@ -18,32 +17,35 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public Optional<User> getUserById(long userId) {
-            return repository.findById(userId);
+    @Async
+    public CompletableFuture<User> getUserById(long userId) {
+        return CompletableFuture.completedFuture(repository.findById(userId).get());
     }
 
     @Override
     @Transactional
-    public User update(User user) {
-       return repository.save(user);
+    @Async
+    public CompletableFuture<User> update(User user) {
+        return CompletableFuture.completedFuture(repository.save(user));
     }
     @Override
     @Transactional
-    public User saveIfNotExist(User user) {
+    @Async
+    public CompletableFuture<User> saveIfNotExist(User user) {
         if(repository.existsById(user.getUserId())){
-            return repository.findById(user.getUserId()).get();
+            return CompletableFuture.completedFuture(repository.findById(user.getUserId()).get());
         }
         else{
             user.setCurrentState(StateEnum.MAIN);
-            return repository.save(user);
+            return CompletableFuture.completedFuture(repository.save(user));
         }
 
     }
 
     @Override
-    public List<User> getAllUsersWithNotifications() {
-        return repository.getAllUsersWithNotifications();
-        //return null;
+    @Async
+    public CompletableFuture<List<User>> getAllUsersWithNotifications() {
+        return CompletableFuture.completedFuture(repository.getAllUsersWithNotifications());
     }
 
 

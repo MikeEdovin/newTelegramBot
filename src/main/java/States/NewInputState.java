@@ -10,6 +10,7 @@ import GeoWeatherPackage.GeoWeatherProvider;
 import MessageCreator.StateMessage;
 import MessageCreator.SystemMessage;
 import Service.UserServiceImpl;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
@@ -32,6 +33,7 @@ public class NewInputState implements State {
     private List<CityData> cities;
     private List<Observer> observers = new ArrayList<>();
 
+    @SneakyThrows
     @Override
     public void gotInput(User user, ParsedCommand parsedCommand, Update update) {
         Command command = parsedCommand.getCommand();
@@ -44,7 +46,7 @@ public class NewInputState implements State {
 
             case BACK -> {
                 user.setCurrentState(user.getPreviousState());
-                user = userService.update(user);
+                user = userService.update(user).get();
                 notifyObservers(getStateMessage(user));
             }
         }

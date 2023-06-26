@@ -3,15 +3,17 @@ package Config;
 import BotPackage.Bot;
 import BotPackage.WeatherBot;
 import BotServices.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 
 @Configuration
+@PropertySource("config.properties")
 //@EnableAsync
 public class BotConfig {
-    String botName="EdovinWeatherBot";
-    String botToken="5295256851:AAHhA46BhJUzvzIE29rpjE8KlVCsDobF-is";
-
+    @Value("${bot.name}") String botName;
+    @Value("${bot.token}") String botToken;
     @Bean
     public Bot getWeatherBot(){
         return new WeatherBot(botName,botToken);
