@@ -2,7 +2,6 @@ package BotPackage;
 
 import BotServices.MessageReceiver;
 import BotServices.Observer;
-import Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -11,17 +10,20 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
 public class WeatherBot extends Bot {
+    private final ConcurrentLinkedQueue<Update>inQueue=new ConcurrentLinkedQueue<>();
+    private final List<Observer> observers=new ArrayList<>();
     private boolean started;
     private final String botName;
     private final String botToken;
-    @Autowired
-    MessageReceiver messageReceiver;
+    //@Autowired
+   // MessageReceiver messageReceiver;
 
     Logger logger=Logger.getLogger("BotLogger");
 
@@ -31,10 +33,6 @@ public class WeatherBot extends Bot {
         ConsoleHandler handler=new ConsoleHandler();
         handler.setLevel(Level.INFO);
         logger.addHandler(handler);
-    }
-    @Override
-    public boolean isStarted() {
-        return started;
     }
 
     @Override
@@ -66,7 +64,9 @@ public class WeatherBot extends Bot {
     public void onUpdatesReceived(List<Update> updates) {
         System.out.println("Got message ");
             for (Update update : updates) {
-                messageReceiver.gotUpdateAsync(update);
+               // messageReceiver.gotUpdateAsync(update);
+                //inQueue.add(update);
+                notifyObservers(update);
             }
 
     }
@@ -76,5 +76,17 @@ public class WeatherBot extends Bot {
             botsApi.registerBot(this);
             setStartedStatus(true);
 
+    }
+
+    @Override
+    public void add(Observer observer) {
+        observers.add(observer);
+    }
+
+    @Override
+    public void notifyObservers(Update update) {
+        for(Observer o:observers){
+            o.gotUpdateAsync(update);
+}
     }
 }

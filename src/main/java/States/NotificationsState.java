@@ -25,6 +25,8 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 
 public class NotificationsState implements State {
@@ -75,12 +77,17 @@ public class NotificationsState implements State {
             case NONE ->
                     messageSender.sendMessageAsync(new SystemMessage.MessageBuilder(user)
                             .setText(Command.WRONG_TIME_INPUT).build().getSendMessage());
-            case RESET_NOTIFICATIONS -> {
+            case RESET_NOTIFICATIONS -> {//reset update in db
                 user.clearNotifications();
-                userService.updateAsync(user);
-                messageSender.sendMessageAsync(new SystemMessage.MessageBuilder(user)
-                        .setText(Command.RESET_NOTIFICATIONS).build().getSendMessage());
-                notifier.gotNotifListUpdate(user);
+                CompletableFuture<User> futureUser=userService.updateAsync(user);
+                try {
+                    futureUser.get();
+                    messageSender.sendMessageAsync(new SystemMessage.MessageBuilder(user)
+                            .setText(Command.RESET_NOTIFICATIONS).build().getSendMessage());
+                    notifier.gotNotifListUpdate(user);
+                }catch (InterruptedException| ExecutionException e){
+                    e.printStackTrace();
+                }
             }
             case BACK -> {
                 user.setCurrentState(StateEnum.MAIN);
@@ -92,7 +99,7 @@ public class NotificationsState implements State {
     }
 
 
-
+//call back executeAsync need to fix transaction
     @Override
     public void gotCallBack(User user, Update update) {
         Message message=update.getCallbackQuery().getMessage();
@@ -107,7 +114,7 @@ public class NotificationsState implements State {
             editMessageText.setText("Back");
                 user.setCurrentState(StateEnum.NOTIF);
                 try{
-                    bot.executeAsync(editMessageText);
+                    bot.execute(editMessageText);
                 } catch (TelegramApiException e) {
                 }
             messageSender.sendMessageAsync(getStateMessage(user));
@@ -117,8 +124,8 @@ public class NotificationsState implements State {
             editMessageReplyMarkup.setMessageId(message.getMessageId());
             editMessageReplyMarkup.setChatId(message.getChatId());
             try {
-                bot.executeAsync(answerCallbackQuery);
-                bot.executeAsync(editMessageReplyMarkup);
+                bot.execute(answerCallbackQuery);
+                bot.execute(editMessageReplyMarkup);
                 userService.updateAsync(user);
             } catch (TelegramApiException e) {
                 e.printStackTrace();

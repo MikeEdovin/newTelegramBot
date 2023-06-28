@@ -22,6 +22,8 @@ public class NewApplication {
 		SpringApplication.run(NewApplication.class, args);
 		Bot bot=context.getBean(Bot.class);
 		Notifier notifier=context.getBean(Notifier.class);
+		MessageReceiver receiver=context.getBean(MessageReceiver.class);
+		bot.add(receiver);
 
 		try {
 			bot.botConnect();

@@ -1,11 +1,11 @@
 package BotServices;
 
-import BotPackage.Bot;
+
 import Commands.Command;
 import Commands.ParsedCommand;
 import Commands.Parser;
 import Entities.User;
-import Service.UserServiceImpl;
+import Service.UserService;
 import States.State;
 import States.StateFactory;
 import lombok.SneakyThrows;
@@ -15,19 +15,15 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class MessageReceiverImpl implements MessageReceiver {
     @Autowired
-    Bot bot;
-    @Autowired
-    UserServiceImpl userService;
+    UserService userService;
     @Autowired
     StateFactory stateFactory;
 
     @SneakyThrows
     @Override
     @Async
-    public void gotUpdateAsync(Object object) {
+    public void gotUpdateAsync(Update update) {
         System.out.println("update threaD receiver "+Thread.currentThread().getName());
-        if (object instanceof Update) {
-            Update update=(Update)object;
             State state;
             User user;
             if (update.hasMessage()) {
@@ -52,5 +48,5 @@ public class MessageReceiverImpl implements MessageReceiver {
 
         }
     }
-}
+
 

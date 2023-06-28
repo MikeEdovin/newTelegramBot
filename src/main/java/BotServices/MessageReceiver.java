@@ -1,7 +1,5 @@
 package BotServices;
 
-public interface MessageReceiver {
-    void gotUpdateAsync(Object object);
-
+public interface MessageReceiver extends Observer{
 
 }

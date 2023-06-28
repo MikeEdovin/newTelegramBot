@@ -2,7 +2,6 @@ package States;
 
 import BotPackage.Bot;
 import BotServices.MessageSender;
-import BotServices.Observer;
 import Commands.Command;
 import Commands.ParsedCommand;
 import Entities.CityData;
@@ -32,7 +31,6 @@ public class SetCityState implements State {
     @Autowired
     GeoWeatherProvider geoWeatherProvider;
     private List<CityData> cities;
-    private List<Observer> observers = new ArrayList<>();
 
     @Override
     public void gotInput(User user, ParsedCommand parsedCommand, Update update) {

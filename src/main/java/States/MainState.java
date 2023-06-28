@@ -2,7 +2,6 @@ package States;
 
 import BotPackage.Bot;
 import BotServices.MessageSender;
-import BotServices.Observer;
 import Commands.Command;
 import Commands.ParsedCommand;
 import Entities.CityData;
@@ -21,14 +20,11 @@ import java.util.concurrent.ExecutionException;
 public class MainState implements State {
     //add Logger
     @Autowired
-    Bot bot;
-    @Autowired
     UserServiceImpl userService;
     @Autowired
     GeoWeatherProvider geoWeatherProvider;
     @Autowired
     MessageSender messageSender;
-    private List<Observer> observers=new ArrayList<>();
 
     @Override
     public void gotInput(User user, ParsedCommand parsedCommand, Update update) {
