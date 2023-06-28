@@ -1,26 +1,25 @@
 package States;
 
 import BotPackage.Bot;
+import BotServices.MessageSender;
 import BotServices.Observer;
 import Commands.Command;
 import Commands.ParsedCommand;
 import Entities.CityData;
 import Entities.User;
 import GeoWeatherPackage.GeoWeatherProvider;
-import MessageCreator.StateMessage;
 import MessageCreator.SystemMessage;
 import Service.UserServiceImpl;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class NewInputState implements State {
     @Autowired
@@ -29,6 +28,8 @@ public class NewInputState implements State {
     GeoWeatherProvider geoWeatherProvider;
     @Autowired
     UserServiceImpl userService;
+    @Autowired
+    MessageSender messageSender;
 
     private List<CityData> cities;
     private List<Observer> observers = new ArrayList<>();
@@ -39,20 +40,18 @@ public class NewInputState implements State {
         Command command = parsedCommand.getCommand();
         switch (command) {
             case NONE, SET_TIME -> {
-                cities = List.of(geoWeatherProvider.getCityData(parsedCommand.getText()));
-                notifyObservers(new SystemMessage.MessageBuilder(user)
-                        .sendInlineCityChoosingKeyboard(cities).build().getSendMessage());
+                CompletableFuture<CityData[]> futureCities = geoWeatherProvider.getCityDataAsync(parsedCommand.getText());
+                    cities = List.of(futureCities.get());
+                messageSender.sendMessageAsync(new SystemMessage.MessageBuilder(user)
+                            .sendInlineCityChoosingKeyboard(cities).build().getSendMessage());
             }
-
             case BACK -> {
                 user.setCurrentState(user.getPreviousState());
-                user = userService.update(user).get();
-                notifyObservers(getStateMessage(user));
+                user = userService.updateAsync(user).get();
+                messageSender.sendMessageAsync(getStateMessage(user));
             }
         }
     }
-
-
 
     @Override
     public void gotCallBack(User user, Update update) {
@@ -86,29 +85,15 @@ public class NewInputState implements State {
             }
             user.addCityToLastCitiesList(cities.get(cityIndex));
         }
-        userService.update(user);
+        userService.updateAsync(user);
         try {
-            bot.execute(editMessageText);
-            bot.execute(editMessageReplyMarkup);
+            bot.executeAsync(editMessageText);
+            bot.executeAsync(editMessageReplyMarkup);
         } catch (TelegramApiException e) {
 
         }
-        notifyObservers(getStateMessage(user));
+        messageSender.sendMessageAsync(getStateMessage(user));
 
-    }
-
-
-    @Override
-    public void addObserver(Observer observer) {
-        observers.add(observer);
-
-    }
-
-    @Override
-    public void notifyObservers(Object object) {
-        for (Observer observer : observers) {
-            observer.gotUpdate(object);
-        }
     }
 }
 

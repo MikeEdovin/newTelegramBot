@@ -1,8 +1,7 @@
 package BotServices;
 
-public interface MessageReceiver extends Runnable,Observer {
-    void run();
-    void stop();
+public interface MessageReceiver {
+    void gotUpdateAsync(Object object);
 
 
 }

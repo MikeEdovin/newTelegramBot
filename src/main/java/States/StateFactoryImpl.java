@@ -14,7 +14,6 @@ public class StateFactoryImpl implements StateFactory{
 
     @Override
     public State getState(StateEnum stateEnum) {
-
         return switch (stateEnum) {
             case MAIN -> mainState;
             case SETTINGS -> setCityState;

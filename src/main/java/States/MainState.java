@@ -9,17 +9,17 @@ import Entities.CityData;
 import Entities.User;
 import Entities.WeatherData;
 import GeoWeatherPackage.GeoWeatherProvider;
-import MessageCreator.StateMessage;
 import MessageCreator.SystemMessage;
 import Service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 public class MainState implements State {
+    //add Logger
     @Autowired
     Bot bot;
     @Autowired
@@ -35,14 +35,14 @@ public class MainState implements State {
         Command command=parsedCommand.getCommand();
 
         switch (command){
-            case START->notifyObservers(getStateMessage(user));
-            case HELP,NONE,SET_TIME -> notifyObservers(new SystemMessage.MessageBuilder(user).
+            case START->messageSender.sendMessageAsync(getStateMessage(user));
+            case HELP,NONE,SET_TIME -> messageSender.sendMessageAsync(new SystemMessage.MessageBuilder(user).
                     setText(command).build().getSendMessage());
             case SETTINGS -> {
                 user.setPreviousState(user.getCurrentState());
                 user.setCurrentState(StateEnum.SETTINGS);
-                userService.update(user);
-                notifyObservers(getStateMessage(user));
+                userService.updateAsync(user);
+                messageSender.sendMessageAsync(getStateMessage(user));
             }
             case CURRENT_WEATHER,FOR_48_HOURS,FOR_7_DAYS -> {
                 int nrOfDays;
@@ -55,23 +55,28 @@ public class MainState implements State {
                 }
                 CityData currentCity=user.getCurrentCity();
                 if(currentCity!=null) {
-                    WeatherData weatherData = geoWeatherProvider
-                            .getWeatherData(currentCity.getLat(), currentCity.getLon());
-                    if(currentCity.getTimezone()==null){
-                        currentCity.setTimezone(weatherData.getTimezone());
-                        userService.update(user);
-                    }
-                notifyObservers(new SystemMessage.MessageBuilder(user)
-                        .setForecastText(weatherData,currentCity,nrOfDays).build().getSendMessage());
+                    CompletableFuture<WeatherData> weatherData = geoWeatherProvider
+                            .getWeatherDataAsync(currentCity.getLat(), currentCity.getLon());
+                        try {
+                            if (currentCity.getTimezone() == null) {
+                                currentCity.setTimezone(weatherData.get().getTimezone());
+                                userService.updateAsync(user);
+                            }
+                            messageSender.sendMessageAsync(new SystemMessage.MessageBuilder(user)
+                                    .setForecastText(weatherData.get(), currentCity, nrOfDays).build().getSendMessage());
 
+                        }catch(InterruptedException|ExecutionException e){
+                            e.printStackTrace();
+                            //add systemMessage -service is temporary unavailable
+                    }
                 }
                 else{
-                    notifyObservers(new SystemMessage.MessageBuilder(user)
+                    messageSender.sendMessageAsync(new SystemMessage.MessageBuilder(user)
                             .noCurrentCity().build().getSendMessage());
                     user.setPreviousState(user.getCurrentState());
                     user.setCurrentState(StateEnum.SETTINGS);
-                    userService.update(user);
-                    notifyObservers(getStateMessage(user));
+                    userService.updateAsync(user);
+                    messageSender.sendMessageAsync(getStateMessage(user));
 
                 }
             }
@@ -79,28 +84,13 @@ public class MainState implements State {
                 user.setPreviousState(user.getCurrentState());
                 user.setCurrentState(StateEnum.NOTIF);
                 user.setNotif(true);
-                userService.update(user);
-                notifyObservers(getStateMessage(user));
+                userService.updateAsync(user);
+                messageSender.sendMessageAsync(getStateMessage(user));
             }
         }
     }
 
     @Override
     public void gotCallBack(User user, Update update) {
-    }
-
-
-    @Override
-    public void addObserver(Observer observer) {
-        observers.add(observer);
-
-    }
-
-    @Override
-    public void notifyObservers(Object object) {
-        for(Observer observer:observers){
-            observer.gotUpdate(object);
-        }
-
     }
 }

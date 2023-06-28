@@ -13,10 +13,9 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public abstract class Bot extends TelegramLongPollingBot implements Observable {
-    public Queue<Object> sendQueue=new ConcurrentLinkedQueue<>();
-    public Queue<Object> receiveQueue = new ConcurrentLinkedQueue<>();
-    abstract boolean isStarted();
+public abstract class Bot extends TelegramLongPollingBot {
+
+  
     abstract void setStartedStatus(boolean status);
     abstract public String getBotToken();
 

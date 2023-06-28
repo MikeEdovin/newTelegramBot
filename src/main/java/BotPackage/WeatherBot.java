@@ -1,5 +1,6 @@
 package BotPackage;
 
+import BotServices.MessageReceiver;
 import BotServices.Observer;
 import Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,19 +18,16 @@ import java.util.logging.Logger;
 
 public class WeatherBot extends Bot {
     private boolean started;
-    private List<Observer> observers;
-
     private final String botName;
     private final String botToken;
     @Autowired
-    UserService userService;
+    MessageReceiver messageReceiver;
 
     Logger logger=Logger.getLogger("BotLogger");
 
     public WeatherBot(String botName,String botToken){
         this.botName=botName;
         this.botToken=botToken;
-        this.observers=new ArrayList<>();
         ConsoleHandler handler=new ConsoleHandler();
         handler.setLevel(Level.INFO);
         logger.addHandler(handler);
@@ -68,8 +66,7 @@ public class WeatherBot extends Bot {
     public void onUpdatesReceived(List<Update> updates) {
         System.out.println("Got message ");
             for (Update update : updates) {
-                //receiveQueue.add(update);
-                notifyObservers(update);
+                messageReceiver.gotUpdateAsync(update);
             }
 
     }
@@ -79,17 +76,5 @@ public class WeatherBot extends Bot {
             botsApi.registerBot(this);
             setStartedStatus(true);
 
-    }
-
-    @Override
-    public void addObserver(Observer observer) {
-        observers.add(observer);
-    }
-
-    @Override
-    public void notifyObservers(Object object) {
-        for(Observer observer:observers){
-            observer.gotUpdate(object);
-        }
     }
 }

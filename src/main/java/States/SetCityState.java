@@ -1,17 +1,16 @@
 package States;
 
 import BotPackage.Bot;
+import BotServices.MessageSender;
 import BotServices.Observer;
 import Commands.Command;
 import Commands.ParsedCommand;
 import Entities.CityData;
 import Entities.User;
 import GeoWeatherPackage.GeoWeatherProvider;
-import MessageCreator.StateMessage;
 import MessageCreator.SystemMessage;
 import Service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -20,60 +19,65 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 public class SetCityState implements State {
     @Autowired
     Bot bot;
     @Autowired
+    MessageSender messageSender;
+    @Autowired
     UserServiceImpl userService;
     @Autowired
     GeoWeatherProvider geoWeatherProvider;
-
     private List<CityData> cities;
-
     private List<Observer> observers = new ArrayList<>();
-
 
     @Override
     public void gotInput(User user, ParsedCommand parsedCommand, Update update) {
         Command command = parsedCommand.getCommand();
-
         switch (command) {
             case SET_CITY -> {
                 user.setPreviousState(StateEnum.MAIN);
                 user.setCurrentState(StateEnum.NEWINPUT);
-                userService.update(user);
-                notifyObservers(getStateMessage(user));
+                userService.updateAsync(user);
+                messageSender.sendMessageAsync(getStateMessage(user));
             }
             case SEND_LOCATION -> {
                 double latitude = update.getMessage().getLocation().getLatitude();
                 double longitude = update.getMessage().getLocation().getLongitude();
-                CityData city = geoWeatherProvider.getCityData(latitude, longitude);
-                if (user.isNotif()) {
-                    user.setNotificationCity(city);
-                    user.setCurrentState(StateEnum.NOTIF);
-                } else {
-                    user.setCurrentCity(city);
-                    user.setCurrentState(StateEnum.MAIN);
+                CompletableFuture<CityData>futureCity=geoWeatherProvider.getCityDataAsync(latitude, longitude);
+                try {
+                        CityData city = futureCity.get();
+                        if (user.isNotif()) {
+                            user.setNotificationCity(city);
+                            user.setCurrentState(StateEnum.NOTIF);
+                        } else {
+                            user.setCurrentCity(city);
+                            user.setCurrentState(StateEnum.MAIN);
+                        }
+                        user.addCityToLastCitiesList(city);
+                        userService.updateAsync(user);
+                        messageSender.sendMessageAsync(new SystemMessage.MessageBuilder(user)
+                                .setCityWasSetText(city, user.isNotif()).build().getSendMessage());
+                        messageSender.sendMessageAsync(getStateMessage(user));
+                    }catch(InterruptedException | ExecutionException e){
+                        e.printStackTrace();
+                        //add service temporary unavailable message
                 }
-                user.addCityToLastCitiesList(city);
-                userService.update(user);
-                notifyObservers(new SystemMessage.MessageBuilder(user)
-                        .setCityWasSetText(city, user.isNotif()).build().getSendMessage());
-                notifyObservers(getStateMessage(user));
             }
             case CHOOSE_FROM_LAST_THREE -> {
                 cities = user.getLastThreeCities();
-                notifyObservers(new SystemMessage.MessageBuilder(user)
+                messageSender.sendMessageAsync(new SystemMessage.MessageBuilder(user)
                         .sendInlineCityChoosingKeyboard(cities).build().getSendMessage());
             }
-            case NONE, SET_TIME ->
-            notifyObservers(new SystemMessage.MessageBuilder(user)
+            case NONE, SET_TIME -> messageSender.sendMessageAsync(new SystemMessage.MessageBuilder(user)
                     .setText(Command.NONE).build().getSendMessage());
             case BACK -> {
                 user.setCurrentState(user.getPreviousState());
-                userService.update(user);
-                notifyObservers(getStateMessage(user));
+                userService.updateAsync(user);
+                messageSender.sendMessageAsync(getStateMessage(user));
             }
 
         }
@@ -113,28 +117,14 @@ public class SetCityState implements State {
             }
             user.addCityToLastCitiesList(cities.get(cityIndex));
         }
-        userService.update(user);
-        notifyObservers(getStateMessage(user));
+        userService.updateAsync(user);
+        messageSender.sendMessageAsync(getStateMessage(user));
         try {
-            bot.execute(editMessageText);
-            bot.execute(editMessageReplyMarkup);
+            bot.executeAsync(editMessageText);
+            bot.executeAsync(editMessageReplyMarkup);
         } catch (TelegramApiException e) {
 
         }
 
-    }
-
-
-    @Override
-    public void addObserver(Observer observer) {
-        observers.add(observer);
-
-    }
-
-    @Override
-    public void notifyObservers(Object object) {
-        for (Observer observer : observers) {
-            observer.gotUpdate(object);
-        }
     }
 }
