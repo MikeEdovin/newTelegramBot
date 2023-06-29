@@ -30,11 +30,13 @@ public class NewApplication {
 		}catch (TelegramApiException e){
 			e.printStackTrace();
 		}
-
+/*
 		Thread notifierThread=new Thread(notifier);
 		notifierThread.setDaemon(true);
 		notifierThread.setName("NotifierThread");
 		notifierThread.start();
+
+ */
 
 
 

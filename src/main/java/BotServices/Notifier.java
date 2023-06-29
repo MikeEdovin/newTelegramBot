@@ -5,9 +5,7 @@ import Entities.User;
 import java.util.ArrayList;
 import java.util.List;
 
-public interface Notifier extends Runnable{
+public interface Notifier{
     void gotNotifListUpdate(User user);
-    void run();
-    void stop();
     void sendNotifications();
 }
