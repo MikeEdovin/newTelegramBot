@@ -18,7 +18,7 @@ public class MessageSenderImpl implements MessageSender {
         try {
             bot.execute(message);
         } catch (TelegramApiException e) {
-
+             e.printStackTrace();
         }
     }
 }
