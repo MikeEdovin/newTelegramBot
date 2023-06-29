@@ -1,6 +1,4 @@
 package BotServices;
-
-
 import Commands.Command;
 import Commands.ParsedCommand;
 import Commands.Parser;
@@ -23,20 +21,17 @@ public class MessageReceiverImpl implements MessageReceiver {
     @Override
     @Async
     public void gotUpdateAsync(Update update) {
-        System.out.println("update threaD receiver "+Thread.currentThread().getName());
             State state;
             User user;
             if (update.hasMessage()) {
                 ParsedCommand parsedCommand = Parser.GetParsedCommand(update.getMessage().getText());
                 long userId = update.getMessage().getFrom().getId();
                 user = userService.saveIfNotExistAsync(new User(userId)).get();
-                System.out.println("State " + user.getCurrentState());
                 state = stateFactory.getState(user.getCurrentState());
                 if (update.getMessage().hasLocation()) {
                     parsedCommand.setCommand(Command.SEND_LOCATION);
                 }
                 state.gotInput(user, parsedCommand, update);
-                System.out.println(parsedCommand.getCommand().description + " new " + " state " + user.getCurrentState().description);
             }
 
             if (update.hasCallbackQuery()) {
@@ -45,7 +40,6 @@ public class MessageReceiverImpl implements MessageReceiver {
                 state = stateFactory.getState(user.getCurrentState());
                 state.gotCallBack(user, update);
             }
-
         }
     }
 

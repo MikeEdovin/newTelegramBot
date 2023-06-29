@@ -9,7 +9,6 @@ import java.util.List;
 
 public abstract class Bot extends TelegramLongPollingBot implements Observable {
 
-
     abstract void setStartedStatus(boolean status);
     abstract public String getBotToken();
     abstract public void botConnect() throws TelegramApiException;

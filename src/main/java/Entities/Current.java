@@ -44,26 +44,6 @@ public class Current {
     @JsonProperty("weather")
     private Weather[] currentWeather;
 
-
-    public String getDate() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yy");
-        String date = Instant.ofEpochSecond(this.currentDt).
-                atZone(ZoneId.systemDefault()).toLocalDate().format(formatter);
-        return date;
-    }
-
-    public String getFormattedSunrise() {
-        return Instant.ofEpochSecond(this.currentSunrise).
-                atZone(ZoneId.systemDefault()).toLocalDateTime().
-                format(DateTimeFormatter.ofPattern("hh:mm:ss"));
-    }
-
-    public String getFormattedSunset() {
-        return Instant.ofEpochSecond(this.currentSunset).
-                atZone(ZoneId.systemDefault()).toLocalDateTime().
-                format(DateTimeFormatter.ofPattern("hh:mm:ss"));
-    }
-
     public String getWindDirection() {
         if (11.25 < currentWindDegree && currentWindDegree < 33.75) {
             return "NNE";

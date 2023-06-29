@@ -168,7 +168,6 @@ public class SystemMessage {
             switch (nrOfDays) {
                 case 1 -> {
                     Current current=weatherData.getCurrent();
-                    System.out.println(current.toString());
                     text.append("Current weather in ").append(city.getName()).append(", ")
                             .append(city.getCountry())
                             .append(END_LINE).append(END_LINE);

@@ -21,7 +21,6 @@ public class NewApplication {
 		ApplicationContext context=
 		SpringApplication.run(NewApplication.class, args);
 		Bot bot=context.getBean(Bot.class);
-		Notifier notifier=context.getBean(Notifier.class);
 		MessageReceiver receiver=context.getBean(MessageReceiver.class);
 		bot.add(receiver);
 
@@ -30,13 +29,7 @@ public class NewApplication {
 		}catch (TelegramApiException e){
 			e.printStackTrace();
 		}
-/*
-		Thread notifierThread=new Thread(notifier);
-		notifierThread.setDaemon(true);
-		notifierThread.setName("NotifierThread");
-		notifierThread.start();
 
- */
 
 
 

@@ -31,7 +31,6 @@ public class NotifierImpl implements Notifier {
 
     @Override
     public void gotNotifListUpdate(User user) {
-        System.out.println("notifier was update");
         try {
             usersWithNotifications = userService.getAllUsersWithNotificationsAsync().get();
         } catch (InterruptedException | ExecutionException e) {
@@ -43,10 +42,8 @@ public class NotifierImpl implements Notifier {
     @Async
     @Scheduled(fixedRate = 60000)
     public void sendNotifications() {
-        System.out.println("notif thread "+Thread.currentThread().getName());
         if (usersWithNotifications != null) {
             for (User user : usersWithNotifications) {
-                System.out.println(user.getUserId() + " not/");
                 if (user.getNotificationTime().getHour() == LocalTime.now().getHour()
                 &&user.getNotificationTime().getMinute()==LocalTime.now().getMinute()) {
                     CityData notificationsCity = user.getNotificationCity();

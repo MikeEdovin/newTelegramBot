@@ -43,9 +43,8 @@ public class Daily implements Serializable {
 
     public String getDate(){
         DateTimeFormatter formatter=DateTimeFormatter.ofPattern("dd-MM-yy");
-        String date = Instant.ofEpochSecond(this.dt).
-                atZone(ZoneId.systemDefault()).toLocalDate().format(formatter);
-        return date;}
+        return Instant.ofEpochSecond(this.dt).
+                atZone(ZoneId.systemDefault()).toLocalDate().format(formatter);}
     public String getFormattedSunrise(){
         return Instant.ofEpochSecond(this.sunrise).
                 atZone(ZoneId.systemDefault()).toLocalDateTime().
