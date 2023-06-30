@@ -1,7 +1,6 @@
 package States;
 
 import BotPackage.Bot;
-import BotServices.MessageSender;
 import Commands.Command;
 import Commands.ParsedCommand;
 import Entities.CityData;
@@ -16,7 +15,6 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageTe
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -27,8 +25,7 @@ public class NewInputState implements State {
     GeoWeatherProvider geoWeatherProvider;
     @Autowired
     UserServiceImpl userService;
-    @Autowired
-    MessageSender messageSender;
+
 
     private List<CityData> cities;
 
@@ -40,19 +37,19 @@ public class NewInputState implements State {
             case NONE, SET_TIME -> {
                 CompletableFuture<CityData[]> futureCities = geoWeatherProvider.getCityDataAsync(parsedCommand.getText());
                     cities = List.of(futureCities.get());
-                messageSender.sendMessageAsync(new SystemMessage.MessageBuilder(user)
+                bot.executeAsync(new SystemMessage.MessageBuilder(user)
                             .sendInlineCityChoosingKeyboard(cities).build().getSendMessage());
             }
             case BACK -> {
                 user.setCurrentState(user.getPreviousState());
                 user = userService.updateAsync(user).get();
-                messageSender.sendMessageAsync(getStateMessage(user));
+                bot.executeAsync(getStateMessage(user));
             }
         }
     }
 
     @Override
-    public void gotCallBack(User user, Update update) {
+    public void gotCallBack(User user, Update update) throws TelegramApiException {
         int cityIndex = Integer.parseInt(update.getCallbackQuery().getData());
         Message message = update.getCallbackQuery().getMessage();
         EditMessageReplyMarkup editMessageReplyMarkup = new EditMessageReplyMarkup();
@@ -90,7 +87,7 @@ public class NewInputState implements State {
         } catch (TelegramApiException e) {
 
         }
-        messageSender.sendMessageAsync(getStateMessage(user));
+        bot.executeAsync(getStateMessage(user));
 
     }
 }

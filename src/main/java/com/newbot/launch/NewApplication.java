@@ -1,12 +1,8 @@
 package com.newbot.launch;
 
 import BotPackage.Bot;
-import BotServices.MessageReceiver;
-import BotServices.MessageSender;
-import BotServices.Notifier;
+import BotServices.Worker;
 import Config.*;
-import Service.UserService;
-import States.*;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
@@ -21,8 +17,8 @@ public class NewApplication {
 		ApplicationContext context=
 		SpringApplication.run(NewApplication.class, args);
 		Bot bot=context.getBean(Bot.class);
-		MessageReceiver receiver=context.getBean(MessageReceiver.class);
-		bot.add(receiver);
+		Worker worker=context.getBean(Worker.class);
+		bot.add(worker);
 
 		try {
 			bot.botConnect();

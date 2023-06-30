@@ -3,7 +3,6 @@ package Config;
 import BotPackage.Bot;
 import BotPackage.WeatherBot;
 import BotServices.*;
-import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,13 +21,10 @@ public class BotConfig {
     }
 
     @Bean
-    public MessageReceiver getMessageReceiver(){
-        return new MessageReceiverImpl();
+    public Worker getWorker(){
+        return new WorkerImpl();
     }
-    @Bean
-    public MessageSender getMessageSender(){
-        return new MessageSenderImpl();
-    }
+
     @Bean
     public Notifier getNotifier(){return new NotifierImpl();}
 

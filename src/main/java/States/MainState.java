@@ -1,7 +1,6 @@
 package States;
 
 import BotPackage.Bot;
-import BotServices.MessageSender;
 import Commands.Command;
 import Commands.ParsedCommand;
 import Entities.CityData;
@@ -12,6 +11,8 @@ import MessageCreator.SystemMessage;
 import Service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -24,21 +25,22 @@ public class MainState implements State {
     @Autowired
     GeoWeatherProvider geoWeatherProvider;
     @Autowired
-    MessageSender messageSender;
+    Bot bot;
+
 
     @Override
-    public void gotInput(User user, ParsedCommand parsedCommand, Update update) {
+    public void gotInput(User user, ParsedCommand parsedCommand, Update update) throws TelegramApiException {
         Command command=parsedCommand.getCommand();
 
         switch (command){
-            case START->messageSender.sendMessageAsync(getStateMessage(user));
-            case HELP,NONE,SET_TIME -> messageSender.sendMessageAsync(new SystemMessage.MessageBuilder(user).
+            case START->bot.executeAsync(getStateMessage(user));
+            case HELP,NONE,SET_TIME -> bot.executeAsync(new SystemMessage.MessageBuilder(user).
                     setText(command).build().getSendMessage());
             case SETTINGS -> {
                 user.setPreviousState(user.getCurrentState());
                 user.setCurrentState(StateEnum.SETTINGS);
                 userService.updateAsync(user);
-                messageSender.sendMessageAsync(getStateMessage(user));
+                bot.executeAsync(getStateMessage(user));
             }
             case CURRENT_WEATHER,FOR_48_HOURS,FOR_7_DAYS -> {
                 int nrOfDays;
@@ -53,26 +55,26 @@ public class MainState implements State {
                 if(currentCity!=null) {
                     CompletableFuture<WeatherData> weatherData = geoWeatherProvider
                             .getWeatherDataAsync(currentCity.getLat(), currentCity.getLon());
-                        try {
-                            if (currentCity.getTimezone() == null) {
-                                currentCity.setTimezone(weatherData.get().getTimezone());
-                                userService.updateAsync(user);
-                            }
-                            messageSender.sendMessageAsync(new SystemMessage.MessageBuilder(user)
-                                    .setForecastText(weatherData.get(), currentCity, nrOfDays).build().getSendMessage());
+                    try {
+                        if (currentCity.getTimezone() == null) {
+                            currentCity.setTimezone(weatherData.get().getTimezone());
+                            userService.updateAsync(user);
+                        }
+                        bot.executeAsync(new SystemMessage.MessageBuilder(user)
+                                .setForecastText(weatherData.get(), currentCity, nrOfDays).build().getSendMessage());
 
-                        }catch(InterruptedException|ExecutionException e){
-                            e.printStackTrace();
-                            //add systemMessage -service is temporary unavailable
+                    }catch(InterruptedException|ExecutionException e){
+                        e.printStackTrace();
+                        //add systemMessage -service is temporary unavailable
                     }
                 }
                 else{
-                    messageSender.sendMessageAsync(new SystemMessage.MessageBuilder(user)
+                    bot.executeAsync(new SystemMessage.MessageBuilder(user)
                             .noCurrentCity().build().getSendMessage());
                     user.setPreviousState(user.getCurrentState());
                     user.setCurrentState(StateEnum.SETTINGS);
                     userService.updateAsync(user);
-                    messageSender.sendMessageAsync(getStateMessage(user));
+                    bot.executeAsync(getStateMessage(user));
 
                 }
             }
@@ -81,7 +83,7 @@ public class MainState implements State {
                 user.setCurrentState(StateEnum.NOTIF);
                 user.setNotif(true);
                 userService.updateAsync(user);
-                messageSender.sendMessageAsync(getStateMessage(user));
+                bot.executeAsync(getStateMessage(user));
             }
         }
     }

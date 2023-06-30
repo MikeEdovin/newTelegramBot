@@ -1,7 +1,6 @@
 package States;
 
 import BotPackage.Bot;
-import BotServices.MessageSender;
 import Commands.Command;
 import Commands.ParsedCommand;
 import Entities.CityData;
@@ -23,22 +22,20 @@ public class SetCityState implements State {
     @Autowired
     Bot bot;
     @Autowired
-    MessageSender messageSender;
-    @Autowired
     UserServiceImpl userService;
     @Autowired
     GeoWeatherProvider geoWeatherProvider;
     private List<CityData> cities;
 
     @Override
-    public void gotInput(User user, ParsedCommand parsedCommand, Update update) {
+    public void gotInput(User user, ParsedCommand parsedCommand, Update update) throws TelegramApiException {
         Command command = parsedCommand.getCommand();
         switch (command) {
             case SET_CITY -> {
                 user.setPreviousState(StateEnum.MAIN);
                 user.setCurrentState(StateEnum.NEWINPUT);
                 userService.updateAsync(user);
-                messageSender.sendMessageAsync(getStateMessage(user));
+                bot.executeAsync(getStateMessage(user));
             }
             case SEND_LOCATION -> {
                 double latitude = update.getMessage().getLocation().getLatitude();
@@ -55,9 +52,9 @@ public class SetCityState implements State {
                         }
                         user.addCityToLastCitiesList(city);
                         userService.updateAsync(user);
-                        messageSender.sendMessageAsync(new SystemMessage.MessageBuilder(user)
+                        bot.executeAsync(new SystemMessage.MessageBuilder(user)
                                 .setCityWasSetText(city, user.isNotif()).build().getSendMessage());
-                        messageSender.sendMessageAsync(getStateMessage(user));
+                        bot.executeAsync(getStateMessage(user));
                     }catch(InterruptedException | ExecutionException e){
                         e.printStackTrace();
                         //add service temporary unavailable message
@@ -65,15 +62,15 @@ public class SetCityState implements State {
             }
             case CHOOSE_FROM_LAST_THREE -> {
                 cities = user.getLastThreeCities();
-                messageSender.sendMessageAsync(new SystemMessage.MessageBuilder(user)
+                bot.executeAsync(new SystemMessage.MessageBuilder(user)
                         .sendInlineCityChoosingKeyboard(cities).build().getSendMessage());
             }
-            case NONE, SET_TIME -> messageSender.sendMessageAsync(new SystemMessage.MessageBuilder(user)
+            case NONE, SET_TIME -> bot.executeAsync(new SystemMessage.MessageBuilder(user)
                     .setText(Command.NONE).build().getSendMessage());
             case BACK -> {
                 user.setCurrentState(user.getPreviousState());
                 userService.updateAsync(user);
-                messageSender.sendMessageAsync(getStateMessage(user));
+                bot.executeAsync(getStateMessage(user));
             }
 
         }
@@ -82,7 +79,7 @@ public class SetCityState implements State {
 
 
     @Override
-    public void gotCallBack(User user, Update update) {
+    public void gotCallBack(User user, Update update) throws TelegramApiException {
         int cityIndex = Integer.parseInt(update.getCallbackQuery().getData());
         Message message = update.getCallbackQuery().getMessage();
         EditMessageReplyMarkup editMessageReplyMarkup = new EditMessageReplyMarkup();
@@ -114,7 +111,7 @@ public class SetCityState implements State {
             user.addCityToLastCitiesList(cities.get(cityIndex));
         }
         userService.updateAsync(user);
-        messageSender.sendMessageAsync(getStateMessage(user));
+        bot.executeAsync(getStateMessage(user));
         try {
             bot.executeAsync(editMessageText);
             bot.executeAsync(editMessageReplyMarkup);

@@ -18,11 +18,9 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -36,22 +34,20 @@ public class NotificationsState implements State {
     @Autowired
     UserService userService;
     @Autowired
-    MessageSender messageSender;
-    @Autowired
     Notifier notifier;
 
     @Override
-    public void gotInput(User user, ParsedCommand parsedCommand, Update update) {
+    public void gotInput(User user, ParsedCommand parsedCommand, Update update) throws TelegramApiException {
         Command command = parsedCommand.getCommand();
         switch (command) {
             case SET_NOTIFICATIONS_CITY -> {
                 user.setPreviousState(user.getCurrentState());
                 user.setCurrentState(StateEnum.SETTINGS);
                 userService.updateAsync(user);
-                messageSender.sendMessageAsync(getStateMessage(user));
+                bot.executeAsync(getStateMessage(user));
                 notifier.gotNotifListUpdate(user);
             }
-            case SET_NOTIFICATIONS_DAY_AND_TIME -> messageSender.sendMessageAsync(new SystemMessage.MessageBuilder(user)
+            case SET_NOTIFICATIONS_DAY_AND_TIME -> bot.executeAsync(new SystemMessage.MessageBuilder(user)
                     .sendDayTimeKeyboard().build().getSendMessage());
             case SET_TIME -> {
                 if(user.hasAtLeastOneNotDay()) {
@@ -60,29 +56,29 @@ public class NotificationsState implements State {
                                 DateTimeFormatter.ofPattern("H[H]:mm"));
                         user.setNotificationTime(time);
                         userService.updateAsync(user);
-                        messageSender.sendMessageAsync(new SystemMessage.MessageBuilder(user)
+                        bot.executeAsync(new SystemMessage.MessageBuilder(user)
                                  .setText(Command.NOTIF_TIME_WAS_SET).build().getSendMessage());
-                        messageSender.sendMessageAsync(getStateMessage(user));
+                        bot.executeAsync(getStateMessage(user));
                         notifier.gotNotifListUpdate(user);
                     } catch (DateTimeParseException e) {
-                        messageSender.sendMessageAsync(new SystemMessage.MessageBuilder(user)
+                        bot.executeAsync(new SystemMessage.MessageBuilder(user)
                                 .setText(Command.WRONG_TIME_INPUT).build().getSendMessage());
                     }
                 }
                 else{
-                    messageSender.sendMessageAsync(new SystemMessage.MessageBuilder(user)
+                    bot.executeAsync(new SystemMessage.MessageBuilder(user)
                             .setText(Command.WRONG_TIME_INPUT).build().getSendMessage());
                 }
             }
             case NONE ->
-                    messageSender.sendMessageAsync(new SystemMessage.MessageBuilder(user)
+                    bot.executeAsync(new SystemMessage.MessageBuilder(user)
                             .setText(Command.WRONG_TIME_INPUT).build().getSendMessage());
-            case RESET_NOTIFICATIONS -> {//reset update in db
+            case RESET_NOTIFICATIONS -> {
                 user.clearNotifications();
                 CompletableFuture<User> futureUser=userService.updateAsync(user);
                 try {
                     futureUser.get();
-                    messageSender.sendMessageAsync(new SystemMessage.MessageBuilder(user)
+                    bot.executeAsync(new SystemMessage.MessageBuilder(user)
                             .setText(Command.RESET_NOTIFICATIONS).build().getSendMessage());
                     notifier.gotNotifListUpdate(user);
                 }catch (InterruptedException| ExecutionException e){
@@ -93,7 +89,7 @@ public class NotificationsState implements State {
                 user.setCurrentState(StateEnum.MAIN);
                 user.setNotif(false);
                 userService.updateAsync(user);
-                messageSender.sendMessageAsync(getStateMessage(user));
+                bot.executeAsync(getStateMessage(user));
             }
         }
     }
@@ -101,7 +97,7 @@ public class NotificationsState implements State {
 
 //call back executeAsync need to fix transaction
     @Override
-    public void gotCallBack(User user, Update update) {
+    public void gotCallBack(User user, Update update) throws TelegramApiException {
         Message message=update.getCallbackQuery().getMessage();
         AnswerCallbackQuery answerCallbackQuery=new AnswerCallbackQuery();
         answerCallbackQuery.setCallbackQueryId(update.getCallbackQuery().getId());
@@ -117,7 +113,7 @@ public class NotificationsState implements State {
                     bot.execute(editMessageText);
                 } catch (TelegramApiException e) {
                 }
-            messageSender.sendMessageAsync(getStateMessage(user));
+            bot.executeAsync(getStateMessage(user));
         }else {
             InlineKeyboardMarkup keyboardMarkup = updateNotifDaysChoosingKeyboard(user, query);
             editMessageReplyMarkup.setReplyMarkup(keyboardMarkup);

@@ -1,5 +1,6 @@
 package BotServices;
 
+import BotPackage.Bot;
 import Entities.CityData;
 import Entities.User;
 import Entities.WeatherData;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.config.FixedRateTask;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -23,8 +25,8 @@ public class NotifierImpl implements Notifier {
     UserService userService;
     @Autowired
     GeoWeatherProvider geoWeatherProvider;
-    @Autowired
-    MessageSender messageSender;
+   @Autowired
+   Bot bot;
 
     private List<User> usersWithNotifications = new ArrayList<>();
 
@@ -52,9 +54,9 @@ public class NotifierImpl implements Notifier {
                                     notificationsCity.getLat(), notificationsCity.getLon());
                     try {
                         WeatherData weatherData=futureWeatherData.get();
-                        messageSender.sendMessageAsync(new SystemMessage.MessageBuilder(user)
+                        bot.executeAsync(new SystemMessage.MessageBuilder(user)
                                 .setForecastText(weatherData, notificationsCity, 1).build().getSendMessage());
-                    } catch (InterruptedException | ExecutionException e) {
+                    } catch (TelegramApiException|InterruptedException|ExecutionException e) {
                         e.printStackTrace();
                         //add service temporary unavailable message
                     }

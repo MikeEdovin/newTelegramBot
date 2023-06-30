@@ -1,6 +1,8 @@
 package BotPackage;
 
 import BotServices.Observer;
+import BotServices.Worker;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -18,6 +20,7 @@ public class WeatherBot extends Bot {
     private boolean started;
     private final String botName;
     private final String botToken;
+
 
 
     Logger logger=Logger.getLogger("BotLogger");
