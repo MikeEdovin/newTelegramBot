@@ -203,7 +203,7 @@ public class SystemMessage {
                                 .append(END_LINE);
                         text.append("Pressure ").append(day.getPressure()).append(" hPa").append(END_LINE);
                         text.append("Humidity ").append(day.getHumidity()).append(" %").append(END_LINE);
-                        text.append("Clouds").append(day.getClouds()).append(END_LINE);
+                        text.append("Clouds ").append(day.getClouds()).append(" %").append(END_LINE);
                         text.append("Wind speed ").append(day.getWindSpeed()).append(END_LINE);
                         text.append("Wind gust ").append(day.getWindGust()).append(END_LINE);
                         text.append("Wind direction ").append(day.getWindDirection())
