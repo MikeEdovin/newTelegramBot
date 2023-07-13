@@ -8,6 +8,7 @@ import org.hibernate.annotations.CascadeType;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 
@@ -24,7 +25,6 @@ public class User {
     @Id
     @Column(name="user_id")
     private long userId;
-
     private StateEnum currentState;
     private StateEnum previousState;
 
@@ -69,9 +69,7 @@ public class User {
     public void clearNotifications(){
         this.setNotificationCity(null);
         this.setNotificationTime(null);
-        for(int i=0;i<notificationDays.length;i++){
-            notificationDays[i]=0;
-        }
+        Arrays.fill(notificationDays, 0);
     }
 
     public boolean hasAtLeastOneNotDay(){

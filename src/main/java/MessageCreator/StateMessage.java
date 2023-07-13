@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StateMessage {
-    private SendMessage sendMessage;
+    private final SendMessage sendMessage;
 
     private StateMessage(MessageBuilder builder) {
         super();

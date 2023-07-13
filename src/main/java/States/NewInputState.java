@@ -9,6 +9,8 @@ import GeoWeatherPackage.GeoWeatherProvider;
 import MessageCreator.SystemMessage;
 import Service.UserServiceImpl;
 import lombok.SneakyThrows;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
@@ -25,14 +27,14 @@ public class NewInputState implements State {
     GeoWeatherProvider geoWeatherProvider;
     @Autowired
     UserServiceImpl userService;
-
-
+    final static Logger logger= LoggerFactory.getLogger(NewInputState.class);
     private List<CityData> cities;
 
     @SneakyThrows
     @Override
     public void gotInput(User user, ParsedCommand parsedCommand, Update update) {
         Command command = parsedCommand.getCommand();
+        logger.info("Got message from user with id "+user.getUserId()+". Command: "+command);
         switch (command) {
             case NONE, SET_TIME -> {
                 CompletableFuture<CityData[]> futureCities = geoWeatherProvider.getCityDataAsync(parsedCommand.getText());
@@ -85,10 +87,9 @@ public class NewInputState implements State {
             bot.executeAsync(editMessageText);
             bot.executeAsync(editMessageReplyMarkup);
         } catch (TelegramApiException e) {
-
+            logger.warn(e.getMessage());
         }
         bot.executeAsync(getStateMessage(user));
-
     }
 }
 

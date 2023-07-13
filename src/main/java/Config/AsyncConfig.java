@@ -1,5 +1,7 @@
 package Config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
@@ -10,6 +12,7 @@ import java.util.concurrent.Executor;
 @Configuration
 @EnableAsync
 public class AsyncConfig implements AsyncConfigurer {
+    final static Logger logger= LoggerFactory.getLogger(AsyncConfig.class);
 
     @Override
     public Executor getAsyncExecutor() {
@@ -25,13 +28,9 @@ public class AsyncConfig implements AsyncConfigurer {
 
 
     @Override
-    public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {//log exceptions
-        return (ex, method, params) -> {
-            System.out.println("Exception: " + ex.getMessage());
-            System.out.println("Method Name: " + method.getName());
-            ex.printStackTrace();
+    public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
+        return (e, method, params) -> {
+            logger.warn("Exception: " + e.getMessage()+" Method Name: " + method.getName());
         };
     }
-
-
 }

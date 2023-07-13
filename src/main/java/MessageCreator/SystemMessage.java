@@ -14,7 +14,7 @@ import java.util.List;
 
 public class SystemMessage {
     private static final String END_LINE = "\n";
-    private SendMessage sendMessage;
+    private final SendMessage sendMessage;
 
     private SystemMessage(MessageBuilder builder) {
         super();
@@ -161,6 +161,14 @@ public class SystemMessage {
         }
         public MessageBuilder noCurrentCity(){
             sendMessage.setText("Please, set City");
+            return this;
+        }
+        public MessageBuilder serviceNotAvailable(){
+            sendMessage.setText("Sorry, service in not available now.Please, try again later.");
+            return this;
+        }
+        public MessageBuilder sendErrorMessage(String errorMessage){
+            sendMessage.setText(errorMessage);
             return this;
         }
         public MessageBuilder setForecastText(WeatherData weatherData, CityData city, int nrOfDays) {

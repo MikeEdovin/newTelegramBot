@@ -14,7 +14,7 @@ public interface State {
     default SendMessage getStateMessage(User user){
         return new StateMessage.MessageBuilder(user).
                 setText().setKeyBoard().build().getSendMessage();
-    };
+    }
 
 
 
