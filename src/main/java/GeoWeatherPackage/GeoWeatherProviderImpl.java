@@ -7,12 +7,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.client.RestTemplate;
-
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 public class GeoWeatherProviderImpl implements GeoWeatherProvider {
-   // @Autowired
-  //  private CacheManager cacheManager;
     private final RestTemplate restTemplate;
     private final String APP_ID;
     static final Logger logger= LoggerFactory.getLogger(GeoWeatherProviderImpl.class);
@@ -45,6 +43,6 @@ public class GeoWeatherProviderImpl implements GeoWeatherProvider {
         logger.info("requested cityData for lat "+latitude+" &lon "+longitude);
         final String URL_API = "http://api.openweathermap.org/geo/1.0/reverse?lat=";
         String url = URL_API + latitude + "&lon=" + longitude + "&limit=1&appid=" + APP_ID;
-        return CompletableFuture.completedFuture(this.restTemplate.getForObject(url,CityData[].class)[0]);
+        return CompletableFuture.completedFuture(Objects.requireNonNull(this.restTemplate.getForObject(url, CityData[].class))[0]);
     }
 }

@@ -21,7 +21,4 @@ public class StateFactoryImpl implements StateFactory{
             case NOTIF -> notificationsState;
         };
     }
-
-
-
 }

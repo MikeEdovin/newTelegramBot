@@ -23,7 +23,6 @@ public class WorkerImpl implements Worker {
     public void gotUpdateAsync(Update update) {
             operate(update);
         }
-
     @SneakyThrows
     @Override
     public void operate(Update update) {

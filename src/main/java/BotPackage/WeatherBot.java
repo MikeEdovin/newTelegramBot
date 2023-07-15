@@ -23,32 +23,25 @@ public class WeatherBot extends Bot {
         this.botName=botName;
         this.botToken=botToken;
     }
-
     @Override
     public void setStartedStatus(boolean status) {
         this.started=status;
     }
-
     @Override
     public String getBotUsername() {
         return this.botName;
     }
-
     @Override
     public String getBotToken() {
         return this.botToken;
     }
-
     @Override
     public void onRegister() {
 
     }
-
-
     @Override
     public void onUpdateReceived(Update update) {
     }
-
     @Override
     public void onUpdatesReceived(List<Update> updates) {
             for (Update update : updates) {
@@ -62,12 +55,10 @@ public class WeatherBot extends Bot {
             setStartedStatus(true);
             logger.info("Bot started.");
     }
-
     @Override
     public void add(Observer observer) {
         observers.add(observer);
     }
-
     @Override
     public void notifyObservers(Update update) {
         for(Observer o:observers){

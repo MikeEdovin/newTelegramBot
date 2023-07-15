@@ -36,7 +36,6 @@ public class NotifierImpl implements Notifier {
             logger.warn(e.getMessage());
         }
     }
-
     @Override
     @Async
     @Scheduled(fixedRate = 60000)
