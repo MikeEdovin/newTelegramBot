@@ -23,7 +23,6 @@ public class UserServiceImpl implements UserService {
         logger.info("Requested user with id "+userId+" from DB");
         return CompletableFuture.completedFuture(repository.findById(userId).get());
     }
-
     @Override
     @Transactional
     @Async

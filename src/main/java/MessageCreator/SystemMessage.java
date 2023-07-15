@@ -15,29 +15,22 @@ import java.util.List;
 public class SystemMessage {
     private static final String END_LINE = "\n";
     private final SendMessage sendMessage;
-
     private SystemMessage(MessageBuilder builder) {
         super();
         this.sendMessage = builder.sendMessage;
-
     }
     public SendMessage getSendMessage(){
         return  this.sendMessage;
     }
-
     public static class MessageBuilder {
         SendMessage sendMessage;
         User user;
-
-
         public MessageBuilder(User user) {
             sendMessage = new SendMessage();
             this.user=user;
             sendMessage.setChatId(user.getUserId());
             sendMessage.setParseMode(ParseMode.MARKDOWN);
         }
-
-
         public MessageBuilder setText(Command command) {
             switch (command) {
                 case HELP -> {
@@ -62,7 +55,7 @@ public class SystemMessage {
                     for(Days day:days){
                         if (user.isNotificationDay(day.getDay())) {
                             builder.append(day.name()).append(" ");
-                    }
+                        }
                         if(user.getNotificationCity()!=null){
                             CityData notifCity=user.getNotificationCity();
                             sendMessage.setText("Notifications time was set for "
@@ -74,15 +67,13 @@ public class SystemMessage {
                                     +builder+" at "+user.getNotificationTime()
                                     +". Don't forget to set notifications City");
                         }
-                }
+                    }
                 }
                 case WRONG_TIME_INPUT -> sendMessage.setText("Incorrect time input. Please try again");
                 case TIME_SETTINGS_ERROR -> sendMessage.setText("You didn't choose any day for notifications");
                 case RESET_NOTIFICATIONS -> sendMessage.setText("Notifications parameters were reset");
-
             }
             return this;
-
         }
         public MessageBuilder sendDayTimeKeyboard ()  {
             sendMessage.setText("Choose days and enter notifications time in hh : mm");
@@ -156,7 +147,6 @@ public class SystemMessage {
             else{
                 sendMessage.setText("Current city was set to "+city.getName()+", "+city.getCountry());
             }
-
             return this;
         }
         public MessageBuilder noCurrentCity(){
@@ -226,6 +216,5 @@ public class SystemMessage {
         public SystemMessage build() {
             return new SystemMessage(this);
         }
-
     }
 }

@@ -18,7 +18,6 @@ public class WorkerImpl implements Worker {
     UserService userService;
     @Autowired
     StateFactory stateFactory;
-
     @Override
     @Async
     public void gotUpdateAsync(Update update) {
