@@ -8,7 +8,10 @@ import Entities.User;
 import GeoWeatherPackage.GeoWeatherProvider;
 import MessageCreator.SystemMessage;
 import Service.UserServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -26,10 +29,13 @@ public class SetCityState implements State {
     @Autowired
     GeoWeatherProvider geoWeatherProvider;
     private List<CityData> cities;
+    @Value("${bot.admin}") long botAdmin;
+    final static Logger logger= LoggerFactory.getLogger(NotificationsState.class);
 
     @Override
     public void gotInput(User user, ParsedCommand parsedCommand, Update update) throws TelegramApiException {
         Command command = parsedCommand.getCommand();
+        logger.info("Got message from user with id "+user.getUserId()+". Command: "+command);
         switch (command) {
             case SET_CITY -> {
                 user.setPreviousState(StateEnum.MAIN);
@@ -56,8 +62,10 @@ public class SetCityState implements State {
                                 .setCityWasSetText(city, user.isNotif()).build().getSendMessage());
                         bot.executeAsync(getStateMessage(user));
                     }catch(InterruptedException | ExecutionException e){
-                        e.printStackTrace();
-                        //add service temporary unavailable message
+                    bot.executeAsync(new SystemMessage.MessageBuilder(user)
+                            .serviceNotAvailable().build().getSendMessage());
+                    bot.executeAsync(new SystemMessage.MessageBuilder(new User(botAdmin))
+                            .sendErrorMessage(e.getMessage()).build().getSendMessage());
                 }
             }
             case CHOOSE_FROM_LAST_THREE -> {
@@ -72,9 +80,7 @@ public class SetCityState implements State {
                 userService.updateAsync(user);
                 bot.executeAsync(getStateMessage(user));
             }
-
         }
-
     }
 
 
@@ -116,8 +122,7 @@ public class SetCityState implements State {
             bot.executeAsync(editMessageText);
             bot.executeAsync(editMessageReplyMarkup);
         } catch (TelegramApiException e) {
-
+            logger.warn(e.getMessage());
         }
-
     }
 }

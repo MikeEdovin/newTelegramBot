@@ -23,7 +23,6 @@ public class Daily implements Serializable {
     private float moonPhase;
     private Temp temp;
     @JsonProperty("feels_like")
-    //@Embedded
     private FeelsLike feelsLike;
     private int pressure;
     private int humidity;

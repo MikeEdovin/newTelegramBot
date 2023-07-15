@@ -8,7 +8,10 @@ import Entities.User;
 import MessageCreator.SystemMessage;
 import Service.UserService;
 import com.vdurmont.emoji.EmojiParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
@@ -35,10 +38,13 @@ public class NotificationsState implements State {
     UserService userService;
     @Autowired
     Notifier notifier;
+    @Value("${bot.admin}") long botAdmin;
+    final static Logger logger= LoggerFactory.getLogger(NotificationsState.class);
 
     @Override
     public void gotInput(User user, ParsedCommand parsedCommand, Update update) throws TelegramApiException {
         Command command = parsedCommand.getCommand();
+        logger.info("Got message from user with id "+user.getUserId()+". Command: "+command);
         switch (command) {
             case SET_NOTIFICATIONS_CITY -> {
                 user.setPreviousState(user.getCurrentState());
@@ -82,7 +88,10 @@ public class NotificationsState implements State {
                             .setText(Command.RESET_NOTIFICATIONS).build().getSendMessage());
                     notifier.gotNotifListUpdate(user);
                 }catch (InterruptedException| ExecutionException e){
-                    e.printStackTrace();
+                    bot.executeAsync(new SystemMessage.MessageBuilder(user)
+                            .serviceNotAvailable().build().getSendMessage());
+                    bot.executeAsync(new SystemMessage.MessageBuilder(new User(botAdmin))
+                            .sendErrorMessage(e.getMessage()).build().getSendMessage());
                 }
             }
             case BACK -> {
@@ -94,8 +103,6 @@ public class NotificationsState implements State {
         }
     }
 
-
-//call back executeAsync need to fix transaction
     @Override
     public void gotCallBack(User user, Update update) throws TelegramApiException {
         Message message=update.getCallbackQuery().getMessage();
@@ -112,6 +119,7 @@ public class NotificationsState implements State {
                 try{
                     bot.execute(editMessageText);
                 } catch (TelegramApiException e) {
+                    logger.warn(e.getMessage());
                 }
             bot.executeAsync(getStateMessage(user));
         }else {
@@ -124,10 +132,9 @@ public class NotificationsState implements State {
                 bot.execute(editMessageReplyMarkup);
                 userService.updateAsync(user);
             } catch (TelegramApiException e) {
-                e.printStackTrace();
+                logger.warn(e.getMessage());
             }
         }
-
     }
 
     public InlineKeyboardMarkup updateNotifDaysChoosingKeyboard(User user, CallbackQuery query)  {

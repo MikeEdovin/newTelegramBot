@@ -12,8 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StateMessage {
-    private SendMessage sendMessage;
-
+    private final SendMessage sendMessage;
     private StateMessage(MessageBuilder builder) {
         super();
         this.sendMessage = builder.sendMessage;
@@ -21,11 +20,9 @@ public class StateMessage {
     public SendMessage getSendMessage(){
         return  this.sendMessage;
     }
-
     public static class MessageBuilder {
         SendMessage sendMessage;
         StateEnum currentState;
-
         public MessageBuilder(User user) {
             sendMessage = new SendMessage();
             currentState=user.getCurrentState();

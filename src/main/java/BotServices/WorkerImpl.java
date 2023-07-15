@@ -7,6 +7,8 @@ import Service.UserService;
 import States.State;
 import States.StateFactory;
 import lombok.SneakyThrows;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -16,14 +18,11 @@ public class WorkerImpl implements Worker {
     UserService userService;
     @Autowired
     StateFactory stateFactory;
-
     @Override
     @Async
     public void gotUpdateAsync(Update update) {
-        System.out.println("Thread "+Thread.currentThread().getName());
             operate(update);
         }
-
     @SneakyThrows
     @Override
     public void operate(Update update) {

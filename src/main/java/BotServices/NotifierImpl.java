@@ -7,13 +7,12 @@ import Entities.WeatherData;
 import GeoWeatherPackage.GeoWeatherProvider;
 import MessageCreator.SystemMessage;
 import Service.UserService;
-import lombok.SneakyThrows;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.scheduling.config.FixedRateTask;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,21 +24,18 @@ public class NotifierImpl implements Notifier {
     UserService userService;
     @Autowired
     GeoWeatherProvider geoWeatherProvider;
-   @Autowired
-   Bot bot;
-
+    @Autowired
+    Bot bot;
+    final static Logger logger= LoggerFactory.getLogger(NotifierImpl.class);
     private List<User> usersWithNotifications = new ArrayList<>();
-
-
     @Override
     public void gotNotifListUpdate(User user) {
         try {
             usersWithNotifications = userService.getAllUsersWithNotificationsAsync().get();
         } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+            logger.warn(e.getMessage());
         }
     }
-
     @Override
     @Async
     @Scheduled(fixedRate = 60000)
@@ -57,8 +53,7 @@ public class NotifierImpl implements Notifier {
                         bot.executeAsync(new SystemMessage.MessageBuilder(user)
                                 .setForecastText(weatherData, notificationsCity, 1).build().getSendMessage());
                     } catch (TelegramApiException|InterruptedException|ExecutionException e) {
-                        e.printStackTrace();
-                        //add service temporary unavailable message
+                        logger.warn(e.getMessage());
                     }
                 }
             }

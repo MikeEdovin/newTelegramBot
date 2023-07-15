@@ -9,29 +9,29 @@ import Entities.WeatherData;
 import GeoWeatherPackage.GeoWeatherProvider;
 import MessageCreator.SystemMessage;
 import Service.UserServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 public class MainState implements State {
-    //add Logger
     @Autowired
     UserServiceImpl userService;
     @Autowired
     GeoWeatherProvider geoWeatherProvider;
     @Autowired
     Bot bot;
-
+    @Value("${bot.admin}") long botAdmin;
+    final static Logger logger= LoggerFactory.getLogger(MainState.class);
 
     @Override
     public void gotInput(User user, ParsedCommand parsedCommand, Update update) throws TelegramApiException {
         Command command=parsedCommand.getCommand();
-
+        logger.info("Got message from user with id "+user.getUserId()+". Command: "+command);
         switch (command){
             case START->bot.executeAsync(getStateMessage(user));
             case HELP,NONE,SET_TIME -> bot.executeAsync(new SystemMessage.MessageBuilder(user).
@@ -64,8 +64,10 @@ public class MainState implements State {
                                 .setForecastText(weatherData.get(), currentCity, nrOfDays).build().getSendMessage());
 
                     }catch(InterruptedException|ExecutionException e){
-                        e.printStackTrace();
-                        //add systemMessage -service is temporary unavailable
+                        bot.executeAsync(new SystemMessage.MessageBuilder(user)
+                                .serviceNotAvailable().build().getSendMessage());
+                        bot.executeAsync(new SystemMessage.MessageBuilder(new User(botAdmin))
+                                .sendErrorMessage(e.getMessage()).build().getSendMessage());
                     }
                 }
                 else{
@@ -75,7 +77,6 @@ public class MainState implements State {
                     user.setCurrentState(StateEnum.SETTINGS);
                     userService.updateAsync(user);
                     bot.executeAsync(getStateMessage(user));
-
                 }
             }
             case NOTIFICATION -> {

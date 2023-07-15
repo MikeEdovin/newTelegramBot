@@ -1,24 +1,27 @@
 package Commands;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class Parser {
+
+    final static Logger logger= LoggerFactory.getLogger(Parser.class);
     public static ParsedCommand GetParsedCommand(String text){
+        logger.info("Parsing text "+text);
         String trimText="";
         if(text!=null){
             trimText= filterEmojies(text).trim();
-            System.out.println("trim text "+trimText+ " "+text);
         }
         ParsedCommand result = new ParsedCommand(Command.NONE, trimText);
         for (Command c : Command.values()) {
-            //System.out.println("c "+c.description+" "+c.description.length()+" trim "+trimText+" "+trimText.length());
             if (trimText.equalsIgnoreCase(c.description.trim())) {
                 result.setCommand(c);
                 break;
             } else if (trimText.matches("\\d{1,2}(:|\\s*|\\.*|,*)\\d{2}")) {
                 result.setCommand(Command.SET_TIME);
                 result.setText(text);
-
             }
         }
-        System.out.println("Command "+result.getCommand()+" text "+result.getText());
         return result;
     }
 
