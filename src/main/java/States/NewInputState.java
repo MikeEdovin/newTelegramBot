@@ -44,7 +44,12 @@ public class NewInputState implements State {
             }
             case BACK -> {
                 user.setCurrentState(user.getPreviousState());
-                user = userService.updateAsync(user).get();
+                userService.updateAsync(user);
+                bot.executeAsync(getStateMessage(user));
+            }
+            case START -> {
+                user.setCurrentState(StateEnum.MAIN);
+                userService.updateAsync(user);
                 bot.executeAsync(getStateMessage(user));
             }
         }

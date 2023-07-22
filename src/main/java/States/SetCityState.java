@@ -80,6 +80,11 @@ public class SetCityState implements State {
                 userService.updateAsync(user);
                 bot.executeAsync(getStateMessage(user));
             }
+            case START -> {
+                user.setCurrentState(StateEnum.MAIN);
+                userService.updateAsync(user);
+                bot.executeAsync(getStateMessage(user));
+            }
         }
     }
 

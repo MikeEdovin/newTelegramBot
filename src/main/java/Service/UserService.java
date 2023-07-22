@@ -11,4 +11,5 @@ public interface UserService {
     CompletableFuture<User> updateAsync(User user);
     CompletableFuture<User> saveIfNotExistAsync(User user);
     CompletableFuture<List<User>> getAllUsersWithNotificationsAsync();
+
 }

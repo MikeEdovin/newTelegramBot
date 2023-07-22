@@ -7,18 +7,20 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.web.client.RestTemplate;
 
 @Configuration
-@PropertySource("config.properties")
+
 public class GeoWeatherConfig {
 
-    @Value("${weather.APP_ID}") String weatherMapId;
-    @Bean("restTemplateBuilder")
-    public RestTemplateBuilder restTemplateBuilder(){
-        return new RestTemplateBuilder();
+     String weatherMapId;
+
+    @Bean("restTemplate")
+    public RestTemplate restTemplate(){
+        return new RestTemplate();
     }
-    @Bean
-    public GeoWeatherProvider geoWeatherProvider(RestTemplateBuilder restTemplateBuilder){
-        return new GeoWeatherProviderImpl(restTemplateBuilder,weatherMapId);
+    @Bean("geoWeatherProvider")
+    public GeoWeatherProvider geoWeatherProvider(){
+        return new GeoWeatherProviderImpl();
     }
 }

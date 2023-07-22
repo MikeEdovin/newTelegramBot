@@ -94,7 +94,7 @@ public class NotificationsState implements State {
                             .sendErrorMessage(e.getMessage()).build().getSendMessage());
                 }
             }
-            case BACK -> {
+            case BACK,START -> {
                 user.setCurrentState(StateEnum.MAIN);
                 user.setNotif(false);
                 userService.updateAsync(user);

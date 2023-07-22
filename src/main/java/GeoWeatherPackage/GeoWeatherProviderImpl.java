@@ -2,23 +2,26 @@ package GeoWeatherPackage;
 
 import Entities.CityData;
 import Entities.WeatherData;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.client.RestTemplate;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-
+@RequiredArgsConstructor
+@PropertySource("config.properties")
 public class GeoWeatherProviderImpl implements GeoWeatherProvider {
-    private final RestTemplate restTemplate;
-    private final String APP_ID;
+    @Autowired
+    private  RestTemplate restTemplate;
+    @Value("${weather.APP_ID}") private  String APP_ID;
     static final Logger logger= LoggerFactory.getLogger(GeoWeatherProviderImpl.class);
-
-    public GeoWeatherProviderImpl(RestTemplateBuilder restTemplateBuilder, String weatherMapId) {
-        this.restTemplate = restTemplateBuilder.build();
-        this.APP_ID=weatherMapId;
-    }
     @Override
     @Async
     public CompletableFuture<WeatherData> getWeatherDataAsync(double latitude, double longitude) {
@@ -26,6 +29,7 @@ public class GeoWeatherProviderImpl implements GeoWeatherProvider {
         final String URL_API = "https://api.openweathermap.org/data/2.5/onecall?";
         String url = URL_API + "lat=" + latitude + "&lon=" + longitude
                 + "&exclude=minutely,hourly" + "&appid=" + APP_ID + "&units=metric";
+        logger.info(this.restTemplate.getForObject(url, String.class));
         return CompletableFuture.completedFuture(this.restTemplate.getForObject(url, WeatherData.class));
     }
     @Override
