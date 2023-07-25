@@ -4,6 +4,7 @@ import Commands.ParsedCommand;
 import Commands.Parser;
 import Entities.User;
 import Service.UserService;
+import States.MainState;
 import States.State;
 import States.StateFactory;
 import lombok.SneakyThrows;
@@ -18,6 +19,7 @@ public class WorkerImpl implements Worker {
     UserService userService;
     @Autowired
     StateFactory stateFactory;
+    final static Logger logger= LoggerFactory.getLogger(WorkerImpl.class);
     @Override
     @Async
     public void gotUpdateAsync(Update update) {
@@ -28,6 +30,7 @@ public class WorkerImpl implements Worker {
     public void operate(Update update) {
         State state;
         User user;
+        logger.warn("testing update"+update.toString());
         if (update.hasMessage()) {
             ParsedCommand parsedCommand = Parser.GetParsedCommand(update.getMessage().getText());
             long userId = update.getMessage().getFrom().getId();

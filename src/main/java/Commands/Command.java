@@ -3,7 +3,6 @@ package Commands;
 public enum Command {
     NONE("None"),
     START("Start"),
-    STOP("Stop"),
     HELP("Need help"),
     CURRENT_WEATHER("Current weather"),
     FOR_48_HOURS("Forecast for 2 days"),

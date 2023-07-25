@@ -2,15 +2,12 @@ package GeoWeatherPackage;
 
 import Entities.CityData;
 import Entities.WeatherData;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.client.RestTemplate;
 import java.util.Objects;
@@ -29,7 +26,6 @@ public class GeoWeatherProviderImpl implements GeoWeatherProvider {
         final String URL_API = "https://api.openweathermap.org/data/2.5/onecall?";
         String url = URL_API + "lat=" + latitude + "&lon=" + longitude
                 + "&exclude=minutely,hourly" + "&appid=" + APP_ID + "&units=metric";
-        logger.info(this.restTemplate.getForObject(url, String.class));
         return CompletableFuture.completedFuture(this.restTemplate.getForObject(url, WeatherData.class));
     }
     @Override
@@ -37,7 +33,7 @@ public class GeoWeatherProviderImpl implements GeoWeatherProvider {
     public CompletableFuture<CityData[]> getCityDataAsync(String city) {
         logger.info("requested cityData for "+city);
         final String URL_API = "http://api.openweathermap.org/geo/1.0/direct?q=";
-        String url = URL_API + city + ",ru_RU" + "&limit=3&appid=" + APP_ID;
+        String url = URL_API + city + "&limit=3&appid=" + APP_ID;
         return CompletableFuture.completedFuture(this.restTemplate.getForObject(url,CityData[].class));
     }
 
@@ -49,4 +45,6 @@ public class GeoWeatherProviderImpl implements GeoWeatherProvider {
         String url = URL_API + latitude + "&lon=" + longitude + "&limit=1&appid=" + APP_ID;
         return CompletableFuture.completedFuture(Objects.requireNonNull(this.restTemplate.getForObject(url, CityData[].class))[0]);
     }
+
+
 }
