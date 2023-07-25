@@ -51,4 +51,18 @@ public class UserServiceImpl implements UserService {
         logger.info("Requested all users with notifications");
         return CompletableFuture.completedFuture(repository.getAllUsersWithNotifications());
     }
+
+    @Override
+    @Transactional
+    @Async
+    public CompletableFuture<Boolean> removeUserById(long userId) {
+        logger.info("Requested removing from DB user with id "+userId);
+        if(repository.existsById(userId)){
+            repository.deleteById(userId);
+            logger.info("User was deleted");
+            return CompletableFuture.completedFuture(true);
+        }
+        logger.info("User with id " + userId + " wasn't found");
+        return CompletableFuture.completedFuture(false);
+    }
 }

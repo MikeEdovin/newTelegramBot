@@ -13,7 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -34,6 +36,9 @@ public class MainState implements State {
         logger.info("Got message from user with id "+user.getUserId()+". Command: "+command);
         switch (command){
             case START->bot.executeAsync(getStateMessage(user));
+            case STOP -> {
+                userService.removeUserById(user.getUserId());
+            }
             case HELP,NONE,SET_TIME -> bot.executeAsync(new SystemMessage.MessageBuilder(user).
                     setText(command).build().getSendMessage());
             case SETTINGS -> {

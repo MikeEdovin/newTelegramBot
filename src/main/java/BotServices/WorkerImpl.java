@@ -12,7 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
+import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 
 public class WorkerImpl implements Worker {
     @Autowired
@@ -30,12 +32,21 @@ public class WorkerImpl implements Worker {
     public void operate(Update update) {
         State state;
         User user;
-        logger.warn("testing update"+update.toString());
+        if(update.hasMyChatMember()) {
+            long userId=update.getMyChatMember().getChat().getId();
+            if (update.getMyChatMember().getNewChatMember().getStatus().equals("kicked")) {
+                logger.info("Requesting delete&block from user with id "+userId);
+                userService.removeUserById(userId);
+            }else{
+                logger.info("Requesting unblock from user with id "+userId);
+            }
+        }
         if (update.hasMessage()) {
             ParsedCommand parsedCommand = Parser.GetParsedCommand(update.getMessage().getText());
             long userId = update.getMessage().getFrom().getId();
             user = userService.saveIfNotExistAsync(new User(userId)).get();
             state = stateFactory.getState(user.getCurrentState());
+
             if (update.getMessage().hasLocation()) {
                 parsedCommand.setCommand(Command.SEND_LOCATION);
             }
