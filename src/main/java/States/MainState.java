@@ -36,9 +36,6 @@ public class MainState implements State {
         logger.info("Got message from user with id "+user.getUserId()+". Command: "+command);
         switch (command){
             case START->bot.executeAsync(getStateMessage(user));
-            case STOP -> {
-                userService.removeUserById(user.getUserId());
-            }
             case HELP,NONE,SET_TIME -> bot.executeAsync(new SystemMessage.MessageBuilder(user).
                     setText(command).build().getSendMessage());
             case SETTINGS -> {

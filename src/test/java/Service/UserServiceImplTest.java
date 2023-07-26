@@ -33,7 +33,7 @@ class UserServiceImplTest {
         User user=new User(123456789L);
         user.setNotif(true);
         Mockito.when(mockRepository.save(user)).thenReturn(user);
-        Assertions.assertEquals(true,userService.updateAsync(user).get().isNotif());
+        Assertions.assertTrue(userService.updateAsync(user).get().isNotif());
     }
     @Test
     void saveIfNotExistAsync() throws ExecutionException, InterruptedException {

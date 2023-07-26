@@ -40,9 +40,10 @@ public class User {
     @Cascade({CascadeType.PERSIST,CascadeType.REMOVE})
     private CityData notificationCity;
 
-    @OneToMany(fetch = FetchType.EAGER)
-    @JoinTable(name="last_three_cities",joinColumns =@JoinColumn(name="user_id"))
-    @Cascade(org.hibernate.annotations.CascadeType.MERGE)
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name="last_three_cities",joinColumns =@JoinColumn(name="user_id")
+            ,uniqueConstraints=@UniqueConstraint(columnNames = {"user_id","last_three_cities_lat","last_three_cities_lon"}))
+    @Cascade({CascadeType.PERSIST,CascadeType.REMOVE})
     private List<CityData> lastThreeCities=new ArrayList<>();
     @Column(name="notification_time")
     private LocalTime notificationTime;
