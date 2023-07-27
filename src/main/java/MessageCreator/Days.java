@@ -1,4 +1,4 @@
-package NotificationsPackage;
+package MessageCreator;
 
 public enum Days {
     Mon(1),

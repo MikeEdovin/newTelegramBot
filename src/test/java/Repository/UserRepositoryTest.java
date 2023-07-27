@@ -17,8 +17,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-
-import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @DataJpaTest()
 @Testcontainers
@@ -64,12 +63,7 @@ class UserRepositoryTest {
     void findByIdShouldReturnExpectedValue() {
     Assertions.assertNotNull(repository.findById(123456789L).get());
     Assertions.assertTrue(repository.findById(123456789L).get().hasAtLeastOneNotDay());
-    }
-    @Test
-    void findByIdShouldThrowException(){
-        Assertions.assertThrows(NoSuchElementException.class,()->{
-            repository.findById(99999999L);
-        });
+    Assertions.assertEquals(Optional.empty(),repository.findById(99999999L));
     }
     @Test
     void saveShouldReturnExpectedValue(){
