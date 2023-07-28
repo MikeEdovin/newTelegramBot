@@ -4,7 +4,6 @@ import Commands.ParsedCommand;
 import Commands.Parser;
 import Entities.User;
 import Service.UserService;
-import States.MainState;
 import States.State;
 import States.StateFactory;
 import lombok.SneakyThrows;
@@ -12,9 +11,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
-import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
+import java.util.concurrent.ExecutionException;
 
 public class WorkerImpl implements Worker {
     @Autowired
@@ -50,7 +50,11 @@ public class WorkerImpl implements Worker {
             if (update.getMessage().hasLocation()) {
                 parsedCommand.setCommand(Command.SEND_LOCATION);
             }
-            state.gotInput(user, parsedCommand, update);
+            try {
+                state.gotInput(user, parsedCommand, update);
+            }catch (TelegramApiException e){
+                logger.warn(e.getMessage());
+            }
         }
         if (update.hasCallbackQuery()) {
             long userId = update.getCallbackQuery().getFrom().getId();

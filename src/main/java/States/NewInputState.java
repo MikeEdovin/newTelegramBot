@@ -8,7 +8,6 @@ import Entities.User;
 import GeoWeatherPackage.GeoWeatherProvider;
 import MessageCreator.SystemMessage;
 import Service.UserServiceImpl;
-import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +18,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 public class NewInputState implements State {
     @Autowired
@@ -30,17 +30,20 @@ public class NewInputState implements State {
     final static Logger logger= LoggerFactory.getLogger(NewInputState.class);
     private List<CityData> cities;
 
-    @SneakyThrows
     @Override
-    public void gotInput(User user, ParsedCommand parsedCommand, Update update) {
+    public void gotInput(User user, ParsedCommand parsedCommand, Update update) throws TelegramApiException {
         Command command = parsedCommand.getCommand();
         logger.info("Got message from user with id "+user.getUserId()+". Command: "+command);
         switch (command) {
             case NONE, SET_TIME -> {
-                CompletableFuture<CityData[]> futureCities = geoWeatherProvider.getCityDataAsync(parsedCommand.getText());
+                try {
+                    CompletableFuture<CityData[]> futureCities = geoWeatherProvider.getCityDataAsync(parsedCommand.getText());
                     cities = List.of(futureCities.get());
-                bot.executeAsync(new SystemMessage.MessageBuilder(user)
+                    bot.executeAsync(new SystemMessage.MessageBuilder(user)
                             .sendInlineCityChoosingKeyboard(cities).build().getSendMessage());
+                }catch(InterruptedException|ExecutionException e){
+                    logger.warn(e.getMessage());
+                }
             }
             case BACK -> {
                 user.setCurrentState(user.getPreviousState());
