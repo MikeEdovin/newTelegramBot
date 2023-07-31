@@ -89,6 +89,7 @@ public class NewInputState implements State {
                         + cities.get(cityIndex).getName() + ", " + cities.get(cityIndex).getCountry());
             }
             user.addCityToLastCitiesList(cities.get(cityIndex));
+            logger.info(user.toString());
         }
         userService.updateAsync(user);
         try {

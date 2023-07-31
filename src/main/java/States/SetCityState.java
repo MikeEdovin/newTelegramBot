@@ -62,10 +62,7 @@ public class SetCityState implements State {
                                 .setCityWasSetText(city, user.isNotif()).build().getSendMessage());
                         bot.executeAsync(getStateMessage(user));
                     }catch(InterruptedException | ExecutionException e){
-                    bot.executeAsync(new SystemMessage.MessageBuilder(user)
-                            .serviceNotAvailable().build().getSendMessage());
-                    bot.executeAsync(new SystemMessage.MessageBuilder(new User(botAdmin))
-                            .sendErrorMessage(e.getMessage()).build().getSendMessage());
+                        logger.warn(e.getMessage());
                 }
             }
             case CHOOSE_FROM_LAST_THREE -> {

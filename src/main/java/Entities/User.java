@@ -19,6 +19,7 @@ import java.util.Stack;
 @AllArgsConstructor
 @Entity
 @EqualsAndHashCode
+@ToString
 @Table(name="users")
 
 public class User {
@@ -41,9 +42,10 @@ public class User {
     private CityData notificationCity;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name="last_three_cities",joinColumns =@JoinColumn(name="user_id")
-            ,uniqueConstraints=@UniqueConstraint(columnNames = {"user_id","last_three_cities_lat","last_three_cities_lon"}))
     @Cascade({CascadeType.PERSIST,CascadeType.REMOVE})
+    @JoinTable(name="last_three_cities",joinColumns = @JoinColumn(name="user_id",referencedColumnName = "user_id")
+    ,inverseJoinColumns = {@JoinColumn(name="last_three_cities_lat",referencedColumnName = "lat")
+            ,@JoinColumn(name="last_three_cities_lon",referencedColumnName = "lon")})
     private List<CityData> lastThreeCities=new ArrayList<>();
     @Column(name="notification_time")
     private LocalTime notificationTime;

@@ -48,7 +48,7 @@ class UserServiceImplTest {
     }
     @Test
     void getAllUsersWithNotificationsAsync() throws ExecutionException, InterruptedException {
-        CityData notificationsCity=new CityData("Piter",30.22,50.23,"Russia","St.Petersburg","Europe");
+        CityData notificationsCity=new CityData("Piter",30.22,50.23,"Russia","St.Petersburg","Europe",null);
         int[]days={1,2,3};
         User user1=new User(123456789L, StateEnum.MAIN,StateEnum.MAIN,null,notificationsCity,null, LocalTime.NOON,days,false);
         User user2= new User(987654321L, StateEnum.MAIN,StateEnum.MAIN,null,notificationsCity,null, LocalTime.MIDNIGHT,days,false);

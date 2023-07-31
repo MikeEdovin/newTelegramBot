@@ -55,12 +55,13 @@ public class MainState implements State {
                     CompletableFuture<WeatherData> weatherData = geoWeatherProvider
                             .getWeatherDataAsync(currentCity.getLat(), currentCity.getLon());
                     try {
+                        WeatherData weather=weatherData.get();
                         if (currentCity.getTimezone() == null) {
-                            currentCity.setTimezone(weatherData.get().getTimezone());
+                            currentCity.setTimezone(weather.getTimezone());
                             userService.updateAsync(user);
                         }
                         bot.executeAsync(new SystemMessage.MessageBuilder(user)
-                                .setForecastText(weatherData.get(), currentCity, nrOfDays).build().getSendMessage());
+                                .setForecastText(weather, currentCity, nrOfDays).build().getSendMessage());
                     }catch(InterruptedException|ExecutionException e){
                         bot.executeAsync(new SystemMessage.MessageBuilder(user)
                                 .serviceNotAvailable().build().getSendMessage());

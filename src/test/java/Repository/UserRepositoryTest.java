@@ -1,6 +1,7 @@
 package Repository;
 
 import Config.DBConfig;
+import Entities.CityData;
 import Entities.User;
 import States.StateEnum;
 import org.junit.jupiter.api.AfterEach;
@@ -67,11 +68,19 @@ class UserRepositoryTest {
     }
     @Test
     void saveShouldReturnExpectedValue(){
+        CityData city=new CityData("Saint Petersburg",59.938732,30.316229,"RU","Saint Petersburg","Europe/Moscow",null);
         User user=new User(55555555L);
         user.setCurrentState(StateEnum.NOTIF);
+        user.setCurrentCity(city);
+        User user2=new User(11111111L);
+        user2.setCurrentState(StateEnum.MAIN);
+        user2.setCurrentCity(city);
         User savedUser=repository.save(user);
+        User savedUser2=repository.save(user2);
         Assertions.assertNotNull(savedUser);
         Assertions.assertEquals(StateEnum.NOTIF,savedUser.getCurrentState());
+        Assertions.assertNotNull(savedUser2);
+        Assertions.assertEquals(StateEnum.MAIN,savedUser2.getCurrentState());
     }
 
 

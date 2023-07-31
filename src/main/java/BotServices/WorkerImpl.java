@@ -50,11 +50,7 @@ public class WorkerImpl implements Worker {
             if (update.getMessage().hasLocation()) {
                 parsedCommand.setCommand(Command.SEND_LOCATION);
             }
-            try {
                 state.gotInput(user, parsedCommand, update);
-            }catch (TelegramApiException e){
-                logger.warn(e.getMessage());
-            }
         }
         if (update.hasCallbackQuery()) {
             long userId = update.getCallbackQuery().getFrom().getId();
