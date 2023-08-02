@@ -60,6 +60,7 @@ public class NewInputState implements State {
 
     @Override
     public void gotCallBack(User user, Update update) throws TelegramApiException {
+        logger.info("got call back "+update.getCallbackQuery().getMessage());
         int cityIndex = Integer.parseInt(update.getCallbackQuery().getData());
         Message message = update.getCallbackQuery().getMessage();
         EditMessageReplyMarkup editMessageReplyMarkup = new EditMessageReplyMarkup();
