@@ -68,7 +68,7 @@ class UserRepositoryTest {
     }
     @Test
     void saveShouldReturnExpectedValue(){
-        CityData city=new CityData("Saint Petersburg",59.938732,30.316229,"RU","Saint Petersburg","Europe/Moscow",null);
+        CityData city=new CityData("Saint Petersburg",59.938732,30.316229,"RU","Saint Petersburg","Europe/Moscow");
         User user=new User(55555555L);
         user.setCurrentState(StateEnum.NOTIF);
         user.setCurrentCity(city);

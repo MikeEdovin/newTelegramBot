@@ -83,9 +83,9 @@ class GeoWeatherProviderImplTest {
     @Test
     void getCityDataAsyncShouldReturnExpectedValue() throws ExecutionException, InterruptedException, JsonProcessingException {
         String cityRequest="Piter";
-        CityData[] mockedCities=new CityData[]{new CityData("Piter",59.9387,30.3162,"Russia","St.Petersburg",null,null)
-                ,new CityData("AnotherPiter",18.222,19.333,"Milky way","AlfaCentavra",null,null)
-                ,new CityData("SunnyPiter",30.444,23.555,"SunnyCounrty","SunnyState",null,null)};
+        CityData[] mockedCities=new CityData[]{new CityData("Piter",59.9387,30.3162,"Russia","St.Petersburg",null)
+                ,new CityData("AnotherPiter",18.222,19.333,"Milky way","AlfaCentavra",null)
+                ,new CityData("SunnyPiter",30.444,23.555,"SunnyCounrty","SunnyState",null)};
         String cityResponse=objectMapper.writeValueAsString(mockedCities);
         final String URL_API = "http://api.openweathermap.org/geo/1.0/direct?q=";
         String url = URL_API + cityRequest + "&limit=3&appid=" + APP_ID;
@@ -100,7 +100,7 @@ class GeoWeatherProviderImplTest {
     void testGetCityDataAsyncShouldReturnExpectedValue() throws JsonProcessingException, ExecutionException, InterruptedException {
         double lat=59.9387;
         double lon=30.3162;
-        CityData[] mockedCity=new CityData[]{new CityData("Piter",59.9387,30.3162,"Russia","St.Petersburg",null,null)};
+        CityData[] mockedCity=new CityData[]{new CityData("Piter",59.9387,30.3162,"Russia","St.Petersburg",null)};
         String cityResponse=objectMapper.writeValueAsString(mockedCity);
         final String URL_API = "http://api.openweathermap.org/geo/1.0/reverse?lat=";
         String url = URL_API + lat + "&lon=" + lon + "&limit=1&appid=" + APP_ID;

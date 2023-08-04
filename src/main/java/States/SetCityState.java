@@ -11,7 +11,6 @@ import Service.UserServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -29,7 +28,6 @@ public class SetCityState implements State {
     @Autowired
     GeoWeatherProvider geoWeatherProvider;
     private List<CityData> cities;
-    @Value("${bot.admin}") long botAdmin;
     final static Logger logger= LoggerFactory.getLogger(NotificationsState.class);
 
     @Override
@@ -57,7 +55,7 @@ public class SetCityState implements State {
                             user.setCurrentState(StateEnum.MAIN);
                         }
                         user.addCityToLastCitiesList(city);
-                        userService.updateAsync(user);
+                        userService.updateAsync(user).get();
                         bot.executeAsync(new SystemMessage.MessageBuilder(user)
                                 .setCityWasSetText(city, user.isNotif()).build().getSendMessage());
                         bot.executeAsync(getStateMessage(user));
@@ -66,7 +64,7 @@ public class SetCityState implements State {
                 }
             }
             case CHOOSE_FROM_LAST_THREE -> {
-                cities = user.getLastThreeCities();
+                cities = user.getCities();
                 bot.executeAsync(new SystemMessage.MessageBuilder(user)
                         .sendInlineCityChoosingKeyboard(cities).build().getSendMessage());
             }

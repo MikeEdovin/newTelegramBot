@@ -28,6 +28,7 @@ public class UserServiceImpl implements UserService {
     @Async
     public CompletableFuture<User> updateAsync(User user) {
         logger.info("Updated user with id "+user.getUserId());
+
         return CompletableFuture.completedFuture(repository.save(user));
     }
     @Override

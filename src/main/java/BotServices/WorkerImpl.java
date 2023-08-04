@@ -11,11 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-
-import java.util.concurrent.ExecutionException;
-
+@Service
 public class WorkerImpl implements Worker {
     @Autowired
     UserService userService;
@@ -46,7 +44,6 @@ public class WorkerImpl implements Worker {
             long userId = update.getMessage().getFrom().getId();
             user = userService.saveIfNotExistAsync(new User(userId)).get();
             state = stateFactory.getState(user.getCurrentState());
-
             if (update.getMessage().hasLocation()) {
                 parsedCommand.setCommand(Command.SEND_LOCATION);
             }

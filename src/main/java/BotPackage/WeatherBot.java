@@ -13,7 +13,6 @@ import java.util.List;
 
 public class WeatherBot extends Bot {
     private final List<Observer> observers=new ArrayList<>();
-    private boolean started;
     private final String botName;
     private final String botToken;
     final static Logger logger= LoggerFactory.getLogger(WeatherBot.class);
@@ -21,10 +20,6 @@ public class WeatherBot extends Bot {
     public WeatherBot(String botName,String botToken){
         this.botName=botName;
         this.botToken=botToken;
-    }
-    @Override
-    public void setStartedStatus(boolean status) {
-        this.started=status;
     }
     @Override
     public String getBotUsername() {
@@ -51,7 +46,6 @@ public class WeatherBot extends Bot {
     public void botConnect() throws TelegramApiException {
             TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
             botsApi.registerBot(this);
-            setStartedStatus(true);
             logger.info("Bot started.");
     }
     @Override
