@@ -1,6 +1,7 @@
 package States;
 
 import BotPackage.Bot;
+import BotServices.Notifier;
 import Commands.Command;
 import Commands.ParsedCommand;
 import Entities.CityData;
@@ -26,6 +27,8 @@ public class SetCityState implements State {
     @Autowired
     UserServiceImpl userService;
     @Autowired
+    Notifier notifier;
+    @Autowired
     GeoWeatherProvider geoWeatherProvider;
     private List<CityData> cities;
     final static Logger logger= LoggerFactory.getLogger(NotificationsState.class);
@@ -50,6 +53,7 @@ public class SetCityState implements State {
                         if (user.isNotif()) {
                             user.setNotificationCity(city);
                             user.setCurrentState(StateEnum.NOTIF);
+                            notifier.gotNotifListUpdate(user);
                         } else {
                             user.setCurrentCity(city);
                             user.setCurrentState(StateEnum.MAIN);
@@ -106,6 +110,7 @@ public class SetCityState implements State {
             if (user.isNotif()) {
                 user.setNotificationCity(cities.get(cityIndex));
                 user.setCurrentState(StateEnum.NOTIF);
+                notifier.gotNotifListUpdate(user);
                 editMessageText.setText("Notifications city was set to "
                         + cities.get(cityIndex).getName() + ", " + cities.get(cityIndex).getCountry());
             } else {

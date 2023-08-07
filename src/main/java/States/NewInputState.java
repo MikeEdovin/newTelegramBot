@@ -1,6 +1,7 @@
 package States;
 
 import BotPackage.Bot;
+import BotServices.Notifier;
 import Commands.Command;
 import Commands.ParsedCommand;
 import Entities.CityData;
@@ -24,6 +25,8 @@ public class NewInputState implements State {
     @Autowired
     Bot bot;
     @Autowired
+    Notifier notifier;
+    @Autowired
     GeoWeatherProvider geoWeatherProvider;
     @Autowired
     UserServiceImpl userService;
@@ -35,7 +38,7 @@ public class NewInputState implements State {
         Command command = parsedCommand.getCommand();
         logger.info("Got message from user with id "+user.getUserId()+". Command: "+command);
         switch (command) {
-            case NONE, SET_TIME -> {
+            case NONE -> {
                 try {
                     CompletableFuture<CityData[]> futureCities = geoWeatherProvider.getCityDataAsync(parsedCommand.getText());
                     cities = List.of(futureCities.get());
@@ -45,6 +48,9 @@ public class NewInputState implements State {
                     logger.warn(e.getMessage());
                 }
             }
+            case SET_TIME -> bot.executeAsync(new SystemMessage.MessageBuilder(user)
+                        .setText(Command.NONE).build().getSendMessage());
+
             case BACK -> {
                 user.setCurrentState(user.getPreviousState());
                 userService.updateAsync(user);
@@ -81,6 +87,7 @@ public class NewInputState implements State {
             if (user.isNotif()) {
                 user.setNotificationCity(cities.get(cityIndex));
                 user.setCurrentState(StateEnum.NOTIF);
+                notifier.gotNotifListUpdate(user);
                 editMessageText.setText("Notifications city was set to "
                         + cities.get(cityIndex).getName() + ", " + cities.get(cityIndex).getCountry());
             } else {

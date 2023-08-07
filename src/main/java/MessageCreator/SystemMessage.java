@@ -7,6 +7,11 @@ import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -187,9 +192,9 @@ public class SystemMessage {
                         Daily day=daily[i];
                         Temp temp=day.getTemp();
                         FeelsLike feelsLike=day.getFeelsLike();
-                        text.append("Date ").append(day.getDate()).append(END_LINE);
-                        text.append("Sunrise ").append(day.getFormattedSunrise()).append(END_LINE);
-                        text.append("Sunset ").append(day.getFormattedSunset()).append(END_LINE);
+                        text.append("Date ").append(getFormattedDate(day.getDt(), weatherData.getTimezone())).append(END_LINE);
+                        text.append("Sunrise ").append(getFormattedDate(day.getSunrise(), weatherData.getTimezone())).append(END_LINE);
+                        text.append("Sunset ").append(getFormattedDate(day.getSunset(), weatherData.getTimezone())).append(END_LINE);
                         text.append("Temperature ").append(temp.getDayTemp()).append(" °C").append(END_LINE)
                                 .append("at the morning ").append(temp.getMornTemp()).append(" °C").append(END_LINE)
                                 .append("at the evening ").append(temp.getEveTemp()).append(" °C")
@@ -215,5 +220,12 @@ public class SystemMessage {
         public SystemMessage build() {
             return new SystemMessage(this);
         }
+        private String getFormattedDate(long date,String timeZone){
+            return ZonedDateTime.ofInstant(Instant.ofEpochSecond(date),ZoneId.of(timeZone))
+                    .format(DateTimeFormatter.ISO_LOCAL_TIME);
+        }
+
     }
+
+
 }

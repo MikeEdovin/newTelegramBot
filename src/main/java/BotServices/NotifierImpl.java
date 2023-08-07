@@ -14,7 +14,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -41,10 +41,14 @@ public class NotifierImpl implements Notifier {
     @Async
     @Scheduled(fixedRate = 60000)
     public void sendNotifications() {
+        logger.info("now "+ZonedDateTime.now().getHour()+" "+ZonedDateTime.now().getMinute());
+
         if (usersWithNotifications != null) {
             for (User user : usersWithNotifications) {
-                if (user.getNotificationTime().getHour() == LocalTime.now().getHour()
-                &&user.getNotificationTime().getMinute()==LocalTime.now().getMinute()) {
+                logger.info("user "+user.getNotificationTime().getHour()+" "
+                        +user.getNotificationTime().getMinute());
+                if (user.getNotificationTime().getHour() == ZonedDateTime.now().getHour()
+                &&user.getNotificationTime().getMinute()==ZonedDateTime.now().getMinute()) {
                     CityData notificationsCity = user.getNotificationCity();
                     CompletableFuture<WeatherData> futureWeatherData =
                             geoWeatherProvider.getWeatherDataAsync(

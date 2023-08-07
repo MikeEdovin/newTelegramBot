@@ -4,9 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import java.io.Serializable;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
+
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -40,20 +38,6 @@ public class Daily implements Serializable {
     private float rain;
     private float uvi;
 
-    public String getDate(){
-        DateTimeFormatter formatter=DateTimeFormatter.ofPattern("dd-MM-yy");
-        return Instant.ofEpochSecond(this.dt).
-                atZone(ZoneId.systemDefault()).toLocalDate().format(formatter);}
-    public String getFormattedSunrise(){
-        return Instant.ofEpochSecond(this.sunrise).
-                atZone(ZoneId.systemDefault()).toLocalDateTime().
-                format(DateTimeFormatter.ofPattern("hh:mm:ss"));
-    }
-    public String getFormattedSunset(){
-        return Instant.ofEpochSecond(this.sunset).
-                atZone(ZoneId.systemDefault()).toLocalDateTime().
-                format(DateTimeFormatter.ofPattern("hh:mm:ss"));
-    }
     public String getWindDirection(){
         if (11.25 < windDegree && windDegree < 33.75) {
             return "NNE";
