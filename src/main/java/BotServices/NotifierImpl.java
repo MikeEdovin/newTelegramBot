@@ -14,6 +14,9 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,17 +42,23 @@ public class NotifierImpl implements Notifier {
     }
     @Override
     @Async
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRate = 10000)
     public void sendNotifications() {
-        logger.info("now "+ZonedDateTime.now().getHour()+" "+ZonedDateTime.now().getMinute());
-
         if (usersWithNotifications != null) {
             for (User user : usersWithNotifications) {
-                logger.info("user "+user.getNotificationTime().getHour()+" "
-                        +user.getNotificationTime().getMinute());
-                if (user.getNotificationTime().getHour() == ZonedDateTime.now().getHour()
-                &&user.getNotificationTime().getMinute()==ZonedDateTime.now().getMinute()) {
-                    CityData notificationsCity = user.getNotificationCity();
+                CityData notificationsCity = user.getNotificationCity();
+                ZonedDateTime now;
+                if(notificationsCity.getTimezone()!=null) {
+                    now = ZonedDateTime.now(ZoneId.of(notificationsCity.getTimezone()));
+                }
+                else{
+                    now=ZonedDateTime.now(ZoneId.systemDefault());
+                }
+                LocalTime notifTime=user.getNotificationTime();
+                logger.info("city "+notificationsCity.getName()+" now "+now.getHour()+" "+now.getMinute()+" notifTime "
+                        +notifTime.getHour()+" "+notifTime.getMinute());
+                if (notifTime.getHour() == now.getHour()
+                &&notifTime.getMinute()==now.getMinute()) {
                     CompletableFuture<WeatherData> futureWeatherData =
                             geoWeatherProvider.getWeatherDataAsync(
                                     notificationsCity.getLat(), notificationsCity.getLon());

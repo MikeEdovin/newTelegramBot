@@ -83,9 +83,6 @@ public class StateMessage {
                     row = new KeyboardRow();
                     row.add("Reset notification "+Emojies.ERASER.getEmoji());
                     keyboard.add(row);
-                    row = new KeyboardRow();
-                    row.add("Set time zone");
-                    keyboard.add(row);
                     row=new KeyboardRow();
                     row.add("Back "+Emojies.BACK.getEmoji());
                     keyboard.add(row);

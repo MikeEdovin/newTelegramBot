@@ -8,7 +8,6 @@ public enum Command {
     FOR_48_HOURS("Forecast for 2 days"),
     FOR_7_DAYS("Forecast for 7 days"),
     NOTIFICATION("Notifications"),
-    SET_TIME_ZONE("Set time zone"),
     SET_NOTIFICATIONS_CITY("Set notifications city"),
     SET_NOTIFICATIONS_DAY_AND_TIME("Set notifications days  time"),
     SETTINGS("Settings"),
