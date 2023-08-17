@@ -12,6 +12,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.client.RestTemplate;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+
 @RequiredArgsConstructor
 @PropertySource("config.properties")
 public class GeoWeatherProviderImpl implements GeoWeatherProvider {
