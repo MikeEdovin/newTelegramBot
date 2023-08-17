@@ -229,7 +229,7 @@ public class SystemMessage {
     }
     public static String getFormattedDate(long date, String timeZone){
         return ZonedDateTime.ofInstant(Instant.ofEpochSecond(date),ZoneId.of(timeZone))
-                .format(DateTimeFormatter.ofPattern("dd:MM:yy"));
+                .format(DateTimeFormatter.ofPattern("dd-MM-yy"));
     }
 
 

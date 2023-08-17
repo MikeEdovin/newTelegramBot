@@ -6,6 +6,7 @@ import Commands.Command;
 import Commands.ParsedCommand;
 import Entities.CityData;
 import Entities.User;
+import Entities.WeatherData;
 import GeoWeatherPackage.GeoWeatherProvider;
 import MessageCreator.SystemMessage;
 import Service.UserServiceImpl;
@@ -48,8 +49,18 @@ public class SetCityState implements State {
                 double latitude = update.getMessage().getLocation().getLatitude();
                 double longitude = update.getMessage().getLocation().getLongitude();
                 CompletableFuture<CityData>futureCity=geoWeatherProvider.getCityDataAsync(latitude, longitude);
+                if(futureCity.isDone()){
+                    logger.info("getCityData completed");
+
+                }
                 try {
                         CityData city = futureCity.get();
+                        /*
+                        CompletableFuture<WeatherData>futureWeather=geoWeatherProvider
+                                .getWeatherDataAsync(city.getLat(),city.getLon());
+                        city.setTimezone(futureWeather.get().getTimezone());
+
+                         */
                         if (user.isNotif()) {
                             user.setNotificationCity(city);
                             user.setCurrentState(StateEnum.NOTIF);

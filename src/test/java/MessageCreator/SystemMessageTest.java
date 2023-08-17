@@ -46,6 +46,6 @@ class SystemMessageTest {
         long time=zdt.getLong(ChronoField.INSTANT_SECONDS);
         String formattedDate=SystemMessage.getFormattedDate(time,"Europe/Moscow");
         Assertions.assertNotNull(formattedDate);
-        Assertions.assertEquals("10:08:23",formattedDate);
+        Assertions.assertEquals("10-08-23",formattedDate);
     }
 }

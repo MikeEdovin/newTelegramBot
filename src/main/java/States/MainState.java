@@ -17,6 +17,8 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class MainState implements State {
     @Autowired
@@ -55,14 +57,14 @@ public class MainState implements State {
                     CompletableFuture<WeatherData> weatherData = geoWeatherProvider
                             .getWeatherDataAsync(currentCity.getLat(), currentCity.getLon());
                     try {
-                        WeatherData weather=weatherData.get();
+                        WeatherData weather=weatherData.get(2000, TimeUnit.MILLISECONDS);
                         if (currentCity.getTimezone() == null) {
                             currentCity.setTimezone(weather.getTimezone());
                             userService.updateAsync(user);
                         }
                         bot.executeAsync(new SystemMessage.MessageBuilder(user)
                                 .setForecastText(weather, currentCity, nrOfDays).build().getSendMessage());
-                    }catch(InterruptedException|ExecutionException e){
+                    }catch(InterruptedException | ExecutionException | TimeoutException e){
                         bot.executeAsync(new SystemMessage.MessageBuilder(user)
                                 .serviceNotAvailable().build().getSendMessage());
                         bot.executeAsync(new SystemMessage.MessageBuilder(new User(botAdmin))
