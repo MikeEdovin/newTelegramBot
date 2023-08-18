@@ -5,26 +5,23 @@ import Commands.Command;
 import Commands.ParsedCommand;
 import Entities.CityData;
 import Entities.User;
-import Entities.WeatherData;
-import GeoWeatherPackage.GeoWeatherProvider;
+import GeoWeatherPackage.ReactiveGeoWeatherProvider;
 import MessageCreator.SystemMessage;
-import Service.UserServiceImpl;
+import Service.ReactiveUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 public class MainState implements State {
     @Autowired
-    UserServiceImpl userService;
+    //UserServiceImpl userService;
+    ReactiveUserService userService;
     @Autowired
-    GeoWeatherProvider geoWeatherProvider;
+    //GeoWeatherProvider geoWeatherProvider;
+    ReactiveGeoWeatherProvider geoWeatherProvider;
     @Autowired
     Bot bot;
     @Value("${bot.admin}") long botAdmin;
@@ -40,8 +37,15 @@ public class MainState implements State {
             case SETTINGS -> {
                 user.setPreviousState(user.getCurrentState());
                 user.setCurrentState(StateEnum.SETTINGS);
-                userService.updateAsync(user);
-                bot.executeAsync(getStateMessage(user));
+                //userService.updateAsync(user);
+                userService.update(user).subscribe(u->{
+                    try {
+                        bot.executeAsync(getStateMessage(u));
+                    } catch (TelegramApiException e) {
+                        logger.warn(e.getMessage());
+                    }
+                });
+                //bot.executeAsync(getStateMessage(user));
             }
             case CURRENT_WEATHER,FOR_48_HOURS,FOR_7_DAYS -> {
                 int nrOfDays;
@@ -54,16 +58,43 @@ public class MainState implements State {
                 }
                 CityData currentCity=user.getCurrentCity();
                 if(currentCity!=null) {
+                    /*
                     CompletableFuture<WeatherData> weatherData = geoWeatherProvider
                             .getWeatherDataAsync(currentCity.getLat(), currentCity.getLon());
+
+                     */
+                    geoWeatherProvider.getWeatherData(currentCity.getLat(), currentCity.getLon()).subscribe(w->{
+                        if (currentCity.getTimezone() == null) {
+                            currentCity.setTimezone(w.getTimezone());
+                            //userService.updateAsync(user);
+                            userService.update(user).subscribe(u->{
+                                try {
+                                    bot.executeAsync(new SystemMessage.MessageBuilder(u)
+                                            .setForecastText(w, currentCity, nrOfDays).build().getSendMessage());
+                                } catch (TelegramApiException e) {
+                                    logger.warn(e.getMessage());
+                                }
+                            });
+
+                        }
+                    });
+                    /*
                     try {
                         WeatherData weather=weatherData.get(1000, TimeUnit.MILLISECONDS);
                         if (currentCity.getTimezone() == null) {
                             currentCity.setTimezone(weather.getTimezone());
-                            userService.updateAsync(user);
+                            //userService.updateAsync(user);
+                            userService.update(user).subscribe(u->{
+                                try {
+                                    bot.executeAsync(new SystemMessage.MessageBuilder(u)
+                                            .setForecastText(weather, currentCity, nrOfDays).build().getSendMessage());
+                                } catch (TelegramApiException e) {
+                                    logger.warn(e.getMessage());
+                                }
+                            });
                         }
-                        bot.executeAsync(new SystemMessage.MessageBuilder(user)
-                                .setForecastText(weather, currentCity, nrOfDays).build().getSendMessage());
+                        //bot.executeAsync(new SystemMessage.MessageBuilder(user)
+                                //.setForecastText(weather, currentCity, nrOfDays).build().getSendMessage());
                     }catch(InterruptedException|ExecutionException e){
                         bot.executeAsync(new SystemMessage.MessageBuilder(user)
                                 .serviceNotAvailable().build().getSendMessage());
@@ -77,22 +108,41 @@ public class MainState implements State {
                                 .sendErrorMessage(e.getMessage()).build().getSendMessage());
 
                     }
+
+                     */
                 }
                 else{
-                    bot.executeAsync(new SystemMessage.MessageBuilder(user)
-                            .noCurrentCity().build().getSendMessage());
+                    //bot.executeAsync(new SystemMessage.MessageBuilder(user)
+                            //.noCurrentCity().build().getSendMessage());
                     user.setPreviousState(user.getCurrentState());
                     user.setCurrentState(StateEnum.SETTINGS);
-                    userService.updateAsync(user);
-                    bot.executeAsync(getStateMessage(user));
+                    //userService.updateAsync(user);
+                    userService.update(user).subscribe(u->{
+                        try {
+                            bot.executeAsync(new SystemMessage.MessageBuilder(u)
+                                    .noCurrentCity().build().getSendMessage());
+                            bot.executeAsync(getStateMessage(u));
+                        } catch (TelegramApiException e) {
+                            logger.warn(e.getMessage());
+                        }
+
+                    });
+                    //bot.executeAsync(getStateMessage(user));
                 }
             }
             case NOTIFICATION -> {
                 user.setPreviousState(user.getCurrentState());
                 user.setCurrentState(StateEnum.NOTIF);
                 user.setNotif(true);
-                userService.updateAsync(user);
-                bot.executeAsync(getStateMessage(user));
+                userService.update(user).subscribe(u->{
+                    try {
+                        bot.executeAsync(getStateMessage(u));
+                    } catch (TelegramApiException e) {
+                        logger.warn(e.getMessage());
+                    }
+                });
+                //userService.updateAsync(user);
+                //bot.executeAsync(getStateMessage(user));
             }
         }
     }

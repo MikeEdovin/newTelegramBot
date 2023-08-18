@@ -6,9 +6,9 @@ import Commands.Command;
 import Commands.ParsedCommand;
 import Entities.CityData;
 import Entities.User;
-import GeoWeatherPackage.GeoWeatherProvider;
+import GeoWeatherPackage.ReactiveGeoWeatherProvider;
 import MessageCreator.SystemMessage;
-import Service.UserServiceImpl;
+import Service.ReactiveUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,18 +18,18 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 public class SetCityState implements State {
     @Autowired
     Bot bot;
     @Autowired
-    UserServiceImpl userService;
+    //UserService userService;
+    ReactiveUserService userService;
     @Autowired
     Notifier notifier;
     @Autowired
-    GeoWeatherProvider geoWeatherProvider;
+    //GeoWeatherProvider geoWeatherProvider;
+    ReactiveGeoWeatherProvider geoWeatherProvider;
     private List<CityData> cities;
     final static Logger logger= LoggerFactory.getLogger(NotificationsState.class);
 
@@ -41,12 +41,41 @@ public class SetCityState implements State {
             case SET_CITY -> {
                 user.setPreviousState(StateEnum.MAIN);
                 user.setCurrentState(StateEnum.NEWINPUT);
-                userService.updateAsync(user);
-                bot.executeAsync(getStateMessage(user));
+                //userService.updateAsync(user);
+                //bot.executeAsync(getStateMessage(user));
+                userService.update(user).subscribe(u->{
+                    try {
+                        bot.executeAsync(getStateMessage(u));
+                    } catch (TelegramApiException e) {
+                        logger.warn(e.getMessage());
+                    }
+                });
             }
             case SEND_LOCATION -> {
                 double latitude = update.getMessage().getLocation().getLatitude();
                 double longitude = update.getMessage().getLocation().getLongitude();
+                geoWeatherProvider.getCityData(latitude,longitude).subscribe(c->{
+                    if (user.isNotif()) {
+                        user.setNotificationCity(c);
+                        user.setCurrentState(StateEnum.NOTIF);
+                        notifier.gotNotifListUpdate(user);
+                    } else {
+                        user.setCurrentCity(c);
+                        user.setCurrentState(StateEnum.MAIN);
+                    }
+                    user.addCityToLastCitiesList(c);
+                    userService.update(user).subscribe(u->{
+                        try {
+                            bot.executeAsync(new SystemMessage.MessageBuilder(u)
+                                    .setCityWasSetText(c, u.isNotif()).build().getSendMessage());
+                            bot.executeAsync(getStateMessage(u));
+                        }
+                        catch (TelegramApiException e){
+                            logger.warn(e.getMessage());
+                        }
+                    });
+                });
+                /*
                 CompletableFuture<CityData>futureCity=geoWeatherProvider.getCityDataAsync(latitude, longitude);
                 try {
                         CityData city = futureCity.get();
@@ -59,13 +88,27 @@ public class SetCityState implements State {
                             user.setCurrentState(StateEnum.MAIN);
                         }
                         user.addCityToLastCitiesList(city);
-                        userService.updateAsync(user).get();
-                        bot.executeAsync(new SystemMessage.MessageBuilder(user)
-                                .setCityWasSetText(city, user.isNotif()).build().getSendMessage());
-                        bot.executeAsync(getStateMessage(user));
+                        //userService.updateAsync(user).get();
+
+
+                    userService.update(user).subscribe(u->{
+                        try {
+                            bot.executeAsync(new SystemMessage.MessageBuilder(u)
+                                    .setCityWasSetText(city, u.isNotif()).build().getSendMessage());
+                            bot.executeAsync(getStateMessage(u));
+                        }
+                        catch (TelegramApiException e){
+                            logger.warn(e.getMessage());
+                        }
+                    });
+                        //bot.executeAsync(new SystemMessage.MessageBuilder(user)
+                               // .setCityWasSetText(city, user.isNotif()).build().getSendMessage());
+                        //bot.executeAsync(getStateMessage(user));
                     }catch(InterruptedException | ExecutionException e){
                         logger.warn(e.getMessage());
                 }
+
+                 */
             }
             case CHOOSE_FROM_LAST_THREE -> {
                 cities = user.getCities();
@@ -76,13 +119,29 @@ public class SetCityState implements State {
                     .setText(Command.NONE).build().getSendMessage());
             case BACK -> {
                 user.setCurrentState(user.getPreviousState());
-                userService.updateAsync(user);
-                bot.executeAsync(getStateMessage(user));
+                //userService.updateAsync(user);
+                //bot.executeAsync(getStateMessage(user));
+                userService.update(user).subscribe(u->{
+                    try{
+                        bot.executeAsync(getStateMessage(u));
+                    }
+                    catch (TelegramApiException e){
+                        logger.warn(e.getMessage());
+                    }
+                });
             }
             case START -> {
                 user.setCurrentState(StateEnum.MAIN);
-                userService.updateAsync(user);
-                bot.executeAsync(getStateMessage(user));
+                //userService.updateAsync(user);
+                //bot.executeAsync(getStateMessage(user));
+                userService.update(user).subscribe(u->{
+                    try{
+                        bot.executeAsync(getStateMessage(u));
+                    }
+                    catch (TelegramApiException e){
+                        logger.warn(e.getMessage());
+                    }
+                });
             }
         }
     }
@@ -121,13 +180,21 @@ public class SetCityState implements State {
             }
             user.addCityToLastCitiesList(cities.get(cityIndex));
         }
-        userService.updateAsync(user);
-        bot.executeAsync(getStateMessage(user));
+        //userService.updateAsync(user);
+        //bot.executeAsync(getStateMessage(user));
         try {
             bot.executeAsync(editMessageText);
             bot.executeAsync(editMessageReplyMarkup);
         } catch (TelegramApiException e) {
             logger.warn(e.getMessage());
         }
+        userService.update(user).subscribe(u->{
+            try{
+                bot.executeAsync(getStateMessage(u));
+            }
+            catch (TelegramApiException e){
+                logger.warn(e.getMessage());
+            }
+        });
     }
 }

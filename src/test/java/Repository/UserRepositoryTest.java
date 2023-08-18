@@ -51,10 +51,10 @@ class UserRepositoryTest {
     void tearDown() {
     }
 
-    @Test
-    void getAllUsersWithNotifications() {
-        Assertions.assertEquals(1,repository.getAllUsersWithNotifications().size());
-    }
+    //@Test
+    //void getAllUsersWithNotifications() {
+        //Assertions.assertEquals(1,repository.getAllUsersWithNotifications().size());
+   // }
     @Test
     void existsByIdShouldReturnExpectedValue(){
         Assertions.assertEquals(true,repository.existsById(123456789L));

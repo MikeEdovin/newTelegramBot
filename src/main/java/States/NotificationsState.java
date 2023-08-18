@@ -6,7 +6,7 @@ import Commands.Command;
 import Commands.ParsedCommand;
 import Entities.User;
 import MessageCreator.SystemMessage;
-import Service.UserService;
+import Service.ReactiveUserService;
 import com.vdurmont.emoji.EmojiParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,8 +26,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 
 public class NotificationsState implements State {
@@ -35,7 +33,8 @@ public class NotificationsState implements State {
     @Autowired
     Bot bot;
     @Autowired
-    UserService userService;
+    //UserService userService;
+    ReactiveUserService userService;
     @Autowired
     Notifier notifier;
     @Value("${bot.admin}") long botAdmin;
@@ -49,9 +48,17 @@ public class NotificationsState implements State {
             case SET_NOTIFICATIONS_CITY -> {
                 user.setPreviousState(user.getCurrentState());
                 user.setCurrentState(StateEnum.SETTINGS);
-                userService.updateAsync(user);
-                bot.executeAsync(getStateMessage(user));
-                notifier.gotNotifListUpdate(user);
+                //userService.updateAsync(user);
+               // bot.executeAsync(getStateMessage(user));
+                //notifier.gotNotifListUpdate(user);
+                userService.update(user).subscribe(u->{
+                    try {
+                        bot.executeAsync(getStateMessage(u));
+                        notifier.gotNotifListUpdate(u);
+                    } catch (TelegramApiException e) {
+                        logger.warn(e.getMessage());
+                    }
+                });
             }
             case SET_NOTIFICATIONS_DAY_AND_TIME -> bot.executeAsync(new SystemMessage.MessageBuilder(user)
                     .sendDayTimeKeyboard().build().getSendMessage());
@@ -61,11 +68,22 @@ public class NotificationsState implements State {
                         LocalTime time = LocalTime.parse(parsedCommand.getText(),
                                 DateTimeFormatter.ofPattern("H[H]:mm"));
                         user.setNotificationTime(time);
-                        userService.updateAsync(user);
-                        bot.executeAsync(new SystemMessage.MessageBuilder(user)
-                                 .setText(Command.NOTIF_TIME_WAS_SET).build().getSendMessage());
-                        bot.executeAsync(getStateMessage(user));
-                        notifier.gotNotifListUpdate(user);
+                        //userService.updateAsync(user);
+                        userService.update(user).subscribe(u->{
+                            try {
+                                bot.executeAsync(new SystemMessage.MessageBuilder(u)
+                                        .setText(Command.NOTIF_TIME_WAS_SET).build().getSendMessage());
+                                bot.executeAsync(getStateMessage(u));
+                                notifier.gotNotifListUpdate(u);
+                            }
+                            catch (TelegramApiException e){
+                                logger.warn(e.getMessage());
+                            }
+                        });
+                        //bot.executeAsync(new SystemMessage.MessageBuilder(user)
+                                 //.setText(Command.NOTIF_TIME_WAS_SET).build().getSendMessage());
+                        //bot.executeAsync(getStateMessage(user));
+                        //notifier.gotNotifListUpdate(user);
                     } catch (DateTimeParseException e) {
                         bot.executeAsync(new SystemMessage.MessageBuilder(user)
                                 .setText(Command.WRONG_TIME_INPUT).build().getSendMessage());
@@ -81,6 +99,17 @@ public class NotificationsState implements State {
                             .setText(Command.WRONG_TIME_INPUT).build().getSendMessage());
             case RESET_NOTIFICATIONS -> {
                 user.clearNotifications();
+                userService.update(user).subscribe(u->{
+                    try {
+                        bot.executeAsync(new SystemMessage.MessageBuilder(u)
+                                .setText(Command.RESET_NOTIFICATIONS).build().getSendMessage());
+                        notifier.gotNotifListUpdate(u);
+                    }
+                    catch (TelegramApiException e){
+                        logger.warn(e.getMessage());
+                    }
+                });
+                /*
                 CompletableFuture<User> futureUser=userService.updateAsync(user);
                 try {
                     futureUser.get();
@@ -93,12 +122,21 @@ public class NotificationsState implements State {
                     bot.executeAsync(new SystemMessage.MessageBuilder(new User(botAdmin))
                             .sendErrorMessage(e.getMessage()).build().getSendMessage());
                 }
+
+                 */
             }
             case BACK,START -> {
                 user.setCurrentState(StateEnum.MAIN);
                 user.setNotif(false);
-                userService.updateAsync(user);
-                bot.executeAsync(getStateMessage(user));
+                //userService.updateAsync(user);
+                //bot.executeAsync(getStateMessage(user));
+                userService.update(user).subscribe(u->{
+                    try {
+                        bot.executeAsync(getStateMessage(u));
+                    } catch (TelegramApiException e) {
+                        logger.warn(e.getMessage());
+                    }
+                });
             }
         }
     }
@@ -117,7 +155,7 @@ public class NotificationsState implements State {
             editMessageText.setText("Back");
                 user.setCurrentState(StateEnum.NOTIF);
                 try{
-                    bot.execute(editMessageText);
+                    bot.execute(editMessageText);//async???
                 } catch (TelegramApiException e) {
                     logger.warn(e.getMessage());
                 }
@@ -130,7 +168,8 @@ public class NotificationsState implements State {
             try {
                 bot.execute(answerCallbackQuery);
                 bot.execute(editMessageReplyMarkup);
-                userService.updateAsync(user);
+                //userService.updateAsync(user);
+                userService.update(user);
             } catch (TelegramApiException e) {
                 logger.warn(e.getMessage());
             }

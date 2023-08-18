@@ -3,10 +3,9 @@ package BotServices;
 import BotPackage.Bot;
 import Entities.CityData;
 import Entities.User;
-import Entities.WeatherData;
-import GeoWeatherPackage.GeoWeatherProvider;
+import GeoWeatherPackage.ReactiveGeoWeatherProvider;
 import MessageCreator.SystemMessage;
-import Service.UserService;
+import Service.ReactiveUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,25 +19,33 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+
 @Service
 public class NotifierImpl implements Notifier {
     @Autowired
-    UserService userService;
+    //UserService userService;
+    ReactiveUserService userService;
     @Autowired
-    GeoWeatherProvider geoWeatherProvider;
+    //GeoWeatherProvider geoWeatherProvider;
+    ReactiveGeoWeatherProvider geoWeatherProvider;
     @Autowired
     Bot bot;
     final static Logger logger= LoggerFactory.getLogger(NotifierImpl.class);
     private List<User> usersWithNotifications = new ArrayList<>();
     @Override
     public void gotNotifListUpdate(User user) {
+        usersWithNotifications.clear();
+        /*
         try {
             usersWithNotifications = userService.getAllUsersWithNotificationsAsync().get();
         } catch (InterruptedException | ExecutionException e) {
             logger.warn(e.getMessage());
         }
+
+         */
+        userService.getAllUsersWithNotifications().subscribe(u->{
+            usersWithNotifications.add(u);
+        });
     }
     @Override
     @Async
@@ -59,6 +66,17 @@ public class NotifierImpl implements Notifier {
                         +notifTime.getHour()+" "+notifTime.getMinute());
                 if (notifTime.getHour() == now.getHour()
                 &&notifTime.getMinute()==now.getMinute()) {
+                    geoWeatherProvider.getWeatherData(notificationsCity.getLat(), notificationsCity.getLon())
+                            .subscribe(w->{
+                                try {
+                                    bot.executeAsync(new SystemMessage.MessageBuilder(user)
+                                            .setForecastText(w, notificationsCity, 1).build().getSendMessage());
+                                }
+                                catch (TelegramApiException e){
+                                    logger.warn(e.getMessage());
+                                }
+                            });
+                    /*
                     CompletableFuture<WeatherData> futureWeatherData =
                             geoWeatherProvider.getWeatherDataAsync(
                                     notificationsCity.getLat(), notificationsCity.getLon());
@@ -69,6 +87,9 @@ public class NotifierImpl implements Notifier {
                     } catch (TelegramApiException|InterruptedException|ExecutionException e) {
                         logger.warn(e.getMessage());
                     }
+
+                     */
+
                 }
             }
         }

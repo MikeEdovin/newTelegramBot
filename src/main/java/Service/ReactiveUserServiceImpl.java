@@ -1,15 +1,18 @@
 package Service;
 
 import Entities.User;
-import Repository.UserReactiveRepository;
+import Repository.ReactiveUserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 @Service
-public class UserReactiveServiceImpl implements UserReactiveService{
-    @Autowired
-    UserReactiveRepository repository;
+public class ReactiveUserServiceImpl implements ReactiveUserService {
+    static final Logger logger= LoggerFactory.getLogger(ReactiveUserServiceImpl.class);
+    //@Autowired
+    ReactiveUserRepository repository;
     @Override
     public Mono<User> getUserById(long userId) {
         return repository.findById(userId);
@@ -21,18 +24,20 @@ public class UserReactiveServiceImpl implements UserReactiveService{
     }
 
     @Override
-    public Mono<User> saveIfNotExist(User user) {
-
-        return null;
-    }
+    public Mono<User> save(User user) {return repository.save(user);}
 
     @Override
     public Flux<User> getAllUsersWithNotifications() {
-        return null;
+        return repository.getAllUsersWithNotifications();
     }
 
     @Override
     public Mono<Void> removeUserById(long userId) {
-        return null;
+        return repository.deleteById(userId);
+    }
+
+    @Override
+    public Mono<Boolean> existsById(long userId) {
+        return repository.existsById(userId);
     }
 }

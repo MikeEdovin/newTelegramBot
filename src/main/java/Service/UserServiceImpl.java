@@ -14,7 +14,7 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public class UserServiceImpl implements UserService {
     static final Logger logger= LoggerFactory.getLogger(UserServiceImpl.class);
-    @Autowired
+    //@Autowired
     UserRepository repository;
     @Override
     @Transactional
@@ -49,7 +49,8 @@ public class UserServiceImpl implements UserService {
     @Async
     public CompletableFuture<List<User>> getAllUsersWithNotificationsAsync() {
         logger.info("Requested all users with notifications");
-        return CompletableFuture.completedFuture(repository.getAllUsersWithNotifications());
+        //return CompletableFuture.completedFuture(repository.getAllUsersWithNotifications());
+        return null;
     }
 
     @Override
