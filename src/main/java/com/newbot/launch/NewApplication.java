@@ -16,9 +16,9 @@ import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories;
 import org.springframework.web.reactive.config.EnableWebFlux;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-@SpringBootApplication(scanBasePackageClasses = {ReactiveUserServiceImpl.class, ReactiveUserRepository.class, ReactiveGeoWeatherProviderImpl.class})
+@SpringBootApplication(scanBasePackageClasses = {ReactiveUserServiceImpl.class, ReactiveGeoWeatherProviderImpl.class})
 @EnableWebFlux
-@EnableR2dbcRepositories
+@EnableR2dbcRepositories(basePackages = {"Repository"})
 @Import({GeoWeatherConfig.class, DBConfig.class, BotConfig.class, ServiceConfig.class, StatesConfig.class, AsyncConfig.class})
 public class NewApplication {
 	final static Logger logger= LoggerFactory.getLogger(NewApplication.class);

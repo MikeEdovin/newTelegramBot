@@ -60,8 +60,8 @@ public class SystemMessage {
                         if (user.isNotificationDay(day.getDay())) {
                             builder.append(day.name()).append(" ");
                         }
-                        if(user.getNotificationCity()!=null){
-                            CityData notifCity=user.getNotificationCity();
+                        if(user.getNotificationsCity()!=null){
+                            CityData notifCity=user.getNotificationsCity().get();
                             sendMessage.setText("Notifications time was set for "
                                     +notifCity.getName()+", "+notifCity.getCountry()
                                     +" at "+builder+" "+user.getNotificationTime());

@@ -111,7 +111,7 @@ public class NewInputState implements State {
             }
         } else {
             if (user.isNotif()) {
-                user.setNotificationCity(cities.get(cityIndex));
+                user.setNotificationsCity(cities.get(cityIndex));
                 user.setCurrentState(StateEnum.NOTIF);
                 notifier.gotNotifListUpdate(user);
                 editMessageText.setText("Notifications city was set to "

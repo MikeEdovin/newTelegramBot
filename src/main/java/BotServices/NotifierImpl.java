@@ -53,7 +53,7 @@ public class NotifierImpl implements Notifier {
     public void sendNotifications() {
         if (usersWithNotifications != null) {
             for (User user : usersWithNotifications) {
-                CityData notificationsCity = user.getNotificationCity();
+                CityData notificationsCity = user.getNotificationsCity().get();
                 ZonedDateTime now;
                 if(notificationsCity.getTimezone()!=null) {
                     now = ZonedDateTime.now(ZoneId.of(notificationsCity.getTimezone()));

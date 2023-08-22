@@ -56,7 +56,7 @@ public class MainState implements State {
                 } else {
                     nrOfDays = 7;
                 }
-                CityData currentCity=user.getCurrentCity();
+                CityData currentCity=user.getCurrentCity().get();
                 if(currentCity!=null) {
                     /*
                     CompletableFuture<WeatherData> weatherData = geoWeatherProvider

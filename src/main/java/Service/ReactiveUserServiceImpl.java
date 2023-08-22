@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
 @Service
 public class ReactiveUserServiceImpl implements ReactiveUserService {
     static final Logger logger= LoggerFactory.getLogger(ReactiveUserServiceImpl.class);
-    //@Autowired
+    @Autowired
     ReactiveUserRepository repository;
     @Override
     public Mono<User> getUserById(long userId) {

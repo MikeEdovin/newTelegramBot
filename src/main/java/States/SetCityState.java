@@ -56,7 +56,7 @@ public class SetCityState implements State {
                 double longitude = update.getMessage().getLocation().getLongitude();
                 geoWeatherProvider.getCityData(latitude,longitude).subscribe(c->{
                     if (user.isNotif()) {
-                        user.setNotificationCity(c);
+                        user.setNotificationsCity(c);
                         user.setCurrentState(StateEnum.NOTIF);
                         notifier.gotNotifListUpdate(user);
                     } else {
@@ -167,7 +167,7 @@ public class SetCityState implements State {
             }
         } else {
             if (user.isNotif()) {
-                user.setNotificationCity(cities.get(cityIndex));
+                user.setNotificationsCity(cities.get(cityIndex));
                 user.setCurrentState(StateEnum.NOTIF);
                 notifier.gotNotifListUpdate(user);
                 editMessageText.setText("Notifications city was set to "

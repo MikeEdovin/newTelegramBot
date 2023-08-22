@@ -1,57 +1,96 @@
 package Entities;
 import States.StateEnum;
-import jakarta.persistence.*;
-import jakarta.persistence.Table;
+//import jakarta.persistence.*;
+//import jakarta.persistence.Table;
 import lombok.*;
-import org.hibernate.annotations.*;
-import org.hibernate.annotations.CascadeType;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Stack;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
+import reactor.core.publisher.Mono;
+//import org.hibernate.annotations.*;
+//import org.hibernate.annotations.CascadeType;
+//import org.springframework.data.annotation.Id;
 
-@Getter
-@Setter
+import java.time.LocalTime;
+import java.util.*;
+
+//@Getter
+//@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
+//@Entity
 @ToString
 @Table(name="users")
+@Data
+@Builder
 
 public class User {
     @Id
-    @Column(name="user_id")
+    @Column("user_id")
     private long userId;
+
     private StateEnum currentState;
+
     private StateEnum previousState;
+/*
 
     @ManyToOne
     @JoinColumns({ @JoinColumn(name = "current_city_lat", referencedColumnName = "lat"),
             @JoinColumn(name = "current_city_lon", referencedColumnName = "lon") })
     @Cascade({CascadeType.PERSIST,CascadeType.MERGE})
-    private CityData currentCity;
 
+ */
+    private CityData currentCity;
+/*
     @ManyToOne
     @JoinColumns({ @JoinColumn(name = "notification_city_lat", referencedColumnName = "lat"),
             @JoinColumn(name = "notification_city_lon", referencedColumnName = "lon") })
     @Cascade({CascadeType.PERSIST,CascadeType.REFRESH})
-    private CityData notificationCity;
 
+ */
+    private CityData notificationsCity;
+/*
     @ManyToMany(fetch = FetchType.EAGER)
     @Cascade({CascadeType.PERSIST,CascadeType.REFRESH,CascadeType.DELETE_ORPHAN})
     @JoinTable(name="last_three_cities",joinColumns = @JoinColumn(name="user_id",referencedColumnName = "user_id")
     ,inverseJoinColumns = {@JoinColumn(name="last_three_cities_lat",referencedColumnName = "lat")
             ,@JoinColumn(name="last_three_cities_lon",referencedColumnName = "lon")})
+
+ */
+    @Builder.Default
     private List<CityData> cities =new ArrayList<>();
 
-    @Column(name="notification_time")
+    public Optional<CityData>getCurrentCity(){
+        return Optional.ofNullable(this.currentCity);
+    }
+    public Optional<CityData>getNotificationsCity(){
+        return Optional.ofNullable(this.notificationsCity);
+    }
+
+    public static Mono<User> fromRows(List<Map<String,Object>> rows){
+        return Mono.just(User.builder()
+                .userId(Long.parseLong(rows.get(0).get("user_id").toString()))
+                .currentState((StateEnum) rows.get(0).get("current_state"))
+                .previousState((StateEnum) rows.get(0).get("previous_state"))
+                .currentCity(CityData.fromRow(rows.get(0)))
+                .notificationsCity(CityData.fromRow(rows.get(0)))
+                .notificationTime((LocalTime) rows.get(0).get("notification_time"))
+                .notificationDays((int[]) rows.get(0).get("notification_days"))
+                .isNotif((Boolean) rows.get(0).get("isNotif"))
+                .cities(rows.stream()
+                        .map(CityData::fromRow)
+                        .filter(Objects::nonNull)
+                        .toList())
+                .build());
+    }
+
+    @Column("notification_time")
     private LocalTime notificationTime;
 
-    @Column(name="notification_days")
+    @Column("notification_days")
     private int[]notificationDays=new int[7];
 
-    @Column(name="isNotif")
+    @Column("isNotif")
     private boolean isNotif;
 
     public User(long userId){
@@ -63,7 +102,7 @@ public class User {
         return notificationDays[day-1] == day;
     }
     public void clearNotifications(){
-        this.setNotificationCity(null);
+        this.setNotificationsCity(null);
         this.setNotificationTime(null);
         Arrays.fill(notificationDays, 0);
     }
