@@ -12,8 +12,12 @@ import Service.UserServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -26,6 +30,8 @@ public class MainState implements State {
     GeoWeatherProvider geoWeatherProvider;
     @Autowired
     Bot bot;
+    @Value("${bot.admin}") long botAdmin;
+    @Value("${new.version}") String versionMessage;
     final static Logger logger= LoggerFactory.getLogger(MainState.class);
     @Override
     public void gotInput(User user, ParsedCommand parsedCommand, Update update) throws TelegramApiException, ExecutionException, InterruptedException, TimeoutException {
@@ -78,6 +84,18 @@ public class MainState implements State {
                 user.setNotif(true);
                 userService.updateAsync(user);
                 bot.executeAsync(getStateMessage(user));
+            }
+            case NEW_VERSION -> {
+                if(user.getUserId()==botAdmin){
+                    List<User> users=userService.getAllUsers().get();
+                    SendMessage sendMessage=new SendMessage();
+                    for(User u:users){
+                        sendMessage.setChatId(u.getUserId());
+                        sendMessage.setText(versionMessage);
+                        bot.executeAsync(sendMessage);
+                    }
+                }
+
             }
         }
     }

@@ -66,4 +66,9 @@ public class UserServiceImpl implements UserService {
         logger.info("User with id " + userId + " wasn't found");
         return CompletableFuture.completedFuture(false);
     }
+
+    @Override
+    public CompletableFuture<List<User>> getAllUsers() {
+        return CompletableFuture.completedFuture((List<User>) repository.findAll());
+    }
 }

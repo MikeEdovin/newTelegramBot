@@ -20,7 +20,8 @@ public enum Command {
     SET_TIME("Time"),
     NOTIF_TIME_WAS_SET("Notification time was set"),
     WRONG_TIME_INPUT("Wrong time input"),
-    TIME_SETTINGS_ERROR("You didn't choose any day for notifications");
+    TIME_SETTINGS_ERROR("You didn't choose any day for notifications")
+    ,NEW_VERSION("version");
 
     public final String description;
 

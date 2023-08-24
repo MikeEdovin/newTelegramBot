@@ -13,5 +13,6 @@ public interface UserService {
     CompletableFuture<User> saveIfNotExistAsync(User user);
     CompletableFuture<List<User>> getAllUsersWithNotificationsAsync();
     CompletableFuture<Boolean> removeUserById(long userId);
+    CompletableFuture<List<User>>getAllUsers();
 
 }
