@@ -12,7 +12,6 @@ import Service.UserServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.util.concurrent.CompletableFuture;
@@ -27,7 +26,6 @@ public class MainState implements State {
     GeoWeatherProvider geoWeatherProvider;
     @Autowired
     Bot bot;
-    @Value("${bot.admin}") long botAdmin;
     final static Logger logger= LoggerFactory.getLogger(MainState.class);
     @Override
     public void gotInput(User user, ParsedCommand parsedCommand, Update update) throws TelegramApiException {
@@ -65,6 +63,7 @@ public class MainState implements State {
                         bot.executeAsync(new SystemMessage.MessageBuilder(user)
                                 .setForecastText(weather, currentCity, nrOfDays).build().getSendMessage());
                     }catch(InterruptedException | ExecutionException | TimeoutException e){
+                        logger.warn("exc "+e.getMessage());
                         bot.executeAsync(new SystemMessage.MessageBuilder(user)
                                 .serviceNotAvailable().build().getSendMessage());
                     }

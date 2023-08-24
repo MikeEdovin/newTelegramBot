@@ -53,21 +53,15 @@ public class SetCityState implements State {
                 CompletableFuture<CityData>futureCity=geoWeatherProvider.getCityDataAsync(latitude, longitude);
                 try {
                         CityData city = futureCity.get();
-
                         CompletableFuture<WeatherData>futureWeather=geoWeatherProvider
                                 .getWeatherDataAsync(city.getLat(),city.getLon());
                         city.setTimezone(futureWeather.get(2000, TimeUnit.MILLISECONDS).getTimezone());
-
-
                         if (user.isNotif()) {
                             user.setNotificationCity(city);
-                            user.setCurrentCity(city);//experiment
                             user.setCurrentState(StateEnum.NOTIF);
                             user.addCityToLastCitiesList(city);
                             try {
                                 user = userService.updateAsync(user).get();
-                                //notifier.gotNotifListUpdate(user);
-                                logger.info("update ok");
                             }
                             catch (ExecutionException | InterruptedException e){
                                 logger.warn(e.getMessage());

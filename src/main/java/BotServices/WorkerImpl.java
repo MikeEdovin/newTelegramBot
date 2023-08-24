@@ -1,4 +1,5 @@
 package BotServices;
+import BotPackage.Bot;
 import Commands.Command;
 import Commands.ParsedCommand;
 import Commands.Parser;
@@ -19,6 +20,8 @@ public class WorkerImpl implements Worker {
     UserService userService;
     @Autowired
     StateFactory stateFactory;
+    @Autowired
+    Bot bot;
     final static Logger logger= LoggerFactory.getLogger(WorkerImpl.class);
     @Override
     @Async
