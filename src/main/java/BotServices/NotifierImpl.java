@@ -33,7 +33,7 @@ public class NotifierImpl implements Notifier {
     final static Logger logger= LoggerFactory.getLogger(NotifierImpl.class);
     private List<User> usersWithNotifications = new ArrayList<>();
     @Override
-    public void gotNotifListUpdate(User user) {
+    public void gotNotifListUpdate() {
         try {
             usersWithNotifications = userService.getAllUsersWithNotificationsAsync().get();
         } catch (InterruptedException | ExecutionException e) {

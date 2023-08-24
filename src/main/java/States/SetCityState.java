@@ -21,6 +21,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class SetCityState implements State {
     @Autowired
@@ -49,33 +51,45 @@ public class SetCityState implements State {
                 double latitude = update.getMessage().getLocation().getLatitude();
                 double longitude = update.getMessage().getLocation().getLongitude();
                 CompletableFuture<CityData>futureCity=geoWeatherProvider.getCityDataAsync(latitude, longitude);
-                if(futureCity.isDone()){
-                    logger.info("getCityData completed");
-
-                }
                 try {
                         CityData city = futureCity.get();
-                        /*
+
                         CompletableFuture<WeatherData>futureWeather=geoWeatherProvider
                                 .getWeatherDataAsync(city.getLat(),city.getLon());
-                        city.setTimezone(futureWeather.get().getTimezone());
+                        city.setTimezone(futureWeather.get(2000, TimeUnit.MILLISECONDS).getTimezone());
 
-                         */
+
                         if (user.isNotif()) {
                             user.setNotificationCity(city);
+                            user.setCurrentCity(city);//experiment
                             user.setCurrentState(StateEnum.NOTIF);
-                            notifier.gotNotifListUpdate(user);
+                            user.addCityToLastCitiesList(city);
+                            try {
+                                user = userService.updateAsync(user).get();
+                                //notifier.gotNotifListUpdate(user);
+                                logger.info("update ok");
+                            }
+                            catch (ExecutionException | InterruptedException e){
+                                logger.warn(e.getMessage());
+                            }
+                            notifier.gotNotifListUpdate();
                         } else {
                             user.setCurrentCity(city);
                             user.setCurrentState(StateEnum.MAIN);
+                            user.addCityToLastCitiesList(city);
+                            try{
+                                user = userService.updateAsync(user).get();
+                            }
+                            catch (ExecutionException|InterruptedException e){
+                                logger.warn(e.getMessage());
+                            }
+
                         }
-                        user.addCityToLastCitiesList(city);
-                        userService.updateAsync(user).get();
                         bot.executeAsync(new SystemMessage.MessageBuilder(user)
                                 .setCityWasSetText(city, user.isNotif()).build().getSendMessage());
                         bot.executeAsync(getStateMessage(user));
-                    }catch(InterruptedException | ExecutionException e){
-                        logger.warn(e.getMessage());
+                    }catch(InterruptedException | ExecutionException|TimeoutException e){
+                        logger.warn("exc "+e.getMessage());
                 }
             }
             case CHOOSE_FROM_LAST_THREE -> {
@@ -101,6 +115,7 @@ public class SetCityState implements State {
 
     @Override
     public void gotCallBack(User user, Update update) throws TelegramApiException {
+        logger.info("call back in setcitystate");
         int cityIndex = Integer.parseInt(update.getCallbackQuery().getData());
         Message message = update.getCallbackQuery().getMessage();
         EditMessageReplyMarkup editMessageReplyMarkup = new EditMessageReplyMarkup();
@@ -118,21 +133,33 @@ public class SetCityState implements State {
                 user.setCurrentState(StateEnum.SETTINGS);
             }
         } else {
+            //user.addCityToLastCitiesList(cities.get(cityIndex));
             if (user.isNotif()) {
                 user.setNotificationCity(cities.get(cityIndex));
                 user.setCurrentState(StateEnum.NOTIF);
-                notifier.gotNotifListUpdate(user);
-                editMessageText.setText("Notifications city was set to "
-                        + cities.get(cityIndex).getName() + ", " + cities.get(cityIndex).getCountry());
+                try {
+                    user=userService.updateAsync(user).get();
+                    notifier.gotNotifListUpdate();
+                    editMessageText.setText("Notifications city was set to "
+                            + cities.get(cityIndex).getName() + ", " + cities.get(cityIndex).getCountry());
+                }
+                catch (ExecutionException|InterruptedException e){
+                    logger.warn(e.getMessage());
+                }
             } else {
                 user.setCurrentCity(cities.get(cityIndex));
                 user.setCurrentState(StateEnum.MAIN);
-                editMessageText.setText("Current city was set to "
-                        + cities.get(cityIndex).getName() + ", " + cities.get(cityIndex).getCountry());
+                try {
+                    user=userService.updateAsync(user).get();
+                    editMessageText.setText("Current city was set to "
+                            + cities.get(cityIndex).getName() + ", " + cities.get(cityIndex).getCountry());
+                }
+                catch(ExecutionException|InterruptedException e){
+                    logger.warn(e.getMessage());
+                }
             }
-            user.addCityToLastCitiesList(cities.get(cityIndex));
         }
-        userService.updateAsync(user);
+
         bot.executeAsync(getStateMessage(user));
         try {
             bot.executeAsync(editMessageText);

@@ -57,7 +57,7 @@ public class MainState implements State {
                     CompletableFuture<WeatherData> weatherData = geoWeatherProvider
                             .getWeatherDataAsync(currentCity.getLat(), currentCity.getLon());
                     try {
-                        WeatherData weather=weatherData.get(2000, TimeUnit.MILLISECONDS);
+                        WeatherData weather=weatherData.get(5000, TimeUnit.MILLISECONDS);
                         if (currentCity.getTimezone() == null) {
                             currentCity.setTimezone(weather.getTimezone());
                             userService.updateAsync(user);
@@ -67,8 +67,6 @@ public class MainState implements State {
                     }catch(InterruptedException | ExecutionException | TimeoutException e){
                         bot.executeAsync(new SystemMessage.MessageBuilder(user)
                                 .serviceNotAvailable().build().getSendMessage());
-                        bot.executeAsync(new SystemMessage.MessageBuilder(new User(botAdmin))
-                                .sendErrorMessage(e.getMessage()).build().getSendMessage());
                     }
                 }
                 else{

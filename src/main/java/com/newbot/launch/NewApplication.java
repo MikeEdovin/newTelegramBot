@@ -1,6 +1,8 @@
 package com.newbot.launch;
 
 import BotPackage.Bot;
+import BotServices.Notifier;
+import BotServices.NotifierImpl;
 import BotServices.Worker;
 import Config.*;
 import org.slf4j.Logger;
@@ -22,6 +24,8 @@ public class NewApplication {
 		Bot bot=context.getBean(Bot.class);
 		Worker worker=context.getBean(Worker.class);
 		bot.add(worker);
+		Notifier notifier=context.getBean(Notifier.class);
+		notifier.gotNotifListUpdate();
 		try {
 			bot.botConnect();
 		}catch (TelegramApiException e){

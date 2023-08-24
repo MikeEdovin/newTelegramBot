@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -17,14 +18,14 @@ public class UserServiceImpl implements UserService {
     @Autowired
     UserRepository repository;
     @Override
-    @Transactional
+    //@Transactional
     @Async
     public CompletableFuture<User> getUserByIdAsync(long userId) {
         logger.info("Requested user with id "+userId+" from DB");
         return CompletableFuture.completedFuture(repository.findById(userId).get());
     }
     @Override
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Async
     public CompletableFuture<User> updateAsync(User user) {
         logger.info("Updated user with id "+user.getUserId());

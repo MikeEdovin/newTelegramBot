@@ -6,6 +6,7 @@ import Commands.Command;
 import Commands.ParsedCommand;
 import Entities.CityData;
 import Entities.User;
+import Entities.WeatherData;
 import GeoWeatherPackage.GeoWeatherProvider;
 import MessageCreator.SystemMessage;
 import Service.UserServiceImpl;
@@ -20,6 +21,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class NewInputState implements State {
     @Autowired
@@ -84,22 +87,44 @@ public class NewInputState implements State {
                 user.setCurrentState(StateEnum.SETTINGS);
             }
         } else {
+            CityData city=cities.get(cityIndex);
+            try {
+                CompletableFuture<WeatherData> futureWeather = geoWeatherProvider
+                        .getWeatherDataAsync(city.getLat(), city.getLon());
+                city.setTimezone(futureWeather.get(5000, TimeUnit.MILLISECONDS).getTimezone());
+            }
+            catch (ExecutionException | InterruptedException | TimeoutException e){
+                logger.warn("exc"+e.getMessage());
+            }
+            user.addCityToLastCitiesList(cities.get(cityIndex));
             if (user.isNotif()) {
                 user.setNotificationCity(cities.get(cityIndex));
                 user.setCurrentState(StateEnum.NOTIF);
-                notifier.gotNotifListUpdate(user);
-                editMessageText.setText("Notifications city was set to "
-                        + cities.get(cityIndex).getName() + ", " + cities.get(cityIndex).getCountry());
+                try {
+                    user=userService.updateAsync(user).get();
+                    notifier.gotNotifListUpdate();
+                    editMessageText.setText("Notifications city was set to "
+                            + cities.get(cityIndex).getName() + ", " + cities.get(cityIndex).getCountry());
+                }
+                catch (ExecutionException|InterruptedException e){
+                    logger.warn("here "+e.getMessage());
+                }
             } else {
                 user.setCurrentCity(cities.get(cityIndex));
                 user.setCurrentState(StateEnum.MAIN);
-                editMessageText.setText("Current city was set to "
-                        + cities.get(cityIndex).getName() + ", " + cities.get(cityIndex).getCountry());
+                try {
+                    user = userService.updateAsync(user).get();
+                    editMessageText.setText("Current city was set to "
+                            + cities.get(cityIndex).getName() + ", " + cities.get(cityIndex).getCountry());
+                }
+                catch (ExecutionException|InterruptedException e){
+                    logger.warn(e.getMessage());
+                }
             }
-            user.addCityToLastCitiesList(cities.get(cityIndex));
+
             logger.info(user.toString());
         }
-        userService.updateAsync(user);
+
         try {
             bot.executeAsync(editMessageText);
             bot.executeAsync(editMessageReplyMarkup);

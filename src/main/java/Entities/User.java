@@ -29,17 +29,20 @@ public class User {
     @ManyToOne
     @JoinColumns({ @JoinColumn(name = "current_city_lat", referencedColumnName = "lat"),
             @JoinColumn(name = "current_city_lon", referencedColumnName = "lon") })
-    @Cascade({CascadeType.PERSIST,CascadeType.MERGE})
+    //@Cascade({CascadeType.PERSIST,CascadeType.MERGE})
+    @Cascade({CascadeType.PERSIST})
     private CityData currentCity;
 
     @ManyToOne
     @JoinColumns({ @JoinColumn(name = "notification_city_lat", referencedColumnName = "lat"),
             @JoinColumn(name = "notification_city_lon", referencedColumnName = "lon") })
-    @Cascade({CascadeType.PERSIST,CascadeType.REFRESH})
+    //@Cascade({CascadeType.PERSIST,CascadeType.MERGE})
+    @Cascade({CascadeType.PERSIST})
     private CityData notificationCity;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @Cascade({CascadeType.PERSIST,CascadeType.REFRESH,CascadeType.DELETE_ORPHAN})
+    @Cascade({CascadeType.MERGE})
+    //@Cascade({CascadeType.PERSIST})
     @JoinTable(name="last_three_cities",joinColumns = @JoinColumn(name="user_id",referencedColumnName = "user_id")
     ,inverseJoinColumns = {@JoinColumn(name="last_three_cities_lat",referencedColumnName = "lat")
             ,@JoinColumn(name="last_three_cities_lon",referencedColumnName = "lon")})
@@ -77,7 +80,6 @@ public class User {
         return false;
     }
 
-
     public void addCityToLastCitiesList(CityData city){
        if(cities.contains(city)){
            return;
@@ -96,6 +98,9 @@ public class User {
                 }
             }
         }
+
+
+
     @Override
     public boolean equals(Object o) {
          if (o instanceof User user) {
