@@ -22,6 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 @Service
 public class NotifierImpl implements Notifier {
     @Autowired
@@ -42,7 +45,7 @@ public class NotifierImpl implements Notifier {
     }
     @Override
     @Async
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(fixedRate = 60000)
     public void sendNotifications() {
         if (usersWithNotifications != null) {
             for (User user : usersWithNotifications) {
@@ -55,19 +58,17 @@ public class NotifierImpl implements Notifier {
                     now=ZonedDateTime.now(ZoneId.systemDefault());
                 }
                 LocalTime notifTime=user.getNotificationTime();
-                logger.info("city "+notificationsCity.getName()+" now "+now.getHour()+" "+now.getMinute()+" notifTime "
-                        +notifTime.getHour()+" "+notifTime.getMinute());
                 if (notifTime.getHour() == now.getHour()
                 &&notifTime.getMinute()==now.getMinute()) {
                     CompletableFuture<WeatherData> futureWeatherData =
                             geoWeatherProvider.getWeatherDataAsync(
                                     notificationsCity.getLat(), notificationsCity.getLon());
                     try {
-                        WeatherData weatherData=futureWeatherData.get();
+                        WeatherData weatherData=futureWeatherData.get(5000, TimeUnit.MILLISECONDS);
                         bot.executeAsync(new SystemMessage.MessageBuilder(user)
                                 .setForecastText(weatherData, notificationsCity, 1).build().getSendMessage());
-                    } catch (TelegramApiException|InterruptedException|ExecutionException e) {
-                        logger.warn(e.getMessage());
+                    } catch (TelegramApiException | InterruptedException | ExecutionException | TimeoutException e) {
+                        logger.warn("exc notifier "+e.getMessage());
                     }
                 }
             }

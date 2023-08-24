@@ -4,6 +4,7 @@ import Commands.Command;
 import Commands.ParsedCommand;
 import Commands.Parser;
 import Entities.User;
+import MessageCreator.SystemMessage;
 import Service.UserService;
 import States.State;
 import States.StateFactory;
@@ -59,6 +60,7 @@ public class WorkerImpl implements Worker {
                 state.gotInput(user, parsedCommand, update);
             }catch (ExecutionException|InterruptedException| TelegramApiException| TimeoutException e){
                 logger.warn("exc gotInput "+e.getMessage());
+                bot.executeAsync(new SystemMessage.MessageBuilder(user).serviceNotAvailable().build().getSendMessage());
             }
         }
         if (update.hasCallbackQuery()) {
@@ -70,6 +72,7 @@ public class WorkerImpl implements Worker {
             }
             catch (ExecutionException|InterruptedException| TelegramApiException| TimeoutException e){
                 logger.warn("exc callback "+e.getMessage());
+                bot.executeAsync(new SystemMessage.MessageBuilder(user).serviceNotAvailable().build().getSendMessage());
             }
         }
     }
