@@ -14,6 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
+
 @Service
 public class WorkerImpl implements Worker {
     @Autowired
@@ -50,13 +55,22 @@ public class WorkerImpl implements Worker {
             if (update.getMessage().hasLocation()) {
                 parsedCommand.setCommand(Command.SEND_LOCATION);
             }
+            try {
                 state.gotInput(user, parsedCommand, update);
+            }catch (ExecutionException|InterruptedException| TelegramApiException| TimeoutException e){
+                logger.warn("exc gotInput "+e.getMessage());
+            }
         }
         if (update.hasCallbackQuery()) {
             long userId = update.getCallbackQuery().getFrom().getId();
             user = userService.getUserByIdAsync(userId).get();
             state = stateFactory.getState(user.getCurrentState());
-            state.gotCallBack(user, update);
+            try {
+                state.gotCallBack(user, update);
+            }
+            catch (ExecutionException|InterruptedException| TelegramApiException| TimeoutException e){
+                logger.warn("exc callback "+e.getMessage());
+            }
         }
     }
 }

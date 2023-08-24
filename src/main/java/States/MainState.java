@@ -28,7 +28,7 @@ public class MainState implements State {
     Bot bot;
     final static Logger logger= LoggerFactory.getLogger(MainState.class);
     @Override
-    public void gotInput(User user, ParsedCommand parsedCommand, Update update) throws TelegramApiException {
+    public void gotInput(User user, ParsedCommand parsedCommand, Update update) throws TelegramApiException, ExecutionException, InterruptedException, TimeoutException {
         Command command=parsedCommand.getCommand();
         logger.info("Got message from user with id "+user.getUserId()+". Command: "+command);
         switch (command){
@@ -54,7 +54,7 @@ public class MainState implements State {
                 if(currentCity!=null) {
                     CompletableFuture<WeatherData> weatherData = geoWeatherProvider
                             .getWeatherDataAsync(currentCity.getLat(), currentCity.getLon());
-                    try {
+
                         WeatherData weather=weatherData.get(5000, TimeUnit.MILLISECONDS);
                         if (currentCity.getTimezone() == null) {
                             currentCity.setTimezone(weather.getTimezone());
@@ -62,11 +62,6 @@ public class MainState implements State {
                         }
                         bot.executeAsync(new SystemMessage.MessageBuilder(user)
                                 .setForecastText(weather, currentCity, nrOfDays).build().getSendMessage());
-                    }catch(InterruptedException | ExecutionException | TimeoutException e){
-                        logger.warn("exc "+e.getMessage());
-                        bot.executeAsync(new SystemMessage.MessageBuilder(user)
-                                .serviceNotAvailable().build().getSendMessage());
-                    }
                 }
                 else{
                     bot.executeAsync(new SystemMessage.MessageBuilder(user)

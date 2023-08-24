@@ -37,19 +37,15 @@ public class NewInputState implements State {
     private List<CityData> cities;
 
     @Override
-    public void gotInput(User user, ParsedCommand parsedCommand, Update update) throws TelegramApiException {
+    public void gotInput(User user, ParsedCommand parsedCommand, Update update) throws TelegramApiException, ExecutionException, InterruptedException {
         Command command = parsedCommand.getCommand();
         logger.info("Got message from user with id "+user.getUserId()+". Command: "+command);
         switch (command) {
             case NONE -> {
-                try {
                     CompletableFuture<CityData[]> futureCities = geoWeatherProvider.getCityDataAsync(parsedCommand.getText());
                     cities = List.of(futureCities.get());
                     bot.executeAsync(new SystemMessage.MessageBuilder(user)
                             .sendInlineCityChoosingKeyboard(cities).build().getSendMessage());
-                }catch(InterruptedException|ExecutionException e){
-                    logger.warn(e.getMessage());
-                }
             }
             case SET_TIME -> bot.executeAsync(new SystemMessage.MessageBuilder(user)
                         .setText(Command.NONE).build().getSendMessage());
@@ -68,7 +64,7 @@ public class NewInputState implements State {
     }
 
     @Override
-    public void gotCallBack(User user, Update update) throws TelegramApiException {
+    public void gotCallBack(User user, Update update) throws TelegramApiException, ExecutionException, InterruptedException, TimeoutException {
         logger.info("got call back "+update.getCallbackQuery().getMessage());
         int cityIndex = Integer.parseInt(update.getCallbackQuery().getData());
         Message message = update.getCallbackQuery().getMessage();
@@ -88,43 +84,25 @@ public class NewInputState implements State {
             }
         } else {
             CityData city=cities.get(cityIndex);
-            try {
-                CompletableFuture<WeatherData> futureWeather = geoWeatherProvider
-                        .getWeatherDataAsync(city.getLat(), city.getLon());
-                city.setTimezone(futureWeather.get(5000, TimeUnit.MILLISECONDS).getTimezone());
-            }
-            catch (ExecutionException | InterruptedException | TimeoutException e){
-                logger.warn("exc"+e.getMessage());
-            }
+            CompletableFuture<WeatherData> futureWeather = geoWeatherProvider
+                    .getWeatherDataAsync(city.getLat(), city.getLon());
+            city.setTimezone(futureWeather.get(5000, TimeUnit.MILLISECONDS).getTimezone());
             user.addCityToLastCitiesList(cities.get(cityIndex));
             if (user.isNotif()) {
                 user.setNotificationCity(cities.get(cityIndex));
                 user.setCurrentState(StateEnum.NOTIF);
-                try {
-                    user=userService.updateAsync(user).get();
-                    notifier.gotNotifListUpdate();
-                    editMessageText.setText("Notifications city was set to "
-                            + cities.get(cityIndex).getName() + ", " + cities.get(cityIndex).getCountry());
-                }
-                catch (ExecutionException|InterruptedException e){
-                    logger.warn("here "+e.getMessage());
-                }
+                user=userService.updateAsync(user).get();
+                notifier.gotNotifListUpdate();
+                editMessageText.setText("Notifications city was set to "
+                        + cities.get(cityIndex).getName() + ", " + cities.get(cityIndex).getCountry());
             } else {
                 user.setCurrentCity(cities.get(cityIndex));
                 user.setCurrentState(StateEnum.MAIN);
-                try {
-                    user = userService.updateAsync(user).get();
-                    editMessageText.setText("Current city was set to "
-                            + cities.get(cityIndex).getName() + ", " + cities.get(cityIndex).getCountry());
-                }
-                catch (ExecutionException|InterruptedException e){
-                    logger.warn(e.getMessage());
-                }
+                user = userService.updateAsync(user).get();
+                editMessageText.setText("Current city was set to "
+                        + cities.get(cityIndex).getName() + ", " + cities.get(cityIndex).getCountry());
             }
-
-            logger.info(user.toString());
         }
-
         try {
             bot.executeAsync(editMessageText);
             bot.executeAsync(editMessageReplyMarkup);
