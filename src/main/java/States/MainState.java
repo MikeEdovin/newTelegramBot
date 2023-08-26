@@ -97,7 +97,6 @@ public class MainState implements State {
                         bot.executeAsync(sendMessage);
                     }
                 }
-
             }
         }
     }
