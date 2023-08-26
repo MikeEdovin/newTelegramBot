@@ -87,9 +87,11 @@ public class MainState implements State {
             }
             case NEW_VERSION -> {
                 if(user.getUserId()==botAdmin){
+                    logger.info("sending new version message ");
                     List<User> users=userService.getAllUsers().get();
-                    SendMessage sendMessage=new SendMessage();
                     for(User u:users){
+                        logger.info("Send message to user with user_id : "+u.getUserId());
+                        SendMessage sendMessage=new SendMessage();
                         sendMessage.setChatId(u.getUserId());
                         sendMessage.setText(versionMessage);
                         bot.executeAsync(sendMessage);
