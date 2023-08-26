@@ -18,7 +18,6 @@ public class UserServiceImpl implements UserService {
     @Autowired
     UserRepository repository;
     @Override
-    //@Transactional
     @Async
     public CompletableFuture<User> getUserByIdAsync(long userId) {
         logger.info("Requested user with id "+userId+" from DB");
@@ -68,6 +67,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Async
     public CompletableFuture<List<User>> getAllUsers() {
         return CompletableFuture.completedFuture((List<User>) repository.findAll());
     }
